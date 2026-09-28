@@ -45,3 +45,15 @@ header a{color:#171717;text-decoration:none;background:#fff;border:1px solid #dd
 .error{margin-top:14px;background:#531b27;color:#fff;padding:14px;border-radius:14px}
 @media(max-width:800px){.pool-summary{grid-template-columns:1fr 1fr}.inventory-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){header,.section-head{align-items:flex-start;flex-direction:column}.summary{grid-template-columns:1fr 1fr}.summary button{grid-column:1/-1}.request{grid-template-columns:1fr}.pool-summary{grid-template-columns:1fr 1fr}}
+
+.sim-section{border-top:1px solid #e2e2e5;padding-top:28px;margin-bottom:34px}
+.sim-inputs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:12px}
+.sim-inputs label{font-size:12px;font-weight:900;color:#666}
+.sim-inputs input{display:block;width:100%;margin-top:7px;border:1px solid #dddfe4;background:#f8f8f9;border-radius:12px;padding:12px;font:inherit;font-size:16px;font-weight:900;color:#171717;outline:none}
+.sim-inputs input:focus{border-color:#7457ff;background:#fff}
+.sim-results{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.sim-results .card small{color:#777;font-weight:800}.sim-results .card b{display:block;font-size:26px;margin-top:5px}
+.profit-card{background:#171717;color:#fff;border-color:#171717}.profit-card small{color:#bbb!important}.profit-card b{color:#dfff62}
+.profit-card.loss b{color:#ff9da9}.sim-message{margin-top:12px;border-radius:14px;padding:13px 15px;background:#eef9d4;font-weight:800;font-size:13px}.sim-message.loss{background:#ffe8eb;color:#8d2635}
+@media(max-width:800px){.sim-inputs{grid-template-columns:1fr 1fr}.sim-results{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.sim-inputs,.sim-results{grid-template-columns:1fr}}
