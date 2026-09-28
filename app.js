@@ -10,7 +10,7 @@ let refreshToken=localStorage.getItem("v261_refresh_token")||"";
 let user=JSON.parse(localStorage.getItem("v261_user")||"null");
 let latest={},cells=[],serverEnergy=0,nextSeconds=0,currentIsland=null,currentMeta=null,mapTimer=null,countTimer=null;
 let debugNumbers=false,lastOpened=new Set(),syncBusy=false;
-let myRecentDigs=new Map();
+let myOwnOpenedCells=new Set();
 
 function fail(e){$("error").hidden=false;$("error").textContent="エラー: "+(e?.message||e);}
 async function req(path,options={},auth=true){
@@ -86,9 +86,9 @@ async function load(silent=false){
  try{
   const d=await req("/rest/v1/treasure_cells?island_id=eq."+encodeURIComponent(currentIsland)+"&select=id,cell_index,opened,opened_at&order=cell_index.asc");
   const next=d||[];
-  const now=Date.now();
-   for(const [idx,ts] of myRecentDigs){if(now-ts>5000)myRecentDigs.delete(idx)}
-   const newlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)&&!myRecentDigs.has(c.cell_index)).map(c=>c.cell_index);
+  const allNewlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)).map(c=>c.cell_index);
+   const newlyOpened=allNewlyOpened.filter(idx=>!myOwnOpenedCells.has(idx));
+   for(const idx of allNewlyOpened)myOwnOpenedCells.delete(idx);
   cells=next;
   lastOpened=new Set(cells.filter(c=>c.opened).map(c=>c.cell_index));
   render();
@@ -174,7 +174,6 @@ function playDigEffect(button, prize){
 }
 
 async function dig(i,b){
- myRecentDigs.set(i,Date.now());
  soundDig();
  if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
@@ -185,6 +184,7 @@ async function dig(i,b){
   if(x.result==="no_energy"){$("message").textContent="⚡ エネルギー切れ";await status();return}
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
+  myOwnOpenedCells.add(i);
   $("wallet").textContent=x.new_balance+"円";b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
   if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
@@ -192,7 +192,7 @@ async function dig(i,b){
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
-$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
+$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();myOwnOpenedCells=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
 $("refresh").onclick=async()=>{try{await Promise.all([status(),loadWinHistory(),loadLatest(),currentIsland?load(true):Promise.resolve()])}catch(e){fail(e)}};
 $("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次を探そう"};
 
