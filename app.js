@@ -126,17 +126,22 @@ $("refresh").onclick=async()=>{try{await Promise.all([status(),history(),loadLat
 $("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次を探そう"};
 
 
+// ===== V34 Safe guest -> existing/new Google migration =====
+const MIGRATION_TOKEN_KEY = "treasure_migration_token_v34";
+const OAUTH_REDIRECT = "https://ishikawahiroto0206-debug.github.io/treasure-click/";
 
-// ===== V33 Guest -> Google identity linking =====
 function parseOAuthSession(){
   const raw = location.hash.startsWith("#") ? location.hash.slice(1) : "";
   if(!raw) return false;
+
   const p = new URLSearchParams(raw);
   const at = p.get("access_token");
   const rt = p.get("refresh_token");
   const err = p.get("error_description") || p.get("error");
+
+  history.replaceState(null, "", location.pathname + location.search);
+
   if(err){
-    history.replaceState(null, "", location.pathname + location.search);
     setTimeout(()=>fail(new Error(decodeURIComponent(err))), 0);
     return false;
   }
@@ -144,23 +149,12 @@ function parseOAuthSession(){
 
   localStorage.setItem("v261_access_token", at);
   if(rt) localStorage.setItem("v261_refresh_token", rt);
-  history.replaceState(null, "", location.pathname + location.search);
-  location.reload();
   return true;
-}
-
-function jwtPayload(token){
-  try{
-    const b = token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
-    return JSON.parse(decodeURIComponent(Array.prototype.map.call(
-      atob(b), c => "%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)
-    ).join("")));
-  }catch(e){ return null; }
 }
 
 function hasGoogleIdentity(u){
   if(!u) return false;
-  if(Array.isArray(u.identities) && u.identities.some(x=>x.provider==="google")) return true;
+  if(Array.isArray(u.identities) && u.identities.some(x => x.provider === "google")) return true;
   const providers = u.app_metadata && u.app_metadata.providers;
   return Array.isArray(providers) && providers.includes("google");
 }
@@ -170,65 +164,109 @@ function updateAccountUI(){
   const btn = document.getElementById("googleLoginBtn");
   if(!state || !btn) return;
 
-  const google = hasGoogleIdentity(user);
-  if(google){
-    const email = user && user.email;
-    state.textContent = email ? `Google連携済み：${email}` : "Google連携済み";
-    btn.textContent = "✓ Google連携済み";
+  if(hasGoogleIdentity(user)){
+    state.textContent = user.email ? `Googleログイン中：${user.email}` : "Googleログイン中";
+    btn.textContent = "✓ Googleログイン済み";
     btn.disabled = true;
   }else{
     state.textContent = user ? `ゲストでプレイ中：${user.id.slice(0,8)}` : "ゲストでプレイ中";
-    btn.textContent = "G Googleと連携";
+    btn.textContent = "G Googleで引き継ぐ";
     btn.disabled = false;
   }
 }
 
-async function linkGoogleIdentity(){
+async function rpc(name, body={}){
+  return await req(`/rest/v1/rpc/${name}`, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify(body)
+  });
+}
+
+async function beginGoogleMigration(){
   const btn = document.getElementById("googleLoginBtn");
   try{
-    if(!accessToken || !user) throw new Error("ゲスト認証の準備ができていません。ページを再読み込みしてください。");
+    if(!accessToken || !user) throw new Error("認証準備中です。ページを再読み込みしてください。");
     if(hasGoogleIdentity(user)) return;
 
     if(btn){
       btn.disabled = true;
-      btn.textContent = "Googleへ接続中…";
+      btn.textContent = "引き継ぎ準備中…";
     }
 
-    const redirectTo = "https://ishikawahiroto0206-debug.github.io/treasure-click/";
+    // Server proves this ticket belongs to the currently authenticated anonymous user.
+    const token = await rpc("create_account_migration_ticket");
+    if(!token || typeof token !== "string"){
+      throw new Error("引き継ぎチケットを作成できませんでした。");
+    }
+    sessionStorage.setItem(MIGRATION_TOKEN_KEY, token);
+
+    // Existing Google accounts must be allowed to sign in, so use normal OAuth sign-in here.
     const q = new URLSearchParams({
       provider: "google",
-      redirect_to: redirectTo,
+      redirect_to: OAUTH_REDIRECT,
       skip_http_redirect: "true"
     });
 
-    const d = await req(`/auth/v1/user/identities/authorize?${q.toString()}`, {
-      method: "GET"
+    const d = await fetch(`${SUPABASE_URL}/auth/v1/authorize?${q.toString()}`, {
+      method: "GET",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Accept": "application/json"
+      }
+    }).then(async r => {
+      const data = await r.json().catch(()=>({}));
+      if(!r.ok) throw new Error(data.msg || data.message || data.error_description || "Google認証を開始できませんでした。");
+      return data;
     });
 
-    if(!d || !d.url) throw new Error("Google連携URLを取得できませんでした。");
+    if(!d || !d.url) throw new Error("Google認証URLを取得できませんでした。");
     location.href = d.url;
   }catch(e){
     if(btn){
       btn.disabled = false;
-      btn.textContent = "G Googleと連携";
+      btn.textContent = "G Googleで引き継ぐ";
     }
     fail(e);
   }
 }
 
+async function finishPendingMigration(){
+  const token = sessionStorage.getItem(MIGRATION_TOKEN_KEY);
+  if(!token || !hasGoogleIdentity(user)) return false;
+
+  try{
+    const result = await rpc("migrate_guest_account", {p_token: token});
+    sessionStorage.removeItem(MIGRATION_TOKEN_KEY);
+
+    const row = Array.isArray(result) ? result[0] : result;
+    const amount = row?.migrated_balance ?? 0;
+    alert(`Googleアカウントへの引き継ぎ完了！\n移行残高：${amount}円`);
+
+    // Refresh wallet/status using the new Google identity.
+    await loadPlayerStatus();
+    return true;
+  }catch(e){
+    // Keep the token so a temporary failure can be retried within its 10-minute lifetime.
+    fail(e);
+    return false;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", ()=>{
-  if(parseOAuthSession()) return;
+  parseOAuthSession();
   const b = document.getElementById("googleLoginBtn");
-  if(b) b.addEventListener("click", linkGoogleIdentity);
+  if(b) b.addEventListener("click", beginGoogleMigration);
 });
 
-// auth() が完了して user を取得した後にも表示を同期
 const originalAuth = auth;
 auth = async function(){
   await originalAuth();
   updateAccountUI();
+  await finishPendingMigration();
+  updateAccountUI();
 };
 
-
-// V33 start
+// V34 start
 auth().then(startCountdown);
+
