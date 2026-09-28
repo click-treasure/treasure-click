@@ -11,6 +11,7 @@ let user=JSON.parse(localStorage.getItem("v261_user")||"null");
 let latest={},cells=[],serverEnergy=0,nextSeconds=0,currentIsland=null,currentMeta=null,mapTimer=null,countTimer=null;
 let debugNumbers=false,lastOpened=new Set(),syncBusy=false;
 let myOwnOpenedCells=new Set();
+let suppressLiveNoticeUntil=0;
 
 function fail(e){$("error").hidden=false;$("error").textContent="エラー: "+(e?.message||e);}
 async function req(path,options={},auth=true){
@@ -87,7 +88,7 @@ async function load(silent=false){
   const d=await req("/rest/v1/treasure_cells?island_id=eq."+encodeURIComponent(currentIsland)+"&select=id,cell_index,opened,opened_at&order=cell_index.asc");
   const next=d||[];
   const allNewlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)).map(c=>c.cell_index);
-   const newlyOpened=allNewlyOpened.filter(idx=>!myOwnOpenedCells.has(idx));
+   const newlyOpened=(Date.now()<suppressLiveNoticeUntil)?[]:allNewlyOpened.filter(idx=>!myOwnOpenedCells.has(idx));
    for(const idx of allNewlyOpened)myOwnOpenedCells.delete(idx);
   cells=next;
   lastOpened=new Set(cells.filter(c=>c.opened).map(c=>c.cell_index));
@@ -153,27 +154,41 @@ function soundHit(){
   v36tone(1320,.22,"sine",.08,.20);
 }
 
-function playDigEffect(button, prize){
+
+function burstConfetti(count=30){
+ const layer=document.createElement("div");layer.className="win-confetti-layer";
+ for(let n=0;n<count;n++){const s=document.createElement("i");s.style.left=(Math.random()*100)+"vw";s.style.setProperty("--dx",((Math.random()-.5)*320)+"px");layer.appendChild(s)}
+ document.body.appendChild(layer);setTimeout(()=>layer.remove(),1700);
+}
+function prizeOverlay(prize){
+ const d=document.createElement("div");
+ d.className="prize-overlay "+(prize>=100?"prize-tier-mega":prize>=10?"prize-tier-big":"prize-tier-small");
+ d.innerHTML=prize>=100?`<div class="prize-kicker">JACKPOT!</div><div class="prize-main">${prize}円！！！</div>`:
+             prize>=10?`<div class="prize-kicker">当たり！</div><div class="prize-main">${prize}円！！！</div>`:
+             `<div class="prize-main">${prize}円 GET!</div>`;
+ document.body.appendChild(d);setTimeout(()=>d.remove(),prize>=10?1450:800);
+}
+function soundBigHit(){v36tone(392,.11,"triangle",.12,0);v36tone(659,.15,"sine",.13,.07);v36tone(988,.22,"sine",.12,.16);v36tone(1319,.30,"sine",.09,.25)}
+function soundMegaHit(){v36tone(330,.14,"square",.09,0);v36tone(523,.18,"triangle",.12,.06);v36tone(784,.24,"sine",.14,.14);v36tone(1047,.32,"sine",.13,.23);v36tone(1568,.42,"sine",.10,.34)}
+function playDigEffect(button,prize){
  if(!button)return;
- button.classList.remove("digging","dig-hit","dig-miss");
- void button.offsetWidth;
- button.classList.add("digging");
+ button.classList.remove("digging","dig-hit","dig-miss");void button.offsetWidth;button.classList.add("digging");
  setTimeout(()=>{
   button.classList.remove("digging");
-  button.classList.add(prize>0?"dig-hit":"dig-miss");
-  if(prize>0)soundHit();else soundMiss();
-  const fx=document.createElement("span");
-  fx.className="dig-fx "+(prize>0?"hit":"miss");
-  fx.textContent=prize>0?`✨ ${prize}円GET!`:"💨 ハズレ";
-  const r=button.getBoundingClientRect();
-  fx.style.left=(r.left+r.width/2)+"px";
-  fx.style.top=(r.top+r.height/2)+"px";
-  document.body.appendChild(fx);
-  setTimeout(()=>fx.remove(),1100);
- },180);
+  if(prize>0){
+   button.classList.add("dig-hit");prizeOverlay(prize);
+   if(prize>=100){soundMegaHit();burstConfetti(70)}
+   else if(prize>=10){soundBigHit();burstConfetti(42)}
+   else soundHit();
+  }else{
+   button.classList.add("dig-miss");soundMiss();
+   const f=document.createElement("span");f.className="dig-float miss";f.textContent="💨 ハズレ";button.appendChild(f);setTimeout(()=>f.remove(),900);
+  }
+ },260);
 }
 
 async function dig(i,b){
+ suppressLiveNoticeUntil=Date.now()+4000;
  soundDig();
  if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
