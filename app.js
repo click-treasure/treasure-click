@@ -105,6 +105,48 @@ function render(){
  $("remaining").textContent=`未探索 ${Math.max(0,total-o)} / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
 }
 
+
+// V36.1 sound effects (Web Audio API; no external audio files)
+let v36AudioCtx=null;
+function v36ctx(){
+  if(!v36AudioCtx){
+    const AC=window.AudioContext||window.webkitAudioContext;
+    if(!AC)return null;
+    v36AudioCtx=new AC();
+  }
+  if(v36AudioCtx.state==="suspended")v36AudioCtx.resume();
+  return v36AudioCtx;
+}
+function v36tone(freq,duration,type="sine",gain=.055,delay=0){
+  const c=v36ctx(); if(!c)return;
+  const o=c.createOscillator(), g=c.createGain();
+  o.type=type;o.frequency.value=freq;
+  const t=c.currentTime+delay;
+  g.gain.setValueAtTime(.0001,t);
+  g.gain.exponentialRampToValueAtTime(gain,t+.012);
+  g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+  o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03);
+}
+function soundDig(){
+  const c=v36ctx(); if(!c)return;
+  // short earthy "zaku" noise
+  const n=Math.floor(c.sampleRate*.11),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);
+  for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
+  const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
+  f.type="lowpass";f.frequency.value=900;g.gain.value=.075;
+  s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);s.start();
+  v36tone(135,.08,"triangle",.035,.02);
+}
+function soundMiss(){
+  v36tone(170,.11,"triangle",.035,0);
+  v36tone(120,.14,"triangle",.025,.08);
+}
+function soundHit(){
+  v36tone(660,.13,"sine",.05,0);
+  v36tone(880,.16,"sine",.055,.10);
+  v36tone(1320,.22,"sine",.045,.20);
+}
+
 function playDigEffect(button, prize){
  if(!button)return;
  button.classList.remove("digging","dig-hit","dig-miss");
@@ -113,6 +155,7 @@ function playDigEffect(button, prize){
  setTimeout(()=>{
   button.classList.remove("digging");
   button.classList.add(prize>0?"dig-hit":"dig-miss");
+  if(prize>0)soundHit();else soundMiss();
   const fx=document.createElement("span");
   fx.className="dig-fx "+(prize>0?"hit":"miss");
   fx.textContent=prize>0?`✨ ${prize}円GET!`:"💨 ハズレ";
@@ -125,6 +168,7 @@ function playDigEffect(button, prize){
 }
 
 async function dig(i,b){
+ soundDig();
  if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
  try{
