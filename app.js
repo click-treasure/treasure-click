@@ -74,6 +74,7 @@ async function loadWinHistory(){
 async function openIsland(x){
  if(x.island_status!=="active")return;
  currentIsland=x.island_id;currentMeta=x;cells=[];lastOpened=new Set();
+ $("game").classList.remove("diff-easy","diff-normal","diff-hard");$("game").classList.add("diff-"+x.difficulty);
  $("islandSelect").hidden=true;$("game").hidden=false;
  $("islandName").textContent=`${META[x.difficulty].emoji} ${META[x.difficulty].name} #${x.generation}`;
  $("islandState").textContent="🟢 探索中";$("islandState").classList.remove("finished");
@@ -103,7 +104,10 @@ async function load(silent=false){
 function render(){
  if(!currentMeta)return;$("map").innerHTML="";
  for(const c of cells){
-  const b=document.createElement("button");b.className="cell"+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="マス "+c.cell_index;if(debugNumbers)b.textContent=c.cell_index;b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
+  const b=document.createElement("button");
+   const terrain=(currentMeta&&currentMeta.difficulty==="easy")?(c.cell_index%11===0?" grass":c.cell_index%17===0?" shell":" sand"):"";
+   b.className="cell"+terrain+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="マス "+c.cell_index;
+   if(debugNumbers)b.textContent=c.cell_index;b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
  }
  const total=currentMeta.total_cells,o=cells.filter(c=>c.opened).length;
  $("remaining").textContent=`未探索 ${Math.max(0,total-o)} / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
@@ -206,7 +210,9 @@ function playDigEffect(button,prize){
  setTimeout(()=>{
   button.classList.remove("digging");
   if(prize>0){
-   button.classList.add("dig-hit");if(prize<10)prizeOverlay(prize);
+   button.classList.add("dig-hit");
+   if(currentMeta&&currentMeta.difficulty==="easy"){const loot=document.createElement("span");loot.className="tile-loot "+(prize>=100?"loot-gold":prize>=10?"loot-chest":"loot-coin");loot.textContent=prize>=100?"👑":prize>=10?"🧰":"🪙";button.appendChild(loot);}
+   if(prize<10)prizeOverlay(prize);
    if(prize>=10){
      const currentOverlay=document.querySelector(".prize-overlay");if(currentOverlay)currentOverlay.remove();
      originalJackpot10(prize);
