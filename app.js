@@ -96,7 +96,7 @@ async function auth(){
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
-  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus()]);
+  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
  }catch(e){fail(e);$("session").textContent="認証エラー";}
 }
 let bonusTaps=0;
@@ -158,6 +158,48 @@ async function prepareBonusTapIfNeeded(){
  if(x?.success){bonusTaps=Number(x.bonus_taps||0);serverEnergy=Math.min(21,Number(serverEnergy||0)+1);paintEnergy();if(loginBonusState){loginBonusState.bonus_taps=bonusTaps;paintLoginBonus()}return true}
  return false;
 }
+
+
+// V58 — daily missions
+let dailyMissionState=null;
+const DAILY_MISSIONS=[
+ {id:"dig5",icon:"🎁",title:"宝箱を5回開ける",reward:2,target:5,kind:"digs",claim:"claim_5"},
+ {id:"islands2",icon:"🗺️",title:"2種類の島を探索する",reward:3,target:2,kind:"islands",claim:"claim_2_islands"},
+ {id:"dig15",icon:"🎯",title:"宝箱を15回開ける",reward:5,target:15,kind:"digs",claim:"claim_15"}
+];
+async function loadDailyMissions(){
+ try{
+  const d=await req("/rest/v1/rpc/get_daily_missions",{method:"POST",body:"{}"});
+  dailyMissionState=Array.isArray(d)?d[0]:d;paintDailyMissions();
+ }catch(e){console.error("daily missions:",e)}
+}
+function paintDailyMissions(){
+ const list=$("dailyMissionList"), summary=$("dailyMissionSummary"), allBtn=$("dailyAllClaim");
+ if(!list||!dailyMissionState)return;
+ const x=dailyMissionState;
+ let cleared=0;
+ list.innerHTML=DAILY_MISSIONS.map(m=>{
+  const value=Math.min(m.target,Number(x[m.kind]||0));const ready=value>=m.target;const claimed=!!x[m.claim];if(claimed)cleared++;
+  const label=claimed?"✓ 受取済み":ready?`+${m.reward}回 受取`:`${value}/${m.target}`;
+  return `<div class="daily-mission-row ${claimed?'done':''}"><span class="daily-mission-icon">${m.icon}</span><div class="daily-mission-copy"><b>${m.title}</b><small>${value}/${m.target} ・ 報酬 +${m.reward}回</small><div class="daily-mission-progress"><i style="width:${Math.round(value/m.target*100)}%"></i></div></div><button type="button" data-mission="${m.id}" class="${ready&&!claimed?'ready':''}" ${ready&&!claimed?'':'disabled'}>${label}</button></div>`;
+ }).join("");
+ summary.textContent=`${cleared} / 3`;
+ const allReady=!!x.claim_5&&!!x.claim_2_islands&&!!x.claim_15;
+ allBtn.disabled=!allReady||!!x.claim_all;allBtn.classList.toggle("ready",allReady&&!x.claim_all);allBtn.textContent=x.claim_all?"✓ 受取済み":allReady?"+5回 受取":"未達成";
+ allBtn.closest('.daily-all-clear')?.classList.toggle('claimed',!!x.claim_all);
+}
+async function recordDailyDig(){
+ try{const difficulty=String(currentMeta?.difficulty||"").toLowerCase();if(!difficulty)return;await req("/rest/v1/rpc/record_daily_dig",{method:"POST",body:JSON.stringify({p_difficulty:difficulty})});await loadDailyMissions()}catch(e){console.warn("daily dig record:",e)}
+}
+async function claimDailyMission(id){
+ try{
+  const d=await req("/rest/v1/rpc/claim_daily_mission",{method:"POST",body:JSON.stringify({p_mission:id})});const x=Array.isArray(d)?d[0]:d;
+  if(x?.success){soundLoginBonus();animateLoginBonusGain(Number(x.reward||0));await Promise.all([status(),loadLoginBonus(),loadDailyMissions()]);$("message").textContent=`🎯 ミッション報酬 +${x.reward}回GET！`;}
+  else await loadDailyMissions();
+ }catch(e){fail(e);await loadDailyMissions()}
+}
+document.getElementById("dailyMissionList")?.addEventListener("click",e=>{const b=e.target.closest("button[data-mission]");if(b&&!b.disabled)claimDailyMission(b.dataset.mission)});
+document.getElementById("dailyAllClaim")?.addEventListener("click",e=>{if(!e.currentTarget.disabled)claimDailyMission("all")});
 
 async function status(){
  const d=await req("/rest/v1/rpc/get_player_status",{method:"POST",body:"{}"});
@@ -414,6 +456,7 @@ async function dig(i,b){
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
   myOwnOpenedCells.add(i);
+  await recordDailyDig();
   $("wallet").textContent=x.new_balance+"円";
   if(Number(x.prize||0)>0) animateWalletGain(Number(x.prize||0));
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
