@@ -674,22 +674,37 @@ auth().then(startCountdown);
   },100);
 })();
 
-// V52 — show the admin shortcut only when the signed-in account is an app admin.
+// V55 — reliable admin shortcut. Hidden unless is_app_admin() explicitly confirms this account.
 (function(){
-  async function showAdminShortcut(){
-    if(!user?.id)return;
+  function adminResultIsTrue(result){
+    if(result===true || result==='true') return true;
+    if(Array.isArray(result)){
+      if(result.length===0) return false;
+      const v=result[0];
+      if(v===true || v==='true') return true;
+      if(v && typeof v==='object') return Object.values(v).some(x=>x===true || x==='true');
+    }
+    if(result && typeof result==='object') return Object.values(result).some(x=>x===true || x==='true');
+    return false;
+  }
+  async function refreshAdminShortcut(){
+    const a=document.getElementById('adminShortcut');
+    if(!a || !user?.id || !accessToken) return;
+    a.hidden=true;
     try{
       const result=await req('/rest/v1/rpc/is_app_admin',{method:'POST',body:'{}'});
-      const isAdmin=Array.isArray(result)?result[0]===true:result===true;
-      if(!isAdmin)return;
-      const account=document.querySelector('.account-panel');
-      if(!account||document.getElementById('adminShortcut'))return;
-      const a=document.createElement('a');
-      a.id='adminShortcut';a.className='admin-shortcut';a.href='admin.html';a.textContent='⚙ 管理画面';
-      const btn=document.getElementById('googleLoginBtn');
-      if(btn?.parentNode===account)account.insertBefore(a,btn);else account.appendChild(a);
-    }catch(e){console.debug('admin shortcut hidden',e)}
+      if(adminResultIsTrue(result)) a.hidden=false;
+    }catch(e){
+      console.error('admin shortcut check:',e);
+      a.hidden=true;
+    }
   }
-  const timer=setInterval(()=>{if(user?.id){clearInterval(timer);showAdminShortcut()}},100);
-  setTimeout(()=>clearInterval(timer),10000);
+  let tries=0;
+  const timer=setInterval(()=>{
+    tries++;
+    if(user?.id && accessToken){clearInterval(timer);setTimeout(refreshAdminShortcut,300)}
+    else if(tries>=100) clearInterval(timer);
+  },100);
+  window.refreshAdminShortcut=refreshAdminShortcut;
 })();
+\n\n// V56 — compact accordion history launchers.\n(function(){\n  const wrap=document.getElementById('historyAccordionV56');\n  const winBtn=document.getElementById('winHistoryToggle');\n  const redeemBtn=document.getElementById('redeemHistoryToggle');\n  const winPanel=document.getElementById('winHistoryPanelV56');\n  const redeemPanel=document.getElementById('redeemHistoryPanelV56');\n  if(!wrap||!winBtn||!redeemBtn||!winPanel||!redeemPanel)return;\n\n  function closeAll(){\n    wrap.hidden=true; winPanel.hidden=true; redeemPanel.hidden=true;\n    winBtn.setAttribute('aria-expanded','false'); redeemBtn.setAttribute('aria-expanded','false');\n  }\n  function toggle(which){\n    const btn=which==='win'?winBtn:redeemBtn;\n    const panel=which==='win'?winPanel:redeemPanel;\n    const wasOpen=btn.getAttribute('aria-expanded')==='true';\n    closeAll();\n    if(wasOpen)return;\n    wrap.hidden=false; panel.hidden=false; btn.setAttribute('aria-expanded','true');\n    if(which==='redeem' && typeof window.loadRedemptionHistory==='function') window.loadRedemptionHistory();\n  }\n  winBtn.addEventListener('click',()=>toggle('win'));\n  redeemBtn.addEventListener('click',()=>toggle('redeem'));\n  closeAll();\n})();\n
