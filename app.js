@@ -441,12 +441,26 @@ async function beginGoogleMigration(){
       btn.textContent = "引き継ぎ準備中…";
     }
 
-    // Server proves this ticket belongs to the currently authenticated anonymous user.
-    const token = await rpc("create_account_migration_ticket");
-    if(!token || typeof token !== "string"){
-      throw new Error("引き継ぎチケットを作成できませんでした。");
+    // If this is a brand-new empty guest, there is nothing to migrate.
+    // Go straight to Google OAuth so an existing Google account can be restored immediately.
+    const walletText = document.getElementById("wallet")?.textContent || "0";
+    const winsText = document.getElementById("wins")?.textContent || "0";
+    const guestBalance = Number(walletText.replace(/[^0-9-]/g, "")) || 0;
+    const guestWins = Number(winsText.replace(/[^0-9-]/g, "")) || 0;
+
+    if(guestBalance > 0 || guestWins > 0){
+      // Only create a migration ticket when the guest actually has progress to preserve.
+      const token = await Promise.race([
+        rpc("create_account_migration_ticket"),
+        new Promise((_, reject)=>setTimeout(()=>reject(new Error("引き継ぎ準備がタイムアウトしました。もう一度お試しください。")), 8000))
+      ]);
+      if(!token || typeof token !== "string"){
+        throw new Error("引き継ぎチケットを作成できませんでした。");
+      }
+      localStorage.setItem(MIGRATION_TOKEN_KEY, token);
+    }else{
+      localStorage.removeItem(MIGRATION_TOKEN_KEY);
     }
-    localStorage.setItem(MIGRATION_TOKEN_KEY, token);
 
     // Existing Google accounts must be allowed to sign in, so use normal OAuth sign-in here.
     const q = new URLSearchParams({
