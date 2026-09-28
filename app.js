@@ -104,6 +104,26 @@ function render(){
  const total=currentMeta.total_cells,o=cells.filter(c=>c.opened).length;
  $("remaining").textContent=`未探索 ${Math.max(0,total-o)} / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
 }
+
+function playDigEffect(button, prize){
+ if(!button)return;
+ button.classList.remove("digging","dig-hit","dig-miss");
+ void button.offsetWidth;
+ button.classList.add("digging");
+ setTimeout(()=>{
+  button.classList.remove("digging");
+  button.classList.add(prize>0?"dig-hit":"dig-miss");
+  const fx=document.createElement("span");
+  fx.className="dig-fx "+(prize>0?"hit":"miss");
+  fx.textContent=prize>0?`✨ ${prize}円GET!`:"💨 ハズレ";
+  const r=button.getBoundingClientRect();
+  fx.style.left=(r.left+r.width/2)+"px";
+  fx.style.top=(r.top+r.height/2)+"px";
+  document.body.appendChild(fx);
+  setTimeout(()=>fx.remove(),1100);
+ },180);
+}
+
 async function dig(i,b){
  if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
@@ -114,8 +134,8 @@ async function dig(i,b){
   if(x.result==="no_energy"){$("message").textContent="⚡ エネルギー切れ";await status();return}
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
-  $("wallet").textContent=x.new_balance+"円";b.classList.add("mine");
-  if(x.prize>0){$("amount").textContent=x.prize+"円";$("overlay").hidden=false}else $("message").textContent="ざんねん！宝なし";
+  $("wallet").textContent=x.new_balance+"円";b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
+  if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
   await Promise.all([load(true),loadWinHistory(),status(),loadLatest()]);
  }catch(e){fail(e);b.disabled=false}

@@ -64,3 +64,45 @@
 #map.show-numbers .cell.opened{color:#f4e8d7}
 #map.show-numbers .cell::after{display:none}
 @media(max-width:650px){.island-bar{flex-wrap:wrap}.island-tools{margin-left:auto}#debugNumbers{font-size:10px;padding:6px 8px}#map.show-numbers .cell{font-size:10px}}
+
+
+/* V36: digging feedback — visual only */
+.cell{transition:transform .14s ease,filter .18s ease,box-shadow .18s ease}
+.cell.digging{animation:v36dig .36s ease both;filter:brightness(1.12)}
+.cell.dig-hit{animation:v36hit .72s cubic-bezier(.2,1.5,.4,1)}
+.cell.dig-miss{animation:v36miss .48s ease}
+@keyframes v36dig{
+  0%{transform:translateY(0) rotate(0)}
+  35%{transform:translateY(4px) rotate(-5deg) scale(.9)}
+  70%{transform:translateY(-3px) rotate(4deg) scale(1.04)}
+  100%{transform:translateY(0) rotate(0)}
+}
+@keyframes v36hit{
+  0%{box-shadow:0 0 0 0 rgba(255,230,110,.95)}
+  45%{transform:scale(1.2);filter:brightness(1.5)}
+  100%{box-shadow:0 0 0 25px rgba(255,230,110,0);transform:scale(1)}
+}
+@keyframes v36miss{
+  0%,100%{transform:translateX(0);filter:brightness(1)}
+  25%{transform:translateX(-4px);filter:brightness(.75)}
+  50%{transform:translateX(4px)}
+  75%{transform:translateX(-2px)}
+}
+.dig-fx{
+  position:fixed;z-index:40;pointer-events:none;
+  transform:translate(-50%,-50%);
+  font-weight:1000;white-space:nowrap;
+  text-shadow:0 2px 10px rgba(0,0,0,.7);
+  animation:v36float 1.05s ease-out forwards;
+}
+.dig-fx.hit{font-size:clamp(20px,3vw,34px);color:#ffe66e}
+.dig-fx.miss{font-size:16px;color:#e9f0f3}
+@keyframes v36float{
+  0%{opacity:0;transform:translate(-50%,-20%) scale(.55)}
+  18%{opacity:1;transform:translate(-50%,-70%) scale(1.12)}
+  70%{opacity:1;transform:translate(-50%,-125%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-165%) scale(.92)}
+}
+@media (prefers-reduced-motion:reduce){
+ .cell.digging,.cell.dig-hit,.cell.dig-miss,.dig-fx{animation-duration:.01ms!important}
+}
