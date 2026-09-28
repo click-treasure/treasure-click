@@ -9,6 +9,7 @@ let accessToken=localStorage.getItem("v261_access_token")||"";
 let refreshToken=localStorage.getItem("v261_refresh_token")||"";
 let user=JSON.parse(localStorage.getItem("v261_user")||"null");
 let latest={},cells=[],serverEnergy=0,nextSeconds=0,currentIsland=null,currentMeta=null,mapTimer=null,countTimer=null;
+let debugNumbers=false,lastOpened=new Set(),syncBusy=false;
 
 function fail(e){$("error").hidden=false;$("error").textContent="エラー: "+(e?.message||e);}
 async function req(path,options={},auth=true){
@@ -70,25 +71,35 @@ async function history(){
 }
 async function openIsland(x){
  if(x.island_status!=="active")return;
- currentIsland=x.island_id;currentMeta=x;cells=[];
+ currentIsland=x.island_id;currentMeta=x;cells=[];lastOpened=new Set();
  $("islandSelect").hidden=true;$("game").hidden=false;
  $("islandName").textContent=`${META[x.difficulty].emoji} ${META[x.difficulty].name} #${x.generation}`;
  $("islandState").textContent="🟢 探索中";$("islandState").classList.remove("finished");
  $("message").textContent="島に接続中…";
  await Promise.all([load(),status()]);
- if(mapTimer)clearInterval(mapTimer);mapTimer=setInterval(()=>load(true),1500);
+ if(mapTimer)clearInterval(mapTimer);mapTimer=setInterval(()=>load(true),1000);
 }
 async function load(silent=false){
- if(!currentIsland)return;
+ if(!currentIsland||syncBusy)return;
+ syncBusy=true;
  try{
   const d=await req("/rest/v1/treasure_cells?island_id=eq."+encodeURIComponent(currentIsland)+"&select=id,cell_index,opened,opened_at&order=cell_index.asc");
-  cells=d||[];render();if(!silent)$("message").textContent="接続成功！最新世代の島を探索中";
+  const next=d||[];
+  const newlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)).map(c=>c.cell_index);
+  cells=next;
+  lastOpened=new Set(cells.filter(c=>c.opened).map(c=>c.cell_index));
+  render();
+  if(!silent)$("message").textContent="🟢 LIVE同期中：他のプレイヤーの掘削も自動反映";
+  else if(newlyOpened.length&&currentIsland){
+    $("message").textContent=`👥 他のプレイヤーが ${newlyOpened.length} マス掘った！`;
+  }
  }catch(e){fail(e)}
+ finally{syncBusy=false}
 }
 function render(){
  if(!currentMeta)return;$("map").innerHTML="";
  for(const c of cells){
-  const b=document.createElement("button");b.className="cell"+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="マス "+c.cell_index;b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
+  const b=document.createElement("button");b.className="cell"+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="マス "+c.cell_index;if(debugNumbers)b.textContent=c.cell_index;b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
  }
  const total=currentMeta.total_cells,o=cells.filter(c=>c.opened).length;
  $("remaining").textContent=`未探索 ${Math.max(0,total-o)} / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
@@ -109,7 +120,115 @@ async function dig(i,b){
   await Promise.all([load(true),history(),status(),loadLatest()]);
  }catch(e){fail(e);b.disabled=false}
 }
-$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
+$("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
+$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
 $("refresh").onclick=async()=>{try{await Promise.all([status(),history(),loadLatest(),currentIsland?load(true):Promise.resolve()])}catch(e){fail(e)}};
 $("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次を探そう"};
+
+
+
+// ===== V33 Guest -> Google identity linking =====
+function parseOAuthSession(){
+  const raw = location.hash.startsWith("#") ? location.hash.slice(1) : "";
+  if(!raw) return false;
+  const p = new URLSearchParams(raw);
+  const at = p.get("access_token");
+  const rt = p.get("refresh_token");
+  const err = p.get("error_description") || p.get("error");
+  if(err){
+    history.replaceState(null, "", location.pathname + location.search);
+    setTimeout(()=>fail(new Error(decodeURIComponent(err))), 0);
+    return false;
+  }
+  if(!at) return false;
+
+  localStorage.setItem("v261_access_token", at);
+  if(rt) localStorage.setItem("v261_refresh_token", rt);
+  history.replaceState(null, "", location.pathname + location.search);
+  location.reload();
+  return true;
+}
+
+function jwtPayload(token){
+  try{
+    const b = token.split(".")[1].replace(/-/g,"+").replace(/_/g,"/");
+    return JSON.parse(decodeURIComponent(Array.prototype.map.call(
+      atob(b), c => "%"+("00"+c.charCodeAt(0).toString(16)).slice(-2)
+    ).join("")));
+  }catch(e){ return null; }
+}
+
+function hasGoogleIdentity(u){
+  if(!u) return false;
+  if(Array.isArray(u.identities) && u.identities.some(x=>x.provider==="google")) return true;
+  const providers = u.app_metadata && u.app_metadata.providers;
+  return Array.isArray(providers) && providers.includes("google");
+}
+
+function updateAccountUI(){
+  const state = document.getElementById("accountState");
+  const btn = document.getElementById("googleLoginBtn");
+  if(!state || !btn) return;
+
+  const google = hasGoogleIdentity(user);
+  if(google){
+    const email = user && user.email;
+    state.textContent = email ? `Google連携済み：${email}` : "Google連携済み";
+    btn.textContent = "✓ Google連携済み";
+    btn.disabled = true;
+  }else{
+    state.textContent = user ? `ゲストでプレイ中：${user.id.slice(0,8)}` : "ゲストでプレイ中";
+    btn.textContent = "G Googleと連携";
+    btn.disabled = false;
+  }
+}
+
+async function linkGoogleIdentity(){
+  const btn = document.getElementById("googleLoginBtn");
+  try{
+    if(!accessToken || !user) throw new Error("ゲスト認証の準備ができていません。ページを再読み込みしてください。");
+    if(hasGoogleIdentity(user)) return;
+
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "Googleへ接続中…";
+    }
+
+    const redirectTo = "https://ishikawahiroto0206-debug.github.io/treasure-click/";
+    const q = new URLSearchParams({
+      provider: "google",
+      redirect_to: redirectTo,
+      skip_http_redirect: "true"
+    });
+
+    const d = await req(`/auth/v1/user/identities/authorize?${q.toString()}`, {
+      method: "GET"
+    });
+
+    if(!d || !d.url) throw new Error("Google連携URLを取得できませんでした。");
+    location.href = d.url;
+  }catch(e){
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = "G Googleと連携";
+    }
+    fail(e);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", ()=>{
+  if(parseOAuthSession()) return;
+  const b = document.getElementById("googleLoginBtn");
+  if(b) b.addEventListener("click", linkGoogleIdentity);
+});
+
+// auth() が完了して user を取得した後にも表示を同期
+const originalAuth = auth;
+auth = async function(){
+  await originalAuth();
+  updateAccountUI();
+};
+
+
+// V33 start
 auth().then(startCountdown);
