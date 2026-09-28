@@ -243,3 +243,12 @@ main{max-width:980px;padding:20px 22px 50px}
 @keyframes v41Title{0%{opacity:0;transform:scale(.28)}55%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
 @keyframes v41Coin{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),70vh) scale(1.25) rotate(var(--r))}}
 @keyframes v41Fade{to{opacity:0}}
+
+/* Developer prize tester */
+.dev-prize-tester{position:fixed;right:14px;bottom:14px;z-index:100000;font-family:inherit}
+.dev-toggle{border:0;border-radius:999px;padding:10px 14px;background:#202020;color:#fff;font-weight:800;box-shadow:0 5px 18px #0003;cursor:pointer}
+.dev-buttons{margin-top:8px;padding:10px;background:#fff;border:1px solid #ddd;border-radius:16px;box-shadow:0 8px 28px #0003;display:grid;grid-template-columns:repeat(2,1fr);gap:7px;min-width:190px}
+.dev-buttons[hidden]{display:none!important}
+.dev-buttons button{border:0;border-radius:10px;padding:10px 8px;background:#f4efe6;font-weight:900;cursor:pointer}
+.dev-buttons button[data-test-prize="500"]{background:#202020;color:#ffd54a}
+.dev-buttons small{grid-column:1/-1;font-size:10px;line-height:1.35;color:#777}

@@ -486,3 +486,31 @@ auth().then(startCountdown);
     refreshRewardHome();
   });
 })();
+
+// Developer-only visual prize tester. No Supabase writes.
+(function(){
+  const toggle=document.getElementById("devToggle");
+  const box=document.getElementById("devButtons");
+  if(!toggle||!box)return;
+  toggle.addEventListener("click",()=>{box.hidden=!box.hidden;});
+  box.querySelectorAll("[data-test-prize]").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const prize=Number(btn.dataset.testPrize);
+      try{
+        if(prize===500){
+          v41Jackpot500();
+        }else if(prize>=10){
+          const currentOverlay=document.querySelector(".prize-overlay");
+          if(currentOverlay)currentOverlay.remove();
+          originalJackpot10(prize);
+        }else{
+          prizeOverlay(prize);
+          soundHit();
+        }
+      }catch(e){
+        console.error("Prize test failed:",e);
+        alert("演出テストでエラーが出ました。Consoleを確認してください。");
+      }
+    });
+  });
+})();
