@@ -30,7 +30,7 @@ async function auth(){
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
-  await Promise.all([status(),history(),loadLatest()]);
+  await Promise.all([status(),loadWinHistory(),loadLatest()]);
  }catch(e){fail(e);$("session").textContent="認証エラー";}
 }
 async function status(){
@@ -64,7 +64,7 @@ function renderCards(){
   b.onclick=()=>openIsland(x);box.appendChild(b);
  });
 }
-async function history(){
+async function loadWinHistory(){
  const d=await req("/rest/v1/treasure_wins?user_id=eq."+encodeURIComponent(user.id)+"&select=prize,cell_index,island_id,won_at&order=won_at.desc&limit=10");
  $("wins").textContent=(d?.length||0)+"回";
  $("history").innerHTML=d?.length?d.map(x=>`<div class="row"><span>${x.island_id}・マス ${x.cell_index}</span><strong>+${x.prize}円</strong></div>`).join(""):"まだ獲得履歴はありません";
@@ -117,12 +117,12 @@ async function dig(i,b){
   $("wallet").textContent=x.new_balance+"円";b.classList.add("mine");
   if(x.prize>0){$("amount").textContent=x.prize+"円";$("overlay").hidden=false}else $("message").textContent="ざんねん！宝なし";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
-  await Promise.all([load(true),history(),status(),loadLatest()]);
+  await Promise.all([load(true),loadWinHistory(),status(),loadLatest()]);
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
 $("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
-$("refresh").onclick=async()=>{try{await Promise.all([status(),history(),loadLatest(),currentIsland?load(true):Promise.resolve()])}catch(e){fail(e)}};
+$("refresh").onclick=async()=>{try{await Promise.all([status(),loadWinHistory(),loadLatest(),currentIsland?load(true):Promise.resolve()])}catch(e){fail(e)}};
 $("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次を探そう"};
 
 
@@ -259,4 +259,3 @@ auth = async function(){
 
 // V34 start
 auth().then(startCountdown);
-
