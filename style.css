@@ -211,3 +211,35 @@ main{max-width:980px;padding:20px 22px 50px}
  #game .island-bar{gap:8px!important}
  #game .island-bar strong{font-size:18px!important}
 }
+
+/* V41 spacing refinement */
+#game #map{gap:30px 24px!important;padding:34px 30px!important;max-width:960px!important}
+#game .cell.chest{min-width:0!important}
+@media(max-width:760px){
+ #game #map{gap:22px 15px!important;padding:20px 14px!important}
+}
+
+/* V41 500-yen blackout jackpot */
+.v41-jackpot[hidden]{display:none!important}
+.v41-jackpot{position:fixed;inset:0;z-index:99999;display:grid;place-items:center;overflow:hidden;pointer-events:none}
+.v41-blackout{position:absolute;inset:0;background:#000;opacity:1}
+.v41-goldburst{position:absolute;inset:-30%;opacity:0;transform:scale(.25);background:
+ repeating-conic-gradient(from 0deg,rgba(255,205,54,.98) 0 4deg,transparent 4deg 11deg);
+ filter:blur(1px)}
+.v41-jackpot-content{position:relative;z-index:3;text-align:center;opacity:0;transform:scale(.35);filter:drop-shadow(0 8px 18px #000)}
+.v41-jackpot-kicker{font-size:clamp(42px,8vw,100px);font-weight:1000;letter-spacing:.08em;color:#fff0a2;text-shadow:0 0 8px #fff,0 0 24px #ffb000,0 0 60px #ff6a00}
+.v41-jackpot-money{font-size:clamp(78px,16vw,190px);line-height:.9;font-weight:1000;color:#ffd43b;text-shadow:0 5px 0 #a95900,0 0 20px #fff1a0,0 0 65px #ff9d00}
+.v41-jackpot-money small{font-size:.28em;margin-left:.12em;color:#fff0a2}
+.v41-jackpot-sub{margin-top:18px;color:#fff;font-size:clamp(16px,2.5vw,28px);font-weight:900;letter-spacing:.22em}
+.v41-jackpot.reveal .v41-blackout{animation:v41Black .55s ease forwards}
+.v41-jackpot.reveal .v41-goldburst{animation:v41Burst .75s cubic-bezier(.16,.8,.25,1) forwards}
+.v41-jackpot.reveal .v41-jackpot-content{animation:v41Title .62s cubic-bezier(.15,.9,.22,1.3) forwards}
+.v41-coins{position:absolute;left:50%;top:50%;z-index:4}
+.v41-coins i{position:absolute;font-style:normal;color:#ffd23f;font-size:22px;opacity:0;text-shadow:0 2px 0 #9b5c00}
+.v41-jackpot.reveal .v41-coins i{animation:v41Coin 1.55s var(--d) cubic-bezier(.15,.7,.2,1) forwards}
+.v41-jackpot.finish{animation:v41Fade .5s ease forwards}
+@keyframes v41Black{0%{background:#000}35%{background:#000}100%{background:radial-gradient(circle,#7b4300,#120800 72%,#000)}}
+@keyframes v41Burst{0%{opacity:0;transform:scale(.15) rotate(0)}35%{opacity:1}100%{opacity:.7;transform:scale(1) rotate(15deg)}}
+@keyframes v41Title{0%{opacity:0;transform:scale(.28)}55%{opacity:1;transform:scale(1.18)}100%{opacity:1;transform:scale(1)}}
+@keyframes v41Coin{0%{opacity:0;transform:translate(0,0) scale(.2) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--x),70vh) scale(1.25) rotate(var(--r))}}
+@keyframes v41Fade{to{opacity:0}}

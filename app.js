@@ -1,3 +1,36 @@
+
+// V41: 500-yen special "puchun -> blackout -> jackpot" sequence.
+function v41Jackpot500(){
+ const root=document.getElementById("v41Jackpot"), coins=document.getElementById("v41Coins");
+ if(!root)return;
+ // Tiny cut-off sound: intentionally abrupt before silence.
+ try{
+   const c=v36ctx();
+   if(c){
+     const o=c.createOscillator(),g=c.createGain(),t=c.currentTime;
+     o.type="square";o.frequency.setValueAtTime(760,t);o.frequency.exponentialRampToValueAtTime(95,t+.09);
+     g.gain.setValueAtTime(.08,t);g.gain.exponentialRampToValueAtTime(.001,t+.1);
+     o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.11);
+   }
+ }catch(_){}
+ root.hidden=false;root.classList.remove("reveal","finish");
+ void root.offsetWidth;
+ setTimeout(()=>root.classList.add("reveal"),850);
+ if(coins){
+   coins.innerHTML="";
+   for(let i=0;i<28;i++){
+     const s=document.createElement("i");
+     s.textContent=i%5===0?"💎":"●";
+     s.style.setProperty("--x",(Math.random()*180-90)+"vw");
+     s.style.setProperty("--d",(Math.random()*.7)+"s");
+     s.style.setProperty("--r",(Math.random()*720-360)+"deg");
+     coins.appendChild(s);
+   }
+ }
+ setTimeout(()=>root.classList.add("finish"),3100);
+ setTimeout(()=>{root.hidden=true;root.classList.remove("reveal","finish");},3650);
+}
+
 const URL="https://osawhwcddovhddrxgfju.supabase.co", KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
 const $=id=>document.getElementById(id);
 const META={
@@ -215,11 +248,12 @@ function playDigEffect(button,prize){
      const rewardSrc=prize>=500?"chest_500.png":prize>=100?"chest_100.png":prize>=10?"chest_10.png":prize>=1?"chest_1.png":"chest_empty.png";
      setTimeout(()=>{chestImg.src="assets/"+rewardSrc;chestImg.classList.remove("opening");chestImg.classList.add("revealed");},220);
    }
-   if(prize<10)prizeOverlay(prize);
-   if(prize>=10){
+   if(prize>=500){v41Jackpot500();}
+   else if(prize<10)prizeOverlay(prize);
+   if(prize>=10&&prize<500){
      const currentOverlay=document.querySelector(".prize-overlay");if(currentOverlay)currentOverlay.remove();
      originalJackpot10(prize);
-   } else soundHit();
+   } else if(prize<500) soundHit();
   }else{
    button.classList.add("dig-miss");soundMiss();
    const f=document.createElement("span");f.className="dig-float miss";f.textContent="💨 ハズレ";button.appendChild(f);setTimeout(()=>f.remove(),900);
