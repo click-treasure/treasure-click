@@ -1,4 +1,14 @@
 
+
+// V44: dedicated 500-yen sound files.
+function v44Play500Sound(name,volume=1){
+  try{
+    const a=new Audio(`sounds/${name}`);
+    a.volume=volume;
+    const q=a.play(); if(q&&q.catch)q.catch(()=>{});
+  }catch(_){}
+}
+
 // V41: 500-yen special "puchun -> blackout -> jackpot" sequence.
 function v41Jackpot500(){
  const root=document.getElementById("v41Jackpot"),coins=document.getElementById("v41Coins");
@@ -9,6 +19,7 @@ function v41Jackpot500(){
 
  // Short bright pre-flash. Then an abrupt "puchun" and a one-frame cut to black.
  setTimeout(()=>{
+   v44Play500Sound("win_500_puchun.wav",.95);
    try{
      const c=v36ctx();
      if(c){
@@ -29,6 +40,7 @@ function v41Jackpot500(){
 
  // Jackpot explosion.
  setTimeout(()=>{
+   v44Play500Sound("win_500_jackpot.wav",1);
    root.classList.add("reveal");
    if(coins){
      coins.innerHTML="";
@@ -264,7 +276,7 @@ function v43GemOmen(button,after){
   if(r){gem.style.left=(r.left+r.width/2)+"px";gem.style.top=(r.top+r.height*.42)+"px";}
   else{gem.style.left="50vw";gem.style.top="50vh";}
   document.body.appendChild(gem);
-  try{v36tone(1047,.10,"sine",.10,0);v36tone(1568,.18,"sine",.08,.10)}catch(_){}
+  v44Play500Sound("win_500_gem.wav",.9);
   setTimeout(()=>gem.classList.add("charge"),180);
   setTimeout(()=>{gem.remove();if(after)after();},850);
 }
