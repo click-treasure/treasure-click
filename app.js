@@ -74,11 +74,10 @@ async function loadWinHistory(){
 async function openIsland(x){
  if(x.island_status!=="active")return;
  currentIsland=x.island_id;currentMeta=x;cells=[];lastOpened=new Set();
- $("game").classList.remove("diff-easy","diff-normal","diff-hard");$("game").classList.add("diff-"+x.difficulty);
  $("islandSelect").hidden=true;$("game").hidden=false;
  $("islandName").textContent=`${META[x.difficulty].emoji} ${META[x.difficulty].name} #${x.generation}`;
  $("islandState").textContent="🟢 探索中";$("islandState").classList.remove("finished");
- $("message").textContent="島に接続中…";
+ $("message").textContent="宝箱を準備中…";
  await Promise.all([load(),status()]);
  if(mapTimer)clearInterval(mapTimer);mapTimer=setInterval(()=>load(true),1000);
 }
@@ -94,9 +93,9 @@ async function load(silent=false){
   cells=next;
   lastOpened=new Set(cells.filter(c=>c.opened).map(c=>c.cell_index));
   render();
-  if(!silent)$("message").textContent="🟢 LIVE同期中：他のプレイヤーの掘削も自動反映";
+  if(!silent)$("message").textContent="🟢 LIVE：ほかのプレイヤーの開封も自動反映";
   else if(newlyOpened.length&&currentIsland){
-    $("message").textContent=`👥 他のプレイヤーが ${newlyOpened.length} マス掘った！`;
+    $("message").textContent=`👥 ほかのプレイヤーが ${newlyOpened.length} 個開けた！`;
   }
  }catch(e){fail(e)}
  finally{syncBusy=false}
@@ -104,13 +103,12 @@ async function load(silent=false){
 function render(){
  if(!currentMeta)return;$("map").innerHTML="";
  for(const c of cells){
-  const b=document.createElement("button");
-   const terrain=(currentMeta&&currentMeta.difficulty==="easy")?(c.cell_index%11===0?" grass":c.cell_index%17===0?" shell":" sand"):"";
-   b.className="cell"+terrain+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="マス "+c.cell_index;
-   if(debugNumbers)b.textContent=c.cell_index;b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
+  const b=document.createElement("button");b.className="cell chest"+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="宝箱 "+c.cell_index;
+   b.innerHTML=`<span class="chest-art"><i class="chest-lid"></i><i class="chest-body"></i><i class="chest-lock"></i></span>${debugNumbers?`<small class="chest-no">${c.cell_index}</small>`:""}`;
+   b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
  }
  const total=currentMeta.total_cells,o=cells.filter(c=>c.opened).length;
- $("remaining").textContent=`未探索 ${Math.max(0,total-o)} / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
+ $("remaining").textContent=`残り ${Math.max(0,total-o)}箱 / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
 }
 
 
@@ -210,9 +208,7 @@ function playDigEffect(button,prize){
  setTimeout(()=>{
   button.classList.remove("digging");
   if(prize>0){
-   button.classList.add("dig-hit");
-   if(currentMeta&&currentMeta.difficulty==="easy"){const loot=document.createElement("span");loot.className="tile-loot "+(prize>=100?"loot-gold":prize>=10?"loot-chest":"loot-coin");loot.textContent=prize>=100?"👑":prize>=10?"🧰":"🪙";button.appendChild(loot);}
-   if(prize<10)prizeOverlay(prize);
+   button.classList.add("dig-hit");if(prize<10)prizeOverlay(prize);
    if(prize>=10){
      const currentOverlay=document.querySelector(".prize-overlay");if(currentOverlay)currentOverlay.remove();
      originalJackpot10(prize);
@@ -244,9 +240,9 @@ async function dig(i,b){
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
-$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();myOwnOpenedCells=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="島を選んで探索開始！";await loadLatest()};
+$("back").onclick=async()=>{currentIsland=null;currentMeta=null;cells=[];lastOpened=new Set();myOwnOpenedCells=new Set();if(mapTimer){clearInterval(mapTimer);mapTimer=null};$("game").hidden=true;$("islandSelect").hidden=false;$("message").textContent="宝箱を選んでスタート！";await loadLatest()};
 $("refresh").onclick=async()=>{try{await Promise.all([status(),loadWinHistory(),loadLatest(),currentIsland?load(true):Promise.resolve()])}catch(e){fail(e)}};
-$("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次を探そう"};
+$("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="サーバー残高に保存済み！次の宝箱を選ぼう"};
 
 
 // ===== V34 Safe guest -> existing/new Google migration =====

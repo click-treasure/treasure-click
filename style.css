@@ -165,18 +165,55 @@ main{max-width:980px;padding:20px 22px 50px}
 #game{color:#fff;background:#0a2635;border-color:#ffffff17}.sea{color:#fff}#message{color:#fff}
 @media(max-width:650px){main{padding:12px 12px 40px}.account-panel{padding:9px 14px}.app-header h1{font-size:26px}.balance-card{padding:21px 19px;border-radius:22px}.quick-stats{grid-template-columns:1fr 1fr}.quick-stats .energy-card{grid-column:1/-1}.island-cards{grid-template-columns:1fr}.island-card{min-height:125px}.home-menu{grid-template-columns:1fr}.section-title{align-items:flex-start;flex-direction:column;gap:4px}.dev-identity{grid-template-columns:1fr 1fr}}
 
-/* V38 EASY tropical island prototype */
-#game.diff-easy .sea{position:relative;overflow:hidden;background:linear-gradient(180deg,#48cde0,#23a9ca);border-radius:28px}
-#game.diff-easy .sea:before{content:"🌴";position:absolute;left:4%;top:18%;font-size:46px;transform:rotate(-8deg);filter:drop-shadow(0 5px 4px rgba(0,0,0,.18));z-index:2;pointer-events:none}
-#game.diff-easy .sea:after{content:"🪨  🌺";position:absolute;right:4%;bottom:7%;font-size:28px;z-index:2;pointer-events:none}
-#game.diff-easy #map{position:relative;z-index:1;max-width:760px;margin:18px auto 28px;padding:42px 46px;border-radius:46% 54% 44% 56% / 52% 43% 57% 48%;background:linear-gradient(145deg,#91db6d,#5fbd66 62%,#d9c66b 63%,#f2dc82 100%);box-shadow:0 18px 0 rgba(18,107,91,.18),0 24px 40px rgba(0,70,90,.22)}
-#game.diff-easy .cell{position:relative;border:0;border-radius:13px;background:linear-gradient(145deg,#f6df8c,#e8c96e);box-shadow:inset 0 -4px 0 rgba(134,92,35,.18),0 2px 3px rgba(0,0,0,.14);transition:transform .12s ease,filter .12s ease}
-#game.diff-easy .cell:hover:not(:disabled){transform:translateY(-2px) scale(1.04);filter:brightness(1.06)}
-#game.diff-easy .cell.grass{background:linear-gradient(145deg,#8bd26d,#65b85d)}
-#game.diff-easy .cell.shell:after{content:"🐚";font-size:13px;opacity:.7}
-#game.diff-easy .cell.opened{background:radial-gradient(ellipse at 50% 42%,#3c2b20 0 34%,#5a402d 36% 57%,#8c6845 60% 72%,transparent 74%);box-shadow:none;opacity:1}
-#game.diff-easy .cell.opened:after{content:"";display:none}
-#game.diff-easy .tile-loot{position:absolute;z-index:4;left:50%;top:48%;transform:translate(-50%,-50%);font-size:22px;filter:drop-shadow(0 3px 2px rgba(0,0,0,.28));animation:lootPop .55s cubic-bezier(.18,.89,.32,1.5) both}
-#game.diff-easy .loot-chest{font-size:27px}#game.diff-easy .loot-gold{font-size:31px}
-@keyframes lootPop{0%{transform:translate(-50%,20%) scale(.2);opacity:0}70%{transform:translate(-50%,-70%) scale(1.35);opacity:1}100%{transform:translate(-50%,-50%) scale(1)}}
-@media(max-width:700px){#game.diff-easy #map{padding:28px 22px;border-radius:34px}#game.diff-easy .sea:before{font-size:32px;left:1%;top:16%}}
+/* V39 Treasure Chest board */
+#game{background:#f7f4ee!important;color:#171717!important;border-radius:28px!important;padding:22px!important}
+#game .head{background:transparent!important;color:#171717!important;padding:0 4px 18px!important}
+#game .head span{color:#8a8277!important}
+#game .head h2{color:#171717!important}
+#game .live{background:#fff!important;border:1px solid #e6e0d7!important;color:#171717!important;box-shadow:0 5px 18px rgba(53,43,29,.06)}
+#game .sea{background:#fffaf2!important;border:1px solid #ebe2d5!important;border-radius:26px!important;padding:18px!important;box-shadow:0 12px 36px rgba(73,53,28,.08)!important;overflow:visible!important}
+#game .island-bar{background:transparent!important;border:0!important;color:#171717!important;padding:0 0 18px!important}
+#game .island-bar button{background:#fff!important;color:#171717!important;border:1px solid #ddd5ca!important;border-radius:14px!important}
+#game .island-bar strong{color:#171717!important;font-size:20px!important}
+#game .island-state{color:#3d9c61!important;background:#edf8ef!important}
+#game #map{
+ display:grid!important;
+ grid-template-columns:repeat(10,minmax(54px,1fr))!important;
+ gap:14px!important;
+ max-width:940px!important;
+ margin:0 auto!important;
+ padding:24px!important;
+ background:#fff7ea!important;
+ border-radius:24px!important;
+ border:1px solid #eee2d0!important;
+ overflow:visible!important;
+}
+#game .cell.chest{
+ width:100%!important;height:auto!important;aspect-ratio:1/1!important;
+ padding:0!important;margin:0!important;border:0!important;border-radius:16px!important;
+ background:transparent!important;box-shadow:none!important;opacity:1!important;
+ position:relative!important;overflow:visible!important;cursor:pointer!important;
+ transition:transform .16s ease,filter .16s ease!important;
+}
+#game .cell.chest:hover:not(:disabled){transform:translateY(-4px) scale(1.05)!important;filter:brightness(1.04)}
+.chest-art{position:absolute;inset:8% 7% 6%;filter:drop-shadow(0 7px 5px rgba(73,40,12,.25));transition:transform .22s ease}
+.chest-body{position:absolute;left:7%;right:7%;bottom:5%;height:55%;border-radius:8px 8px 13px 13px;background:linear-gradient(90deg,#d91522 0 12%,#f02b32 35%,#d20d1a 100%);border:5px solid #e6a51c;box-shadow:inset 0 -7px 0 rgba(110,0,0,.16)}
+.chest-lid{position:absolute;left:4%;right:4%;top:4%;height:49%;border-radius:45% 45% 10px 10px;background:linear-gradient(90deg,#cf101d,#f22c34 43%,#c90d19);border:5px solid #f0b126;box-shadow:inset 0 8px 0 rgba(255,255,255,.08);transform-origin:bottom center;z-index:2}
+.chest-lid:after{content:"";position:absolute;left:43%;top:-5px;width:14%;height:calc(100% + 10px);background:linear-gradient(90deg,#d58a0c,#ffd55a,#d58a0c)}
+.chest-body:after{content:"";position:absolute;left:43%;top:-5px;width:14%;height:calc(100% + 10px);background:linear-gradient(90deg,#d58a0c,#ffd55a,#d58a0c)}
+.chest-lock{position:absolute;z-index:4;left:50%;top:53%;transform:translate(-50%,-50%);width:24%;height:25%;border-radius:5px;background:linear-gradient(#ffd65c,#dc9009);border:2px solid #a96100;box-shadow:0 2px 2px rgba(0,0,0,.2)}
+.chest-lock:after{content:"";position:absolute;left:42%;top:35%;width:16%;height:35%;border-radius:50%;background:#6c3900}
+.chest-no{position:absolute;right:2px;bottom:0;background:#fff;color:#6c6256;border-radius:8px;padding:1px 5px;font-size:10px;z-index:8}
+#game .cell.chest.opened{background:transparent!important}
+#game .cell.chest.opened .chest-art{filter:grayscale(.3) opacity(.52) drop-shadow(0 3px 3px rgba(73,40,12,.15));transform:translateY(7px)}
+#game .cell.chest.opened .chest-lid{transform:translateY(-28%) rotateX(65deg);background:#9f3030}
+#game .cell.chest.opened .chest-body{background:#9a5c42}
+#game .cell.chest.opened .chest-lock{opacity:.35}
+#game .cell.chest.opened:after{content:"✓";display:grid!important;place-items:center;position:absolute;right:1px;top:1px;width:22px;height:22px;border-radius:50%;background:#fff;color:#777;font-size:12px;font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.12)}
+#game #message{color:#62584d!important;background:transparent!important;padding:16px 4px 0!important}
+@media(max-width:760px){
+ #game{padding:12px!important;border-radius:18px!important}
+ #game .sea{padding:12px!important}
+ #game #map{grid-template-columns:repeat(5,minmax(48px,1fr))!important;gap:10px!important;padding:14px!important}
+ .chest-art{inset:7% 5% 5%}
+}
