@@ -139,7 +139,7 @@ function parseOAuthSession(){
   const rt = p.get("refresh_token");
   const err = p.get("error_description") || p.get("error");
 
-  history.replaceState(null, "", location.pathname + location.search);
+  window.history.replaceState(null, "", location.pathname + location.search);
 
   if(err){
     setTimeout(()=>fail(new Error(decodeURIComponent(err))), 0);
