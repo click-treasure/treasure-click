@@ -96,17 +96,56 @@ async function auth(){
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
-  await Promise.all([status(),loadWinHistory(),loadLatest()]);
+  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus()]);
  }catch(e){fail(e);$("session").textContent="認証エラー";}
 }
+let bonusTaps=0;
+let loginBonusState=null;
+
+async function loadLoginBonus(){
+ try{
+  const d=await req("/rest/v1/rpc/get_login_bonus_status",{method:"POST",body:"{}"});
+  const x=Array.isArray(d)?d[0]:d;if(!x)return;
+  loginBonusState=x;bonusTaps=Number(x.bonus_taps||0);
+  paintLoginBonus();paintEnergy();
+ }catch(e){console.error("login bonus status:",e)}
+}
+function paintLoginBonus(){
+ const box=$("loginBonus"), text=$("loginBonusText"), reward=$("loginBonusReward"), btn=$("loginBonusClaim"), streak=$("loginStreak");
+ if(!box||!loginBonusState)return;
+ const x=loginBonusState;
+ reward.textContent=x.claimed_today?`ボーナス ${bonusTaps}回`:`+${x.today_reward}回`;
+ text.textContent=x.claimed_today?`受け取り済み ・ ボーナスタップ残り ${bonusTaps}回`:`${x.next_day}日目 ・ 受け取ると宝探し +${x.today_reward}回`;
+ btn.disabled=!!x.claimed_today;btn.textContent=x.claimed_today?"受け取り済み":"受け取る";
+ if(streak)[...streak.children].forEach((el,i)=>{el.classList.toggle("done",i<Number(x.streak||0));el.classList.toggle("next",!x.claimed_today&&i===Number(x.next_day||1)-1)});
+}
+async function claimLoginBonus(){
+ const btn=$("loginBonusClaim");if(!btn||btn.disabled)return;
+ btn.disabled=true;btn.textContent="受け取り中…";
+ try{
+  const d=await req("/rest/v1/rpc/claim_daily_login_bonus",{method:"POST",body:"{}"});
+  const x=Array.isArray(d)?d[0]:d;if(!x)return;
+  await loadLoginBonus();
+  $("message").textContent=x.success?`🎁 ログインボーナス +${x.reward}回GET！`:"今日のログインボーナスは受け取り済み";
+ }catch(e){fail(e);await loadLoginBonus()}
+}
+async function prepareBonusTapIfNeeded(){
+ if(serverEnergy>0||bonusTaps<=0)return false;
+ const d=await req("/rest/v1/rpc/use_bonus_tap",{method:"POST",body:"{}"});
+ const x=Array.isArray(d)?d[0]:d;
+ if(x?.success){bonusTaps=Number(x.bonus_taps||0);serverEnergy=1;paintEnergy();if(loginBonusState){loginBonusState.bonus_taps=bonusTaps;paintLoginBonus()}return true}
+ return false;
+}
+
 async function status(){
  const d=await req("/rest/v1/rpc/get_player_status",{method:"POST",body:"{}"});
  const x=Array.isArray(d)?d[0]:d;if(!x)return;
  $("wallet").textContent=x.balance+"円";serverEnergy=x.energy;nextSeconds=x.next_energy_seconds||0;paintEnergy();
 }
 function paintEnergy(){
- $("energy").textContent=serverEnergy+" / 20";
- $("energyTimer").textContent=serverEnergy>=20?"FULL":`次の回復 ${String(Math.floor(nextSeconds/60)).padStart(2,"0")}:${String(Math.max(0,nextSeconds%60)).padStart(2,"0")}`;
+ const total=Number(serverEnergy||0)+Number(bonusTaps||0);
+ $("energy").textContent=bonusTaps>0?`${total}回`:(serverEnergy+" / 20");
+ $("energyTimer").textContent=bonusTaps>0?`通常 ${serverEnergy}/20 + ボーナス ${bonusTaps}`:(serverEnergy>=20?"FULL":`次の回復 ${String(Math.floor(nextSeconds/60)).padStart(2,"0")}:${String(Math.max(0,nextSeconds%60)).padStart(2,"0")}`);
  if(cells.length)render();
 }
 function startCountdown(){
@@ -336,9 +375,10 @@ function playDigEffect(button,prize){
 async function dig(i,b){
  suppressLiveNoticeUntil=Date.now()+4000;
  soundDig();
- if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
+ if(serverEnergy<=0&&bonusTaps<=0){$("message").textContent="⚡ タップ回数切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
  try{
+  if(serverEnergy<=0&&bonusTaps>0) await prepareBonusTapIfNeeded();
   const d=await req("/rest/v1/rpc/dig_treasure",{method:"POST",body:JSON.stringify({p_island_id:currentIsland,p_cell_index:i})});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
   serverEnergy=x.new_energy;paintEnergy();
@@ -351,7 +391,7 @@ async function dig(i,b){
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
   if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
-  await Promise.all([load(true),loadWinHistory(),status(),loadLatest()]);
+  await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus()]);
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
@@ -763,3 +803,6 @@ auth().then(startCountdown);
     compactRedeem.addEventListener('click',()=>{if(!mainRedeem.disabled)mainRedeem.click();});
   }
 })();
+
+// V57 login bonus
+document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);

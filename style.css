@@ -396,3 +396,10 @@ main{max-width:980px;padding:20px 22px 50px}
 @keyframes v562CardGlowBig{0%,100%{box-shadow:0 12px 30px #00000012}20%{box-shadow:0 12px 48px rgba(199,255,45,.7),inset 0 0 0 3px rgba(223,255,98,.95)}}
 @media(max-width:650px){.wallet-gain-float{left:auto;right:18px;top:62px;font-size:16px}.wallet-gain-float.big{font-size:19px}}
 @media(prefers-reduced-motion:reduce){.wallet-gain-float{animation-duration:.01ms!important}.balance-card.wallet-gain-card,.balance-card.wallet-gain-card-big{animation-duration:.01ms!important}}
+
+/* V57 — daily login bonus */
+.login-bonus-card{display:grid;grid-template-columns:1fr auto;gap:12px 18px;align-items:center;margin:18px 0 22px;padding:18px 20px;border:1px solid #e6e6e8;border-radius:22px;background:linear-gradient(135deg,#fff 0%,#fbfff0 100%);box-shadow:0 8px 24px #0000000a}
+.login-bonus-copy span{display:block;font-size:10px;font-weight:1000;letter-spacing:.16em;color:#8b8b8f}.login-bonus-copy b{display:block;margin-top:3px;font-size:17px}.login-bonus-copy small{display:block;margin-top:5px;color:#777;font-weight:700}
+.login-bonus-side{display:flex;align-items:center;gap:10px}.login-bonus-side strong{font-size:18px;white-space:nowrap}.login-bonus-side button{border:0;border-radius:999px;padding:10px 16px;background:var(--lime);color:#171717;font-weight:1000;cursor:pointer}.login-bonus-side button:disabled{background:#eee;color:#999;cursor:default}
+.login-streak{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.login-streak i{display:grid;place-items:center;height:28px;border-radius:9px;background:#f1f1f3;color:#999;font-size:11px;font-style:normal;font-weight:1000}.login-streak i.done{background:#171717;color:#fff}.login-streak i.next{background:var(--lime);color:#171717;box-shadow:0 0 0 2px #17171712}
+@media(max-width:650px){.login-bonus-card{grid-template-columns:1fr}.login-bonus-side{justify-content:space-between}.login-streak{grid-column:1}}
