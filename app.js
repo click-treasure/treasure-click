@@ -10,6 +10,7 @@ let refreshToken=localStorage.getItem("v261_refresh_token")||"";
 let user=JSON.parse(localStorage.getItem("v261_user")||"null");
 let latest={},cells=[],serverEnergy=0,nextSeconds=0,currentIsland=null,currentMeta=null,mapTimer=null,countTimer=null;
 let debugNumbers=false,lastOpened=new Set(),syncBusy=false;
+let myRecentDigs=new Map();
 
 function fail(e){$("error").hidden=false;$("error").textContent="エラー: "+(e?.message||e);}
 async function req(path,options={},auth=true){
@@ -85,7 +86,9 @@ async function load(silent=false){
  try{
   const d=await req("/rest/v1/treasure_cells?island_id=eq."+encodeURIComponent(currentIsland)+"&select=id,cell_index,opened,opened_at&order=cell_index.asc");
   const next=d||[];
-  const newlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)).map(c=>c.cell_index);
+  const now=Date.now();
+   for(const [idx,ts] of myRecentDigs){if(now-ts>5000)myRecentDigs.delete(idx)}
+   const newlyOpened=next.filter(c=>c.opened&&!lastOpened.has(c.cell_index)&&!myRecentDigs.has(c.cell_index)).map(c=>c.cell_index);
   cells=next;
   lastOpened=new Set(cells.filter(c=>c.opened).map(c=>c.cell_index));
   render();
@@ -109,16 +112,18 @@ function render(){
 // V36.1 sound effects (Web Audio API; no external audio files)
 let v36AudioCtx=null;
 function v36ctx(){
-  if(!v36AudioCtx){
-    const AC=window.AudioContext||window.webkitAudioContext;
-    if(!AC)return null;
-    v36AudioCtx=new AC();
-  }
-  if(v36AudioCtx.state==="suspended")v36AudioCtx.resume();
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return null;
+  if(!v36AudioCtx)v36AudioCtx=new AC();
   return v36AudioCtx;
 }
-function v36tone(freq,duration,type="sine",gain=.055,delay=0){
+function unlockGameAudio(){
   const c=v36ctx(); if(!c)return;
+  if(c.state==="suspended")c.resume().catch(()=>{});
+}
+function v36tone(freq,duration,type="sine",gain=.09,delay=0){
+  const c=v36ctx(); if(!c)return;
+  if(c.state==="suspended")c.resume().catch(()=>{});
   const o=c.createOscillator(), g=c.createGain();
   o.type=type;o.frequency.value=freq;
   const t=c.currentTime+delay;
@@ -129,22 +134,23 @@ function v36tone(freq,duration,type="sine",gain=.055,delay=0){
 }
 function soundDig(){
   const c=v36ctx(); if(!c)return;
+  if(c.state==="suspended")c.resume().catch(()=>{});
   // short earthy "zaku" noise
   const n=Math.floor(c.sampleRate*.11),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);
   for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);
   const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();
-  f.type="lowpass";f.frequency.value=900;g.gain.value=.075;
+  f.type="lowpass";f.frequency.value=900;g.gain.value=.16;
   s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);s.start();
-  v36tone(135,.08,"triangle",.035,.02);
+  v36tone(135,.10,"triangle",.08,.01);
 }
 function soundMiss(){
-  v36tone(170,.11,"triangle",.035,0);
-  v36tone(120,.14,"triangle",.025,.08);
+  v36tone(170,.12,"triangle",.07,0);
+  v36tone(120,.16,"triangle",.05,.08);
 }
 function soundHit(){
-  v36tone(660,.13,"sine",.05,0);
-  v36tone(880,.16,"sine",.055,.10);
-  v36tone(1320,.22,"sine",.045,.20);
+  v36tone(660,.13,"sine",.09,0);
+  v36tone(880,.16,"sine",.10,.10);
+  v36tone(1320,.22,"sine",.08,.20);
 }
 
 function playDigEffect(button, prize){
@@ -168,6 +174,7 @@ function playDigEffect(button, prize){
 }
 
 async function dig(i,b){
+ myRecentDigs.set(i,Date.now());
  soundDig();
  if(serverEnergy<=0){$("message").textContent="⚡ エネルギー切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
@@ -349,6 +356,8 @@ async function finishPendingMigration(){
   }
 }
 
+document.addEventListener("pointerdown", unlockGameAudio, {once:true});
+document.addEventListener("keydown", unlockGameAudio, {once:true});
 document.addEventListener("DOMContentLoaded", ()=>{
   parseOAuthSession();
   const b = document.getElementById("googleLoginBtn");
