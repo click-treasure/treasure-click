@@ -208,10 +208,10 @@ async function beginGoogleMigration(){
       skip_http_redirect: "true"
     });
 
-    const d = await fetch(`${SUPABASE_URL}/auth/v1/authorize?${q.toString()}`, {
+    const d = await fetch(`${URL}/auth/v1/authorize?${q.toString()}`, {
       method: "GET",
       headers: {
-        "apikey": SUPABASE_KEY,
+        "apikey": KEY,
         "Accept": "application/json"
       }
     }).then(async r => {
