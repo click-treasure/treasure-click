@@ -252,3 +252,36 @@ main{max-width:980px;padding:20px 22px 50px}
 .dev-buttons button{border:0;border-radius:10px;padding:10px 8px;background:#f4efe6;font-weight:900;cursor:pointer}
 .dev-buttons button[data-test-prize="500"]{background:#202020;color:#ffd54a}
 .dev-buttons small{grid-column:1/-1;font-size:10px;line-height:1.35;color:#777}
+
+/* V42 - hard-cut puchun jackpot */
+.v42-whiteflash{position:absolute;inset:0;z-index:20;background:#fff;opacity:0;pointer-events:none}
+.v42-golddot{position:absolute;left:50%;top:50%;z-index:21;width:5px;height:5px;border-radius:50%;background:#ffe47a;opacity:0;transform:translate(-50%,-50%) scale(.2);box-shadow:0 0 8px #fff,0 0 22px #ffc400}
+.v41-jackpot:not(.v42-cut) .v42-whiteflash{animation:v42PreFlash .12s linear forwards}
+.v41-jackpot.v42-cut .v41-blackout{background:#000!important;opacity:1!important;animation:none!important}
+.v41-jackpot.v42-cut .v41-goldburst,
+.v41-jackpot.v42-cut .v41-jackpot-content,
+.v41-jackpot.v42-cut .v41-coins{opacity:0}
+.v41-jackpot.v42-dot .v42-golddot{animation:v42Dot .6s ease-out forwards}
+.v41-jackpot.reveal .v42-golddot{opacity:0!important}
+.v41-jackpot.reveal .v41-blackout{animation:v42BlackReveal .28s linear forwards!important}
+.v41-jackpot.reveal .v41-goldburst{animation:v41Burst .6s cubic-bezier(.1,.85,.2,1) forwards!important}
+.v41-jackpot.reveal .v41-jackpot-content{animation:v42Title .72s cubic-bezier(.08,.9,.18,1.28) forwards!important}
+.v41-jackpot-money{white-space:nowrap;line-height:.78!important}
+.v41-jackpot-money strong{display:inline-block;font-size:clamp(150px,29vw,390px);font-weight:1000;letter-spacing:-.07em}
+.v41-jackpot-money small{font-size:clamp(38px,7vw,92px)!important;margin-left:.12em}
+.v41-jackpot-money em{display:block;margin-top:.2em;font-size:clamp(34px,6vw,78px);font-style:normal;letter-spacing:.08em;color:#fff5b8;text-shadow:0 0 12px #fff,0 0 35px #ff9d00}
+@keyframes v42PreFlash{0%{opacity:0}45%{opacity:1}100%{opacity:1}}
+@keyframes v42Dot{0%{opacity:0;transform:translate(-50%,-50%) scale(.2)}35%{opacity:1}100%{opacity:1;transform:translate(-50%,-50%) scale(3.2);box-shadow:0 0 20px #fff,0 0 90px #ffc400}}
+@keyframes v42BlackReveal{0%{background:#000}100%{background:radial-gradient(circle,#8d4c00,#160900 70%,#000)}}
+@keyframes v42Title{0%{opacity:0;transform:scale(.16)}45%{opacity:1;transform:scale(1.24)}70%{transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
+
+
+/* V43 — 500-yen gemstone omen */
+.v43-gem-omen{position:fixed;z-index:100002;pointer-events:none;transform:translate(-50%,-50%);width:150px;height:150px;display:grid;place-items:center}
+.v43-gem{position:relative;z-index:2;font-size:clamp(58px,9vw,92px);line-height:1;color:#74ecff;transform:scale(.18) rotate(45deg);text-shadow:0 0 7px #fff,0 0 18px #54e8ff,0 0 45px #168cff;animation:v43GemPop .62s cubic-bezier(.12,1.15,.25,1) forwards}
+.v43-gem-omen i{position:absolute;width:24px;height:24px;border:3px solid #dfffff;border-radius:50%;opacity:0;box-shadow:0 0 20px #5eeaff;animation:v43GemRing .7s .08s ease-out forwards}
+.v43-gem-omen b{position:absolute;top:-8px;right:2px;color:#fff;font-size:28px;opacity:0;text-shadow:0 2px 8px #000,0 0 12px #4eeaff;animation:v43GemMark .35s .28s ease forwards}
+.v43-gem-omen.charge .v43-gem{filter:brightness(1.45);text-shadow:0 0 10px #fff,0 0 28px #65f4ff,0 0 70px #1594ff}
+@keyframes v43GemPop{0%{opacity:0;transform:translateY(22px) scale(.18) rotate(45deg)}45%{opacity:1;transform:translateY(-18px) scale(1.22) rotate(45deg)}72%{transform:translateY(-25px) scale(.94) rotate(45deg)}100%{opacity:1;transform:translateY(-30px) scale(1.04) rotate(45deg)}}
+@keyframes v43GemRing{0%{opacity:.9;transform:scale(.2)}100%{opacity:0;transform:scale(5)}}
+@keyframes v43GemMark{to{opacity:1;transform:translateY(-7px) rotate(8deg)}}
