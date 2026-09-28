@@ -199,7 +199,7 @@ async function beginGoogleMigration(){
     if(!token || typeof token !== "string"){
       throw new Error("引き継ぎチケットを作成できませんでした。");
     }
-    sessionStorage.setItem(MIGRATION_TOKEN_KEY, token);
+    localStorage.setItem(MIGRATION_TOKEN_KEY, token);
 
     // Existing Google accounts must be allowed to sign in, so use normal OAuth sign-in here.
     const q = new URLSearchParams({
@@ -222,12 +222,12 @@ async function beginGoogleMigration(){
 }
 
 async function finishPendingMigration(){
-  const token = sessionStorage.getItem(MIGRATION_TOKEN_KEY);
+  const token = localStorage.getItem(MIGRATION_TOKEN_KEY);
   if(!token || !hasGoogleIdentity(user)) return false;
 
   try{
     const result = await rpc("migrate_guest_account", {p_token: token});
-    sessionStorage.removeItem(MIGRATION_TOKEN_KEY);
+    localStorage.removeItem(MIGRATION_TOKEN_KEY);
 
     const row = Array.isArray(result) ? result[0] : result;
     const amount = row?.migrated_balance ?? 0;
