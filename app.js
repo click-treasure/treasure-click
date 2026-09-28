@@ -275,7 +275,8 @@ async function finishPendingMigration(){
     alert(`Googleアカウントへの引き継ぎ完了！\n移行残高：${amount}円`);
 
     // Refresh wallet/status using the new Google identity.
-    await loadPlayerStatus();
+    await status();
+    await loadWinHistory();
     return true;
   }catch(e){
     // Keep the token so a temporary failure can be retried within its 10-minute lifetime.
