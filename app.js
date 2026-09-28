@@ -104,6 +104,8 @@ let loginBonusState=null;
 
 async function loadLoginBonus(){
  try{
+  // V57.3: move legacy/overflow bonus into empty normal slots first
+  try{await req("/rest/v1/rpc/normalize_bonus_energy",{method:"POST",body:"{}"})}catch(e){console.warn("normalize bonus energy:",e)}
   const d=await req("/rest/v1/rpc/get_login_bonus_status",{method:"POST",body:"{}"});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
   loginBonusState=x;bonusTaps=Number(x.bonus_taps||0);
@@ -150,10 +152,10 @@ async function claimLoginBonus(){
  }catch(e){fail(e);await loadLoginBonus()}
 }
 async function prepareBonusTapIfNeeded(){
- if(serverEnergy>0||bonusTaps<=0)return false;
+ if(bonusTaps<=0)return false;
  const d=await req("/rest/v1/rpc/use_bonus_tap",{method:"POST",body:"{}"});
  const x=Array.isArray(d)?d[0]:d;
- if(x?.success){bonusTaps=Number(x.bonus_taps||0);serverEnergy=1;paintEnergy();if(loginBonusState){loginBonusState.bonus_taps=bonusTaps;paintLoginBonus()}return true}
+ if(x?.success){bonusTaps=Number(x.bonus_taps||0);serverEnergy=Math.min(21,Number(serverEnergy||0)+1);paintEnergy();if(loginBonusState){loginBonusState.bonus_taps=bonusTaps;paintLoginBonus()}return true}
  return false;
 }
 
@@ -404,7 +406,7 @@ async function dig(i,b){
  if(serverEnergy<=0&&bonusTaps<=0){$("message").textContent="⚡ タップ回数切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
  try{
-  if(serverEnergy<=0&&bonusTaps>0) await prepareBonusTapIfNeeded();
+  if(bonusTaps>0) await prepareBonusTapIfNeeded();
   const d=await req("/rest/v1/rpc/dig_treasure",{method:"POST",body:JSON.stringify({p_island_id:currentIsland,p_cell_index:i})});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
   serverEnergy=x.new_energy;paintEnergy();
@@ -832,3 +834,5 @@ auth().then(startCountdown);
 
 // V57 login bonus
 document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);
+
+// V57.3 — normalize overflow bonus into normal energy slots; consume overflow first.
