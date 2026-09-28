@@ -560,3 +560,51 @@ auth().then(startCountdown);
     });
   });
 })();
+
+// V46 — server-backed 100 yen redemption requests.
+(function(){
+  const btn=document.getElementById('redeemBtn');
+  const modal=document.getElementById('redeemModal');
+  const close=document.getElementById('redeemModalClose');
+  const submit=document.getElementById('redeemSubmit');
+  const destination=document.getElementById('redeemDestination');
+  if(!btn||!modal||!close||!submit||!destination)return;
+
+  function walletAmount(){
+    const w=document.getElementById('wallet');
+    return Math.max(0,parseInt((w?.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
+  }
+  function syncRedeemButton(){
+    const ok=walletAmount()>=100;
+    btn.disabled=!ok;
+    const menu=document.getElementById('redeemMenuState');
+    if(menu)menu.textContent=ok?'交換できます':'100円〜';
+  }
+  const wallet=document.getElementById('wallet');
+  if(wallet)new MutationObserver(syncRedeemButton).observe(wallet,{childList:true,subtree:true,characterData:true});
+  syncRedeemButton();
+
+  btn.addEventListener('click',()=>{
+    if(walletAmount()<100)return;
+    modal.hidden=false;
+    setTimeout(()=>destination.focus(),50);
+  });
+  close.addEventListener('click',()=>modal.hidden=true);
+  modal.addEventListener('click',e=>{if(e.target===modal)modal.hidden=true});
+
+  submit.addEventListener('click',async()=>{
+    const dest=destination.value.trim();
+    if(!dest){destination.focus();return}
+    if(dest.length>120)return;
+    submit.disabled=true;submit.textContent='申請中…';
+    try{
+      const d=await req('/rest/v1/rpc/request_redemption',{method:'POST',body:JSON.stringify({p_destination:dest})});
+      const row=Array.isArray(d)?d[0]:d;
+      if(!row?.success)throw new Error(row?.message||'交換申請に失敗しました');
+      modal.hidden=true;destination.value='';
+      await status();
+      alert('100円の交換申請を受け付けました！\n現在：処理待ち');
+    }catch(e){fail(e)}
+    finally{submit.disabled=false;submit.textContent='100円を交換申請する'}
+  });
+})();
