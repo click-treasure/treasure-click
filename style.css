@@ -343,4 +343,39 @@ main{max-width:980px;padding:20px 22px 50px}
 .compact-redeem-btn:disabled{background:#eee;color:#999;cursor:not-allowed}
 .redeem-history-title{margin-top:14px}.redeem-history-home{max-height:245px;overflow:auto}
 @media(max-width:650px){.compact-redeem-top{align-items:flex-start;flex-direction:column}.compact-redeem-btn{width:100%}}
-\n\n/* V56 — visual polish: fit 6 chests, wallet feedback, unified redeem CTA */\n@media(min-width:761px){\n  #game .sea{overflow:hidden!important}\n  #game #map{\n    width:100%!important;\n    min-width:0!important;\n    max-width:900px!important;\n    grid-template-columns:repeat(6,minmax(0,1fr))!important;\n    gap:22px 18px!important;\n    padding:28px 24px!important;\n    overflow-y:auto!important;\n    overflow-x:hidden!important;\n  }\n  #game .cell.chest{min-width:0!important}\n}\n#wallet{display:inline-block;transform-origin:center;will-change:transform,filter}\n#wallet.wallet-pop{animation:v56WalletPop .72s cubic-bezier(.2,1.45,.35,1)}\n#wallet.wallet-pop-big{animation:v56WalletBig .88s cubic-bezier(.18,1.55,.3,1)}\n@keyframes v56WalletPop{\n  0%{transform:scale(1);filter:brightness(1)}\n  32%{transform:scale(1.12);filter:brightness(1.45) drop-shadow(0 0 12px rgba(223,255,98,.55))}\n  100%{transform:scale(1);filter:brightness(1)}\n}\n@keyframes v56WalletBig{\n  0%{transform:scale(1);filter:brightness(1)}\n  28%{transform:scale(1.18);filter:brightness(1.65) drop-shadow(0 0 18px rgba(223,255,98,.8))}\n  55%{transform:scale(.98)}\n  100%{transform:scale(1);filter:brightness(1)}\n}\n.compact-redeem-btn{background:var(--lime)!important;color:#171717!important;box-shadow:0 4px 12px rgba(0,0,0,.08);transition:transform .15s ease,filter .15s ease}\n.compact-redeem-btn:not(:disabled):hover{transform:translateY(-1px);filter:brightness(.98)}\n.compact-redeem-btn:disabled{background:#eee!important;color:#999!important;box-shadow:none}\n@media(prefers-reduced-motion:reduce){#wallet.wallet-pop,#wallet.wallet-pop-big{animation-duration:.01ms!important}}\n
+
+
+/* V56.1 — visual polish: fixed valid CSS */
+@media (min-width:761px){
+  #game .sea{overflow-x:hidden!important;overflow-y:visible!important}
+  #game #map{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:22px 14px!important;
+    padding:28px 18px!important;
+    overflow-x:hidden!important;
+    overflow-y:auto!important;
+  }
+  #game .cell.chest{min-width:0!important;width:100%!important}
+}
+#wallet{display:inline-block;transform-origin:center;will-change:transform,filter}
+#wallet.wallet-pop{animation:v561WalletPop .72s cubic-bezier(.2,1.45,.35,1)}
+#wallet.wallet-pop-big{animation:v561WalletBig .88s cubic-bezier(.18,1.55,.3,1)}
+@keyframes v561WalletPop{
+  0%{transform:scale(1);filter:brightness(1)}
+  32%{transform:scale(1.12);filter:brightness(1.45) drop-shadow(0 0 12px rgba(223,255,98,.55))}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+@keyframes v561WalletBig{
+  0%{transform:scale(1);filter:brightness(1)}
+  28%{transform:scale(1.18);filter:brightness(1.65) drop-shadow(0 0 18px rgba(223,255,98,.8))}
+  55%{transform:scale(.98)}
+  100%{transform:scale(1);filter:brightness(1)}
+}
+.compact-redeem-btn{background:var(--lime)!important;color:#171717!important;box-shadow:0 4px 12px rgba(0,0,0,.08)!important;transition:transform .15s ease,filter .15s ease}
+.compact-redeem-btn:not(:disabled):hover{transform:translateY(-1px);filter:brightness(.98)}
+.compact-redeem-btn:disabled{background:#eee!important;color:#999!important;box-shadow:none!important}
+@media (prefers-reduced-motion:reduce){#wallet.wallet-pop,#wallet.wallet-pop-big{animation-duration:.01ms!important}}
