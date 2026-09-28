@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>管理画面 V59.1</title>
-  <link rel="stylesheet" href="admin.css?v=59.1">
+  <title>管理画面 V59</title>
+  <link rel="stylesheet" href="admin.css?v=59">
 </head>
 <body>
 <main>
@@ -70,37 +70,6 @@
       </div>
     </section>
 
-    <section class="sim-section">
-      <div class="section-head">
-        <div>
-          <small>BUSINESS SIMULATOR</small>
-          <h2>📊 収益シミュレーター</h2>
-          <p>数字を変えると月間収支と必要な宝箱期待値を自動計算します。</p>
-        </div>
-        <button id="simReset" class="dark-btn">初期値に戻す</button>
-      </div>
-
-      <div class="sim-inputs card">
-        <label>月間アクティブユーザー（MAU）<input id="simMau" type="number" min="1" step="1" value="100"></label>
-        <label>1人1日の平均タップ<input id="simTapsDay" type="number" min="0" step="1" value="30"></label>
-        <label>広告売上 / 人・月（円）<input id="simAd" type="number" min="0" step="1" value="30"></label>
-        <label>アフィ売上 / 人・月（円）<input id="simAffiliate" type="number" min="0" step="1" value="470"></label>
-        <label>目標還元 / 人・月（円）<input id="simReward" type="number" min="0" step="10" value="300"></label>
-        <label>うち宝箱還元 / 人・月（円）<input id="simTreasure" type="number" min="0" step="10" value="150"></label>
-        <label>運営コスト / 人・月（円）<input id="simCost" type="number" min="0" step="1" value="30"></label>
-      </div>
-
-      <div class="sim-results">
-        <div class="card"><small>月間売上</small><b id="simRevenue">—</b></div>
-        <div class="card"><small>ユーザー還元総額</small><b id="simRewardTotal">—</b></div>
-        <div class="card profit-card"><small>運営利益</small><b id="simProfit">—</b></div>
-        <div class="card"><small>利益率</small><b id="simMargin">—</b></div>
-        <div class="card"><small>損益分岐ARPU</small><b id="simBreakEven">—</b></div>
-        <div class="card"><small>宝箱期待値 / 1タップ</small><b id="simEv">—</b></div>
-      </div>
-      <div id="simMessage" class="sim-message"></div>
-    </section>
-
     <section class="redemption-section">
       <div class="section-head redemption-head">
         <div>
@@ -120,6 +89,6 @@
 
   <div id="error" class="error" hidden></div>
 </main>
-<script src="admin.js?v=59.1"></script>
+<script src="admin.js?v=59"></script>
 </body>
 </html>
