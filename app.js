@@ -166,8 +166,8 @@ function updateAccountUI(){
 
   if(hasGoogleIdentity(user)){
     state.textContent = user.email ? `Googleログイン中：${user.email}` : "Googleログイン中";
-    btn.textContent = "✓ Googleログイン済み";
-    btn.disabled = true;
+    btn.textContent = "ログアウト";
+    btn.disabled = false;
   }else{
     state.textContent = user ? `ゲストでプレイ中：${user.id.slice(0,8)}` : "ゲストでプレイ中";
     btn.textContent = "G Googleで引き継ぐ";
@@ -181,6 +181,47 @@ async function rpc(name, body={}){
     headers: {"Content-Type":"application/json"},
     body: JSON.stringify(body)
   });
+}
+
+async function logoutToNewGuest(){
+  const btn = document.getElementById("googleLoginBtn");
+  try{
+    if(btn){
+      btn.disabled = true;
+      btn.textContent = "ログアウト中…";
+    }
+
+    // Revoke the current Supabase session on the server when possible.
+    if(accessToken){
+      try{
+        await fetch(`${URL}/auth/v1/logout`, {
+          method: "POST",
+          headers: {
+            "apikey": KEY,
+            "Authorization": `Bearer ${accessToken}`
+          }
+        });
+      }catch(_){}
+    }
+
+    // Clear only this app's auth/migration state.
+    localStorage.removeItem("v261_access_token");
+    localStorage.removeItem("v261_refresh_token");
+    localStorage.removeItem("v261_user");
+    localStorage.removeItem(MIGRATION_TOKEN_KEY);
+
+    accessToken = "";
+    user = null;
+
+    // Reload: the existing auth() flow will create a fresh anonymous account.
+    location.replace(location.pathname + "?guest=" + Date.now());
+  }catch(e){
+    if(btn){
+      btn.disabled = false;
+      btn.textContent = "ログアウト";
+    }
+    fail(e);
+  }
 }
 
 async function beginGoogleMigration(){
@@ -246,7 +287,13 @@ async function finishPendingMigration(){
 document.addEventListener("DOMContentLoaded", ()=>{
   parseOAuthSession();
   const b = document.getElementById("googleLoginBtn");
-  if(b) b.addEventListener("click", beginGoogleMigration);
+  if(b) b.addEventListener("click", async ()=>{
+    if(hasGoogleIdentity(user)){
+      await logoutToNewGuest();
+    }else{
+      await beginGoogleMigration();
+    }
+  });
 });
 
 const originalAuth = auth;
