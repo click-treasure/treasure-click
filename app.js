@@ -170,16 +170,47 @@ function prizeOverlay(prize){
 }
 function soundBigHit(){v36tone(392,.11,"triangle",.12,0);v36tone(659,.15,"sine",.13,.07);v36tone(988,.22,"sine",.12,.16);v36tone(1319,.30,"sine",.09,.25)}
 function soundMegaHit(){v36tone(330,.14,"square",.09,0);v36tone(523,.18,"triangle",.12,.06);v36tone(784,.24,"sine",.14,.14);v36tone(1047,.32,"sine",.13,.23);v36tone(1568,.42,"sine",.10,.34)}
+
+function playOriginal10Sound(){
+ const a=document.getElementById("audio10old");
+ if(!a)return;
+ try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>soundBigHit())}catch(e){soundBigHit()}
+}
+function playOriginal100Sound(){
+ const a=document.getElementById("audio100old");
+ if(!a)return;
+ try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>soundMegaHit())}catch(e){soundMegaHit()}
+}
+function originalCelebrate10(){
+ const fx=document.getElementById("fx");if(!fx)return;
+ for(let i=0;i<35;i++){
+  const s=document.createElement("span");s.className="old-confetti";s.textContent=["✨","🎉","⭐"][i%3];
+  s.style.left=Math.random()*100+"vw";s.style.animationDelay=Math.random()*.5+"s";s.style.fontSize=(16+Math.random()*25)+"px";
+  fx.appendChild(s);setTimeout(()=>s.remove(),2500);
+ }
+ document.body.classList.add("win10");setTimeout(()=>document.body.classList.remove("win10"),1900);
+}
+function originalJackpot10(prize){
+ const o=document.getElementById("jackpotOverlay");if(!o)return;
+ document.getElementById("jackpotAmount").textContent=prize;
+ document.getElementById("jackpotLabel").textContent=prize>=100?"💎 超大当たり！！ 💎":"🔥 大当たり！！ 🔥";
+ document.getElementById("jackpotBang").textContent=prize>=100?"！！！ JACKPOT ！！！":"！！！";
+ o.classList.remove("show");void o.offsetWidth;o.classList.add("show");o.setAttribute("aria-hidden","false");
+ if(prize>=100)playOriginal100Sound();else playOriginal10Sound();
+ originalCelebrate10();
+ setTimeout(()=>{o.classList.remove("show");o.setAttribute("aria-hidden","true")},2150);
+}
 function playDigEffect(button,prize){
  if(!button)return;
  button.classList.remove("digging","dig-hit","dig-miss");void button.offsetWidth;button.classList.add("digging");
  setTimeout(()=>{
   button.classList.remove("digging");
   if(prize>0){
-   button.classList.add("dig-hit");prizeOverlay(prize);
-   if(prize>=100){soundMegaHit();burstConfetti(70)}
-   else if(prize>=10){soundBigHit();burstConfetti(42)}
-   else soundHit();
+   button.classList.add("dig-hit");if(prize<10)prizeOverlay(prize);
+   if(prize>=10){
+     const currentOverlay=document.querySelector(".prize-overlay");if(currentOverlay)currentOverlay.remove();
+     originalJackpot10(prize);
+   } else soundHit();
   }else{
    button.classList.add("dig-miss");soundMiss();
    const f=document.createElement("span");f.className="dig-float miss";f.textContent="💨 ハズレ";button.appendChild(f);setTimeout(()=>f.remove(),900);
@@ -395,3 +426,20 @@ auth = async function(){
 
 // V34 start
 auth().then(startCountdown);
+
+// V37 home-only presentation helpers. Existing server/game logic remains unchanged.
+(function(){
+  function refreshRewardHome(){
+    const wallet=document.getElementById('wallet'), fill=document.getElementById('redeemFill'), text=document.getElementById('redeemText');
+    if(!wallet||!fill||!text)return;
+    const n=Math.max(0,parseInt((wallet.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
+    const pct=Math.min(100,n);
+    fill.style.width=pct+'%';
+    text.textContent=n>=100?'100円達成！交換できます':`あと${100-n}円で交換できます`;
+  }
+  document.addEventListener('DOMContentLoaded',()=>{
+    const wallet=document.getElementById('wallet');
+    if(wallet)new MutationObserver(refreshRewardHome).observe(wallet,{childList:true,subtree:true,characterData:true});
+    refreshRewardHome();
+  });
+})();
