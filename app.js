@@ -320,7 +320,15 @@ async function dig(i,b){
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
   myOwnOpenedCells.add(i);
-  $("wallet").textContent=x.new_balance+"円";b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
+  $("wallet").textContent=x.new_balance+"円";
+  if(Number(x.prize||0)>0){
+    const w=$("wallet");
+    w.classList.remove("wallet-pop","wallet-pop-big");
+    void w.offsetWidth;
+    w.classList.add(Number(x.prize||0)>=100?"wallet-pop-big":"wallet-pop");
+    setTimeout(()=>w.classList.remove("wallet-pop","wallet-pop-big"),900);
+  }
+  b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
   if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
   await Promise.all([load(true),loadWinHistory(),status(),loadLatest()]);
