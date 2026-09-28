@@ -208,20 +208,10 @@ async function beginGoogleMigration(){
       skip_http_redirect: "true"
     });
 
-    const d = await fetch(`${URL}/auth/v1/authorize?${q.toString()}`, {
-      method: "GET",
-      headers: {
-        "apikey": KEY,
-        "Accept": "application/json"
-      }
-    }).then(async r => {
-      const data = await r.json().catch(()=>({}));
-      if(!r.ok) throw new Error(data.msg || data.message || data.error_description || "Google認証を開始できませんでした。");
-      return data;
-    });
-
-    if(!d || !d.url) throw new Error("Google認証URLを取得できませんでした。");
-    location.href = d.url;
+    // OAuth is a browser navigation, not a CORS fetch.
+    // Navigating to Supabase lets Supabase redirect the browser to Google normally.
+    location.href = `${URL}/auth/v1/authorize?${q.toString()}`;
+    return;
   }catch(e){
     if(btn){
       btn.disabled = false;
