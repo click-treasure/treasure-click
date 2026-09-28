@@ -281,6 +281,32 @@ function v43GemOmen(button,after){
   setTimeout(()=>{gem.remove();if(after)after();},850);
 }
 
+
+// V56.2 — unmistakable wallet gain feedback. Visual only; no server writes.
+function animateWalletGain(prize){
+  const w=$("wallet");
+  const card=w?.closest(".balance-card");
+  if(!w||!card)return;
+
+  w.classList.remove("wallet-pop","wallet-pop-big");
+  card.classList.remove("wallet-gain-card","wallet-gain-card-big");
+  void w.offsetWidth;
+  w.classList.add(prize>=100?"wallet-pop-big":"wallet-pop");
+  card.classList.add(prize>=100?"wallet-gain-card-big":"wallet-gain-card");
+
+  card.querySelectorAll(".wallet-gain-float").forEach(el=>el.remove());
+  const gain=document.createElement("span");
+  gain.className="wallet-gain-float"+(prize>=100?" big":"");
+  gain.textContent=`+${prize}円`;
+  card.appendChild(gain);
+
+  setTimeout(()=>{
+    w.classList.remove("wallet-pop","wallet-pop-big");
+    card.classList.remove("wallet-gain-card","wallet-gain-card-big");
+  },1250);
+  setTimeout(()=>gain.remove(),1450);
+}
+
 function playDigEffect(button,prize){
  if(!button)return;
  button.classList.remove("digging","dig-hit","dig-miss");void button.offsetWidth;button.classList.add("digging");
@@ -321,13 +347,7 @@ async function dig(i,b){
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
   myOwnOpenedCells.add(i);
   $("wallet").textContent=x.new_balance+"円";
-  if(Number(x.prize||0)>0){
-    const w=$("wallet");
-    w.classList.remove("wallet-pop","wallet-pop-big");
-    void w.offsetWidth;
-    w.classList.add(Number(x.prize||0)>=100?"wallet-pop-big":"wallet-pop");
-    setTimeout(()=>w.classList.remove("wallet-pop","wallet-pop-big"),900);
-  }
+  if(Number(x.prize||0)>0) animateWalletGain(Number(x.prize||0));
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
   if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}

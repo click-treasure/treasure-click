@@ -379,3 +379,20 @@ main{max-width:980px;padding:20px 22px 50px}
 .compact-redeem-btn:not(:disabled):hover{transform:translateY(-1px);filter:brightness(.98)}
 .compact-redeem-btn:disabled{background:#eee!important;color:#999!important;box-shadow:none!important}
 @media (prefers-reduced-motion:reduce){#wallet.wallet-pop,#wallet.wallet-pop-big{animation-duration:.01ms!important}}
+
+
+/* V56.2 — visible wallet gain feedback */
+.balance-card{position:relative;overflow:visible!important}
+#wallet.wallet-pop{animation:v562WalletPop 1.05s cubic-bezier(.16,1.5,.3,1)!important}
+#wallet.wallet-pop-big{animation:v562WalletBig 1.18s cubic-bezier(.14,1.6,.25,1)!important}
+.balance-card.wallet-gain-card{animation:v562CardGlow 1.1s ease both}
+.balance-card.wallet-gain-card-big{animation:v562CardGlowBig 1.2s ease both}
+.wallet-gain-float{position:absolute;z-index:8;left:210px;top:54px;padding:7px 12px;border-radius:999px;background:var(--lime);color:#171717;font-size:18px;font-weight:1000;line-height:1;box-shadow:0 7px 22px rgba(0,0,0,.24);pointer-events:none;animation:v562GainFloat 1.35s cubic-bezier(.15,.9,.25,1) forwards}
+.wallet-gain-float.big{font-size:22px;padding:9px 15px}
+@keyframes v562WalletPop{0%{transform:scale(1)}20%{transform:scale(1.18)}38%{transform:scale(.98)}58%{transform:scale(1.08)}100%{transform:scale(1)}}
+@keyframes v562WalletBig{0%{transform:scale(1)}18%{transform:scale(1.28)}36%{transform:scale(.96)}55%{transform:scale(1.13)}72%{transform:scale(1.03)}100%{transform:scale(1)}}
+@keyframes v562GainFloat{0%{opacity:0;transform:translateY(18px) scale(.55)}18%{opacity:1;transform:translateY(0) scale(1.12)}62%{opacity:1;transform:translateY(-18px) scale(1)}100%{opacity:0;transform:translateY(-42px) scale(.92)}}
+@keyframes v562CardGlow{0%,100%{box-shadow:0 12px 30px #00000012}22%{box-shadow:0 12px 38px rgba(199,255,45,.48),inset 0 0 0 2px rgba(223,255,98,.72)}}
+@keyframes v562CardGlowBig{0%,100%{box-shadow:0 12px 30px #00000012}20%{box-shadow:0 12px 48px rgba(199,255,45,.7),inset 0 0 0 3px rgba(223,255,98,.95)}}
+@media(max-width:650px){.wallet-gain-float{left:auto;right:18px;top:62px;font-size:16px}.wallet-gain-float.big{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.wallet-gain-float{animation-duration:.01ms!important}.balance-card.wallet-gain-card,.balance-card.wallet-gain-card-big{animation-duration:.01ms!important}}
