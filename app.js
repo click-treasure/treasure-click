@@ -114,10 +114,28 @@ function paintLoginBonus(){
  const box=$("loginBonus"), text=$("loginBonusText"), reward=$("loginBonusReward"), btn=$("loginBonusClaim"), streak=$("loginStreak");
  if(!box||!loginBonusState)return;
  const x=loginBonusState;
- reward.textContent=x.claimed_today?`ボーナス ${bonusTaps}回`:`+${x.today_reward}回`;
- text.textContent=x.claimed_today?`受け取り済み ・ ボーナスタップ残り ${bonusTaps}回`:`${x.next_day}日目 ・ 受け取ると宝探し +${x.today_reward}回`;
- btn.disabled=!!x.claimed_today;btn.textContent=x.claimed_today?"受け取り済み":"受け取る";
+ reward.textContent=x.claimed_today?`✓ 今日 +${({1:5,2:5,3:7,4:7,5:10,6:10,7:20}[Number(x.streak)]||0)}回 受取済み`:`+${x.today_reward}回`;
+ text.textContent=x.claimed_today?(bonusTaps>0?`受け取り済み ・ 上限超過分 +${bonusTaps}回`:`受け取り済み ・ 今日のボーナスを反映しました`):`${x.next_day}日目 ・ 受け取ると宝探し +${x.today_reward}回`;
+ btn.disabled=!!x.claimed_today;btn.textContent=x.claimed_today?"✓ 受取済み":"受け取る";
  if(streak)[...streak.children].forEach((el,i)=>{el.classList.toggle("done",i<Number(x.streak||0));el.classList.toggle("next",!x.claimed_today&&i===Number(x.next_day||1)-1)});
+}
+function soundLoginBonus(){
+ try{
+  unlockGameAudio();
+  v36tone(523,.08,"sine",.10,0);
+  v36tone(659,.10,"sine",.11,.07);
+  v36tone(784,.13,"triangle",.12,.14);
+  v36tone(1047,.20,"sine",.10,.23);
+ }catch(e){}
+}
+function animateLoginBonusGain(amount){
+ const card=$("loginBonus"), energyCard=document.querySelector(".energy-card"), energy=$("energy");
+ if(!card||!energyCard)return;
+ card.classList.remove("login-bonus-claimed-pop");energyCard.classList.remove("energy-bonus-pop");
+ void card.offsetWidth;card.classList.add("login-bonus-claimed-pop");
+ const badge=document.createElement("div");badge.className="login-bonus-get-float";badge.textContent=`🎉 +${amount}回 GET！`;card.appendChild(badge);
+ setTimeout(()=>{energyCard.classList.add("energy-bonus-pop");if(energy){energy.classList.remove("energy-number-pop");void energy.offsetWidth;energy.classList.add("energy-number-pop")}},360);
+ setTimeout(()=>{badge.remove();card.classList.remove("login-bonus-claimed-pop");energyCard.classList.remove("energy-bonus-pop");energy?.classList.remove("energy-number-pop")},1700);
 }
 async function claimLoginBonus(){
  const btn=$("loginBonusClaim");if(!btn||btn.disabled)return;
@@ -125,7 +143,9 @@ async function claimLoginBonus(){
  try{
   const d=await req("/rest/v1/rpc/claim_daily_login_bonus",{method:"POST",body:"{}"});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
+  if(x.success){soundLoginBonus();}
   await loadLoginBonus();
+  if(x.success){animateLoginBonusGain(Number(x.reward||0));}
   $("message").textContent=x.success?`🎁 ログインボーナス +${x.reward}回GET！`:"今日のログインボーナスは受け取り済み";
  }catch(e){fail(e);await loadLoginBonus()}
 }
@@ -144,8 +164,14 @@ async function status(){
 }
 function paintEnergy(){
  const total=Number(serverEnergy||0)+Number(bonusTaps||0);
- $("energy").textContent=bonusTaps>0?`${total}回`:(serverEnergy+" / 20");
- $("energyTimer").textContent=bonusTaps>0?`通常 ${serverEnergy}/20 + ボーナス ${bonusTaps}`:(serverEnergy>=20?"FULL":`次の回復 ${String(Math.floor(nextSeconds/60)).padStart(2,"0")}:${String(Math.max(0,nextSeconds%60)).padStart(2,"0")}`);
+ const mm=String(Math.floor(Math.max(0,nextSeconds)/60)).padStart(2,"0");
+ const ss=String(Math.max(0,nextSeconds%60)).padStart(2,"0");
+ $("energy").textContent=serverEnergy+" / 20";
+ if(serverEnergy>=20){
+  $("energyTimer").textContent=bonusTaps>0?`FULL ・ ボーナス +${bonusTaps}`:"FULL";
+ }else{
+  $("energyTimer").textContent=`次の回復 ${mm}:${ss}`;
+ }
  if(cells.length)render();
 }
 function startCountdown(){

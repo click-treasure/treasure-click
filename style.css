@@ -403,3 +403,16 @@ main{max-width:980px;padding:20px 22px 50px}
 .login-bonus-side{display:flex;align-items:center;gap:10px}.login-bonus-side strong{font-size:18px;white-space:nowrap}.login-bonus-side button{border:0;border-radius:999px;padding:10px 16px;background:var(--lime);color:#171717;font-weight:1000;cursor:pointer}.login-bonus-side button:disabled{background:#eee;color:#999;cursor:default}
 .login-streak{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.login-streak i{display:grid;place-items:center;height:28px;border-radius:9px;background:#f1f1f3;color:#999;font-size:11px;font-style:normal;font-weight:1000}.login-streak i.done{background:#171717;color:#fff}.login-streak i.next{background:var(--lime);color:#171717;box-shadow:0 0 0 2px #17171712}
 @media(max-width:650px){.login-bonus-card{grid-template-columns:1fr}.login-bonus-side{justify-content:space-between}.login-streak{grid-column:1}}
+
+/* V57.1 — clearer login bonus feedback + energy recovery timer */
+.login-bonus-card{position:relative;overflow:visible}
+.login-bonus-card.login-bonus-claimed-pop{animation:v571BonusCard .9s ease both}
+.energy-card.energy-bonus-pop{animation:v571EnergyCard .9s cubic-bezier(.18,1.35,.3,1) both}
+#energy.energy-number-pop{display:inline-block;animation:v571EnergyNumber .75s cubic-bezier(.16,1.6,.3,1)}
+.login-bonus-get-float{position:absolute;z-index:30;right:22px;top:50%;transform:translateY(-50%);padding:12px 18px;border-radius:999px;background:#171717;color:var(--lime);font-size:20px;font-weight:1000;box-shadow:0 12px 34px #0003;pointer-events:none;animation:v571BonusFloat 1.55s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes v571BonusCard{0%,100%{box-shadow:0 8px 24px #0000000a}25%{box-shadow:0 10px 38px rgba(199,255,45,.52),inset 0 0 0 2px rgba(199,255,45,.85)}}
+@keyframes v571EnergyCard{0%,100%{transform:scale(1)}35%{transform:scale(1.035);box-shadow:0 10px 30px rgba(199,255,45,.38)}}
+@keyframes v571EnergyNumber{0%{transform:scale(1)}35%{transform:scale(1.34)}60%{transform:scale(.96)}100%{transform:scale(1)}}
+@keyframes v571BonusFloat{0%{opacity:0;transform:translateY(-25%) scale(.65)}18%{opacity:1;transform:translateY(-50%) scale(1.08)}68%{opacity:1;transform:translateY(-65%) scale(1)}100%{opacity:0;transform:translateY(-110%) scale(.92)}}
+@media(max-width:650px){.login-bonus-get-float{right:12px;top:44%;font-size:16px;padding:10px 13px}}
+@media(prefers-reduced-motion:reduce){.login-bonus-card.login-bonus-claimed-pop,.energy-card.energy-bonus-pop,#energy.energy-number-pop,.login-bonus-get-float{animation-duration:.01ms!important}}
