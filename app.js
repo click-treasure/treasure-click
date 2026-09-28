@@ -3,7 +3,7 @@
 // V44: dedicated 500-yen sound files.
 function v44Play500Sound(name,volume=1){
   try{
-    const a=new Audio(`sounds/${name}`);
+    const a=new Audio(`sounds/${name}?v=45soundfix`);
     a.volume=volume;
     const q=a.play(); if(q&&q.catch)q.catch(()=>{});
   }catch(_){}
