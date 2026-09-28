@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>管理画面 V59</title>
-  <link rel="stylesheet" href="admin.css?v=59">
+  <link rel="stylesheet" href="admin.css?v=59.1-fixed">
 </head>
 <body>
 <main>
@@ -70,6 +70,30 @@
       </div>
     </section>
 
+
+    <section class="sim-section">
+      <div class="section-head">
+        <div><small>BUSINESS SIMULATOR</small><h2>📊 収益シミュレーター</h2><p>入力値だけで計算します。Supabaseの認証・データには触れません。</p></div>
+      </div>
+      <div class="sim-inputs card">
+        <label>月間アクティブユーザー<input id="simMau" type="number" min="1" value="100"></label>
+        <label>1日平均タップ<input id="simTaps" type="number" min="0" value="30"></label>
+        <label>広告売上 / 人・月<input id="simAds" type="number" min="0" step="0.1" value="30"></label>
+        <label>アフィ売上 / 人・月<input id="simAffiliate" type="number" min="0" step="0.1" value="470"></label>
+        <label>目標還元 / 人・月<input id="simReward" type="number" min="0" step="1" value="300"></label>
+        <label>うち宝箱還元 / 人・月<input id="simTreasure" type="number" min="0" step="1" value="150"></label>
+        <label>運営コスト / 人・月<input id="simCost" type="number" min="0" step="0.1" value="30"></label>
+      </div>
+      <div class="sim-results">
+        <div class="card"><small>月間売上</small><b id="simRevenue">—</b></div>
+        <div class="card"><small>ユーザー還元総額</small><b id="simRewardsTotal">—</b></div>
+        <div class="card"><small>運営利益</small><b id="simProfit">—</b></div>
+        <div class="card"><small>利益率</small><b id="simMargin">—</b></div>
+        <div class="card"><small>損益分岐ARPU</small><b id="simBreakEven">—</b></div>
+        <div class="card"><small>宝箱1タップ期待値</small><b id="simTapEv">—</b></div>
+      </div>
+    </section>
+
     <section class="redemption-section">
       <div class="section-head redemption-head">
         <div>
@@ -89,6 +113,6 @@
 
   <div id="error" class="error" hidden></div>
 </main>
-<script src="admin.js?v=59"></script>
+<script src="admin.js?v=59.1-fixed"></script>
 </body>
 </html>

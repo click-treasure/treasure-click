@@ -60,3 +60,22 @@ async function markPaid(id,amount,dest,b){
 $("reload").onclick=load;
 $("poolReload").onclick=async()=>{try{$("error").hidden=true;await loadPool()}catch(e){fail(e)}};
 load();
+
+
+// V59.1 FIXED: local-only business simulator. Existing V59 auth/load code above is unchanged.
+function updateSimulator(){
+  const num=id=>Math.max(0,Number($(id)?.value)||0);
+  const mau=num('simMau'), taps=num('simTaps'), ads=num('simAds'), affiliate=num('simAffiliate');
+  const reward=num('simReward'), treasure=num('simTreasure'), cost=num('simCost');
+  const revenue=mau*(ads+affiliate), rewards=mau*reward, costs=mau*cost, profit=revenue-rewards-costs;
+  const margin=revenue>0?(profit/revenue*100):0;
+  const monthlyTaps=taps*30;
+  const ev=monthlyTaps>0?treasure/monthlyTaps:0;
+  $('simRevenue').textContent=yen(revenue); $('simRewardsTotal').textContent=yen(rewards);
+  $('simProfit').textContent=(profit>=0?'+':'')+yen(profit);
+  $('simProfit').className=profit>=0?'sim-profit-positive':'sim-profit-negative';
+  $('simMargin').textContent=margin.toFixed(1)+'%'; $('simBreakEven').textContent=yen(reward+cost);
+  $('simTapEv').textContent=ev.toFixed(3)+'円';
+}
+['simMau','simTaps','simAds','simAffiliate','simReward','simTreasure','simCost'].forEach(id=>$(id)?.addEventListener('input',updateSimulator));
+updateSimulator();
