@@ -605,8 +605,91 @@ auth().then(startCountdown);
       if(!row || !row.id)throw new Error('交換申請の保存を確認できませんでした');
       modal.hidden=true;destination.value='';
       await Promise.all([status(),loadWinHistory()]);
+      if(window.loadRedemptionHistory)await window.loadRedemptionHistory();
       alert('100円の交換申請を受け付けました！\n申請ID：'+row.id+'\n現在：処理待ち');
     }catch(e){fail(e)}
     finally{submit.disabled=false;submit.textContent='100円を交換申請する'}
   });
+})();
+
+
+// V54 — robust permanent redemption history card.
+(function(){
+  const box=document.getElementById('redeemHistory');
+  const refresh=document.getElementById('redeemHistoryRefresh');
+  if(!box)return;
+  let loading=false;
+
+  function maskDestination(value){
+    const v=String(value||'');
+    if(!v)return '—';
+    if(v.length<=3)return v[0]+'**';
+    return v.slice(0,4)+'****';
+  }
+  function fmtDate(value){
+    if(!value)return '—';
+    try{return new Intl.DateTimeFormat('ja-JP',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}).format(new Date(value))}catch(_){return String(value)}
+  }
+  function renderRows(rows){
+    if(!rows||!rows.length){box.innerHTML='<div class="redeem-history-empty">まだ交換履歴はありません</div>';return}
+    box.innerHTML=rows.map(r=>{
+      const paid=r.status==='completed'||r.status==='paid';
+      return `<div class="redeem-history-row ${paid?'is-paid':'is-pending'}">
+        <div><b>${Number(r.amount||0)}円</b><span>${paid?'✓ 支払済み':'● 処理待ち'}</span></div>
+        <small>申請 #${r.id} ・ ${fmtDate(r.created_at)}</small>
+        <small>受取先：${maskDestination(r.payout_destination)}</small>
+        ${paid?`<small class="paid-at">支払完了：${fmtDate(r.completed_at)}</small>`:''}
+      </div>`;
+    }).join('');
+  }
+  async function loadRedemptionHistory(){
+    if(loading)return;
+    if(!user?.id||!accessToken){box.innerHTML='<div class="redeem-history-empty">ログイン情報を確認中…</div>';return}
+    loading=true;
+    if(refresh)refresh.disabled=true;
+    box.innerHTML='<small>履歴を読み込み中…</small>';
+    try{
+      const path='/rest/v1/redemption_requests?select=id,amount,payout_method,payout_destination,status,created_at,completed_at&order=created_at.desc&limit=20';
+      const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('交換履歴の取得がタイムアウトしました')),8000));
+      const rows=await Promise.race([req(path),timeout]);
+      renderRows(rows);
+    }catch(e){
+      console.error('redemption history:',e);
+      box.innerHTML=`<div class="redeem-history-error">交換履歴を取得できませんでした<br><small>${String(e?.message||e)}</small><br><button type="button" id="redeemHistoryRetry">もう一度読み込む</button></div>`;
+      document.getElementById('redeemHistoryRetry')?.addEventListener('click',loadRedemptionHistory,{once:true});
+    }finally{
+      loading=false;
+      if(refresh)refresh.disabled=false;
+    }
+  }
+  window.loadRedemptionHistory=loadRedemptionHistory;
+  if(refresh)refresh.addEventListener('click',loadRedemptionHistory);
+
+  // Wait for auth to finish instead of firing against a half-restored session.
+  let tries=0;
+  const waitForAuth=setInterval(()=>{
+    tries++;
+    if(user?.id&&accessToken){clearInterval(waitForAuth);setTimeout(loadRedemptionHistory,250)}
+    else if(tries>=100){clearInterval(waitForAuth);box.innerHTML='<div class="redeem-history-error">ログイン情報を取得できませんでした</div>'}
+  },100);
+})();
+
+// V52 — show the admin shortcut only when the signed-in account is an app admin.
+(function(){
+  async function showAdminShortcut(){
+    if(!user?.id)return;
+    try{
+      const result=await req('/rest/v1/rpc/is_app_admin',{method:'POST',body:'{}'});
+      const isAdmin=Array.isArray(result)?result[0]===true:result===true;
+      if(!isAdmin)return;
+      const account=document.querySelector('.account-panel');
+      if(!account||document.getElementById('adminShortcut'))return;
+      const a=document.createElement('a');
+      a.id='adminShortcut';a.className='admin-shortcut';a.href='admin.html';a.textContent='⚙ 管理画面';
+      const btn=document.getElementById('googleLoginBtn');
+      if(btn?.parentNode===account)account.insertBefore(a,btn);else account.appendChild(a);
+    }catch(e){console.debug('admin shortcut hidden',e)}
+  }
+  const timer=setInterval(()=>{if(user?.id){clearInterval(timer);showAdminShortcut()}},100);
+  setTimeout(()=>clearInterval(timer),10000);
 })();

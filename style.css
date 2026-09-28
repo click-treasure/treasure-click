@@ -317,3 +317,8 @@ main{max-width:980px;padding:20px 22px 50px}
 .history-grid-v53 .home-history{margin-top:0;min-width:0;height:100%}
 .history-grid-v53 .redemption-home{margin-top:0}
 @media(max-width:760px){.history-grid-v53{grid-template-columns:1fr;gap:10px}}
+
+/* V54 — redemption history loading/error states */
+#redeemHistoryRefresh:disabled{opacity:.45;cursor:wait}
+.redeem-history-error small{display:inline-block;margin:6px 0;color:#a14b4b!important;word-break:break-word}
+.redeem-history-error button{margin-top:8px;border:0;border-radius:999px;padding:8px 12px;font-weight:800;cursor:pointer;background:#171717;color:#fff}
