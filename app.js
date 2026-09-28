@@ -598,12 +598,14 @@ auth().then(startCountdown);
     if(dest.length>120)return;
     submit.disabled=true;submit.textContent='申請中…';
     try{
-      const d=await req('/rest/v1/rpc/request_redemption',{method:'POST',body:JSON.stringify({p_destination:dest})});
+      // V47: match the RPC installed from the SQL shown in chat.
+      // That function accepts p_payout_destination and returns the created request row.
+      const d=await req('/rest/v1/rpc/request_redemption',{method:'POST',body:JSON.stringify({p_payout_destination:dest})});
       const row=Array.isArray(d)?d[0]:d;
-      if(!row?.success)throw new Error(row?.message||'交換申請に失敗しました');
+      if(!row || !row.id)throw new Error('交換申請の保存を確認できませんでした');
       modal.hidden=true;destination.value='';
-      await status();
-      alert('100円の交換申請を受け付けました！\n現在：処理待ち');
+      await Promise.all([status(),loadWinHistory()]);
+      alert('100円の交換申請を受け付けました！\n申請ID：'+row.id+'\n現在：処理待ち');
     }catch(e){fail(e)}
     finally{submit.disabled=false;submit.textContent='100円を交換申請する'}
   });
