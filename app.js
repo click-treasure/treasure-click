@@ -707,3 +707,31 @@ auth().then(startCountdown);
   },100);
   window.refreshAdminShortcut=refreshAdminShortcut;
 })();
+// V55 — compact home history / redemption panels. Presentation only.
+(function(){
+  const winMenu=document.getElementById('winHistoryMenu');
+  const redeemMenu=document.getElementById('redeemMenu');
+  const winPanel=document.getElementById('winHistoryPanel');
+  const redeemPanel=document.getElementById('redeemPanel');
+  const compactRedeem=document.getElementById('compactRedeemBtn');
+  const mainRedeem=document.getElementById('redeemBtn');
+  if(!winMenu||!redeemMenu||!winPanel||!redeemPanel)return;
+
+  function setOpen(which){
+    const openWin=which==='win' ? winPanel.hidden : false;
+    const openRedeem=which==='redeem' ? redeemPanel.hidden : false;
+    winPanel.hidden=!openWin;
+    redeemPanel.hidden=!openRedeem;
+    winMenu.classList.toggle('is-open',openWin);
+    redeemMenu.classList.toggle('is-open',openRedeem);
+    if(openRedeem&&window.loadRedemptionHistory)window.loadRedemptionHistory();
+  }
+  winMenu.addEventListener('click',()=>setOpen('win'));
+  redeemMenu.addEventListener('click',()=>setOpen('redeem'));
+  if(compactRedeem&&mainRedeem){
+    const sync=()=>{compactRedeem.disabled=mainRedeem.disabled;compactRedeem.textContent=mainRedeem.disabled?'100円から交換できます':'100円を交換申請する';};
+    new MutationObserver(sync).observe(mainRedeem,{attributes:true,attributeFilter:['disabled']});
+    sync();
+    compactRedeem.addEventListener('click',()=>{if(!mainRedeem.disabled)mainRedeem.click();});
+  }
+})();

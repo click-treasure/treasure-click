@@ -325,3 +325,21 @@ main{max-width:980px;padding:20px 22px 50px}
 
 /* V55 admin shortcut */
 .account-actions{display:flex;align-items:center;gap:8px;margin-left:auto}.admin-shortcut[hidden]{display:none!important}.admin-shortcut{margin:0;text-decoration:none;border:1px solid #ddd;background:#171717;color:#fff;border-radius:999px;padding:9px 14px;font-size:12px;font-weight:900;box-shadow:0 2px 8px #00000010;white-space:nowrap}@media(max-width:650px){.account-actions{width:100%;justify-content:flex-end}}
+/* V55 — compact collapsible history UI */
+.menu-card-button{width:100%;font:inherit;color:inherit;text-align:left;cursor:pointer}
+.menu-card-button .menu-arrow{margin-left:auto;background:transparent!important;padding:0!important;font-size:12px!important;transition:transform .2s ease}
+.menu-card-button.is-open{box-shadow:0 0 0 2px rgba(116,87,255,.16);border-color:#cfc6ff}
+.menu-card-button.is-open .menu-arrow{transform:rotate(180deg)}
+#redeemMenuState{margin-left:auto}.menu-card-button #redeemMenuState+.menu-arrow{margin-left:0}
+.compact-history-panel{background:#fff;border:1px solid var(--line);border-radius:20px;padding:16px;margin:-8px 0 20px;color:#171717}
+.compact-history-panel[hidden]{display:none!important}
+.compact-history-panel .historyHead{display:flex;align-items:center;justify-content:space-between}
+.compact-history-panel .historyHead button{border:0;background:#f1f1f3;color:#222;border-radius:999px;padding:7px 11px;font-weight:800;cursor:pointer}
+.compact-history-panel #history{margin-top:10px;opacity:1;color:#666;font-size:11px}
+.compact-history-panel .row{border-color:#eee}.compact-history-panel .row strong{color:#1f8b55}
+.compact-redeem-top{display:flex;align-items:center;justify-content:space-between;gap:14px;padding-bottom:14px;border-bottom:1px solid #eee}
+.compact-redeem-top b,.compact-redeem-top small{display:block}.compact-redeem-top small{margin-top:3px;color:#777;font-size:10px}
+.compact-redeem-btn{border:0;border-radius:999px;padding:9px 13px;background:#171717;color:#fff;font-weight:900;cursor:pointer;white-space:nowrap}
+.compact-redeem-btn:disabled{background:#eee;color:#999;cursor:not-allowed}
+.redeem-history-title{margin-top:14px}.redeem-history-home{max-height:245px;overflow:auto}
+@media(max-width:650px){.compact-redeem-top{align-items:flex-start;flex-direction:column}.compact-redeem-btn{width:100%}}
