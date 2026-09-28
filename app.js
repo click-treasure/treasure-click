@@ -95,7 +95,7 @@ async function load(silent=false){
   render();
   if(!silent)$("message").textContent="🟢 LIVE：ほかのプレイヤーの開封も自動反映";
   else if(newlyOpened.length&&currentIsland){
-    $("message").textContent=`👥 ほかのプレイヤーが ${newlyOpened.length} 個開けた！`;
+    $("message").textContent=`👥 ほかのプレイヤーが ${newlyOpened.length} 箱開けた！`;
   }
  }catch(e){fail(e)}
  finally{syncBusy=false}
@@ -104,11 +104,11 @@ function render(){
  if(!currentMeta)return;$("map").innerHTML="";
  for(const c of cells){
   const b=document.createElement("button");b.className="cell chest"+(c.opened?" opened":"");b.disabled=c.opened||serverEnergy<=0;b.title="宝箱 "+c.cell_index;
-   b.innerHTML=`<span class="chest-art"><i class="chest-lid"></i><i class="chest-body"></i><i class="chest-lock"></i></span>${debugNumbers?`<small class="chest-no">${c.cell_index}</small>`:""}`;
+   b.innerHTML=`<img src="assets/${c.opened?"chest_empty.png":"chest_closed.png"}" alt="${c.opened?"開封済み":"未開封"}">${debugNumbers?`<small class="chest-no">${c.cell_index}</small>`:""}`;
    b.onclick=()=>dig(c.cell_index,b);$("map").appendChild(b);
  }
  const total=currentMeta.total_cells,o=cells.filter(c=>c.opened).length;
- $("remaining").textContent=`残り ${Math.max(0,total-o)}箱 / ${total}`;$("progress").textContent=Math.round((o/total)*100)+"%";
+ $("remaining").textContent=`残り ${Math.max(0,total-o)}箱`;$("progress").textContent=Math.round((o/total)*100)+"%";
 }
 
 
@@ -208,7 +208,14 @@ function playDigEffect(button,prize){
  setTimeout(()=>{
   button.classList.remove("digging");
   if(prize>0){
-   button.classList.add("dig-hit");if(prize<10)prizeOverlay(prize);
+   button.classList.add("dig-hit");
+   const chestImg=button.querySelector("img");
+   if(chestImg){
+     chestImg.classList.add("opening");
+     const rewardSrc=prize>=500?"chest_500.png":prize>=100?"chest_100.png":prize>=10?"chest_10.png":prize>=1?"chest_1.png":"chest_empty.png";
+     setTimeout(()=>{chestImg.src="assets/"+rewardSrc;chestImg.classList.remove("opening");chestImg.classList.add("revealed");},220);
+   }
+   if(prize<10)prizeOverlay(prize);
    if(prize>=10){
      const currentOverlay=document.querySelector(".prize-overlay");if(currentOverlay)currentOverlay.remove();
      originalJackpot10(prize);

@@ -165,55 +165,49 @@ main{max-width:980px;padding:20px 22px 50px}
 #game{color:#fff;background:#0a2635;border-color:#ffffff17}.sea{color:#fff}#message{color:#fff}
 @media(max-width:650px){main{padding:12px 12px 40px}.account-panel{padding:9px 14px}.app-header h1{font-size:26px}.balance-card{padding:21px 19px;border-radius:22px}.quick-stats{grid-template-columns:1fr 1fr}.quick-stats .energy-card{grid-column:1/-1}.island-cards{grid-template-columns:1fr}.island-card{min-height:125px}.home-menu{grid-template-columns:1fr}.section-title{align-items:flex-start;flex-direction:column;gap:4px}.dev-identity{grid-template-columns:1fr 1fr}}
 
-/* V39 Treasure Chest board */
-#game{background:#f7f4ee!important;color:#171717!important;border-radius:28px!important;padding:22px!important}
-#game .head{background:transparent!important;color:#171717!important;padding:0 4px 18px!important}
-#game .head span{color:#8a8277!important}
-#game .head h2{color:#171717!important}
-#game .live{background:#fff!important;border:1px solid #e6e0d7!important;color:#171717!important;box-shadow:0 5px 18px rgba(53,43,29,.06)}
-#game .sea{background:#fffaf2!important;border:1px solid #ebe2d5!important;border-radius:26px!important;padding:18px!important;box-shadow:0 12px 36px rgba(73,53,28,.08)!important;overflow:visible!important}
+/* V40 — approved image-based 3D chest board */
+#game{background:#f7f4ee!important;color:#171717!important;border-radius:28px!important;padding:18px!important}
+#game .head{background:transparent!important;color:#171717!important;padding:0 4px 14px!important}
+#game .head>div:first-child span{display:none!important}
+#game .head h2{font-size:22px!important;color:#171717!important;margin:0!important}
+#game .live{background:#fff!important;border:1px solid #e6dfd5!important;color:#171717!important;border-radius:18px!important}
+#game .sea{background:#fffaf2!important;border:1px solid #eadfce!important;border-radius:26px!important;padding:18px!important;box-shadow:0 12px 34px rgba(72,53,29,.07)!important}
 #game .island-bar{background:transparent!important;border:0!important;color:#171717!important;padding:0 0 18px!important}
-#game .island-bar button{background:#fff!important;color:#171717!important;border:1px solid #ddd5ca!important;border-radius:14px!important}
-#game .island-bar strong{color:#171717!important;font-size:20px!important}
-#game .island-state{color:#3d9c61!important;background:#edf8ef!important}
+#game .island-bar button{background:#fff!important;color:#171717!important;border:1px solid #ddd4c7!important;border-radius:14px!important;padding:10px 16px!important}
+#game .island-bar strong{color:#171717!important;font-size:22px!important}
+#game .island-state{background:#edf8ef!important;color:#419b60!important}
 #game #map{
  display:grid!important;
- grid-template-columns:repeat(10,minmax(54px,1fr))!important;
- gap:14px!important;
- max-width:940px!important;
+ grid-template-columns:repeat(6,minmax(105px,1fr))!important;
+ gap:18px!important;
+ max-width:900px!important;
  margin:0 auto!important;
- padding:24px!important;
- background:#fff7ea!important;
+ padding:26px!important;
+ background:#fff8ed!important;
+ border:1px solid #eee1cf!important;
  border-radius:24px!important;
- border:1px solid #eee2d0!important;
  overflow:visible!important;
 }
 #game .cell.chest{
- width:100%!important;height:auto!important;aspect-ratio:1/1!important;
- padding:0!important;margin:0!important;border:0!important;border-radius:16px!important;
- background:transparent!important;box-shadow:none!important;opacity:1!important;
- position:relative!important;overflow:visible!important;cursor:pointer!important;
- transition:transform .16s ease,filter .16s ease!important;
+ position:relative!important;width:100%!important;height:auto!important;aspect-ratio:1/1!important;
+ margin:0!important;padding:0!important;border:0!important;background:transparent!important;
+ box-shadow:none!important;border-radius:18px!important;overflow:visible!important;opacity:1!important;
+ cursor:pointer!important;transition:transform .16s ease,filter .16s ease!important;
 }
-#game .cell.chest:hover:not(:disabled){transform:translateY(-4px) scale(1.05)!important;filter:brightness(1.04)}
-.chest-art{position:absolute;inset:8% 7% 6%;filter:drop-shadow(0 7px 5px rgba(73,40,12,.25));transition:transform .22s ease}
-.chest-body{position:absolute;left:7%;right:7%;bottom:5%;height:55%;border-radius:8px 8px 13px 13px;background:linear-gradient(90deg,#d91522 0 12%,#f02b32 35%,#d20d1a 100%);border:5px solid #e6a51c;box-shadow:inset 0 -7px 0 rgba(110,0,0,.16)}
-.chest-lid{position:absolute;left:4%;right:4%;top:4%;height:49%;border-radius:45% 45% 10px 10px;background:linear-gradient(90deg,#cf101d,#f22c34 43%,#c90d19);border:5px solid #f0b126;box-shadow:inset 0 8px 0 rgba(255,255,255,.08);transform-origin:bottom center;z-index:2}
-.chest-lid:after{content:"";position:absolute;left:43%;top:-5px;width:14%;height:calc(100% + 10px);background:linear-gradient(90deg,#d58a0c,#ffd55a,#d58a0c)}
-.chest-body:after{content:"";position:absolute;left:43%;top:-5px;width:14%;height:calc(100% + 10px);background:linear-gradient(90deg,#d58a0c,#ffd55a,#d58a0c)}
-.chest-lock{position:absolute;z-index:4;left:50%;top:53%;transform:translate(-50%,-50%);width:24%;height:25%;border-radius:5px;background:linear-gradient(#ffd65c,#dc9009);border:2px solid #a96100;box-shadow:0 2px 2px rgba(0,0,0,.2)}
-.chest-lock:after{content:"";position:absolute;left:42%;top:35%;width:16%;height:35%;border-radius:50%;background:#6c3900}
-.chest-no{position:absolute;right:2px;bottom:0;background:#fff;color:#6c6256;border-radius:8px;padding:1px 5px;font-size:10px;z-index:8}
-#game .cell.chest.opened{background:transparent!important}
-#game .cell.chest.opened .chest-art{filter:grayscale(.3) opacity(.52) drop-shadow(0 3px 3px rgba(73,40,12,.15));transform:translateY(7px)}
-#game .cell.chest.opened .chest-lid{transform:translateY(-28%) rotateX(65deg);background:#9f3030}
-#game .cell.chest.opened .chest-body{background:#9a5c42}
-#game .cell.chest.opened .chest-lock{opacity:.35}
-#game .cell.chest.opened:after{content:"✓";display:grid!important;place-items:center;position:absolute;right:1px;top:1px;width:22px;height:22px;border-radius:50%;background:#fff;color:#777;font-size:12px;font-weight:900;box-shadow:0 2px 7px rgba(0,0,0,.12)}
-#game #message{color:#62584d!important;background:transparent!important;padding:16px 4px 0!important}
+#game .cell.chest:hover:not(:disabled){transform:translateY(-5px) scale(1.045)!important;filter:brightness(1.04)}
+#game .cell.chest img{width:100%!important;height:100%!important;object-fit:contain!important;display:block!important;filter:drop-shadow(0 8px 7px rgba(70,42,17,.20));transition:transform .2s ease,filter .2s ease,opacity .2s ease}
+#game .cell.chest.opened img{opacity:.62;filter:saturate(.72) drop-shadow(0 4px 4px rgba(70,42,17,.12))}
+#game .cell.chest.opened:after{content:"✓";display:grid!important;place-items:center;position:absolute;right:5%;top:5%;width:27px;height:27px;border-radius:50%;background:#fff;color:#777;font-weight:900;box-shadow:0 2px 8px rgba(0,0,0,.14)}
+#game .cell.chest img.opening{animation:v40ChestOpen .42s ease both}
+#game .cell.chest img.revealed{animation:v40RewardPop .42s cubic-bezier(.2,.9,.25,1.35) both;opacity:1!important;filter:drop-shadow(0 9px 8px rgba(70,42,17,.22))}
+.chest-no{position:absolute;right:4px;bottom:1px;background:#fff;color:#766a5c;border-radius:8px;padding:2px 6px;font-size:10px;box-shadow:0 2px 5px rgba(0,0,0,.08)}
+@keyframes v40ChestOpen{0%{transform:translateY(0) rotate(0)}35%{transform:translateY(-12px) rotate(-3deg)}65%{transform:translateY(-8px) rotate(3deg)}100%{transform:scale(.92)}}
+@keyframes v40RewardPop{0%{transform:scale(.72);opacity:.2}75%{transform:scale(1.1);opacity:1}100%{transform:scale(1)}}
+#game #message{color:#6e6255!important;background:transparent!important;padding:14px 4px 0!important}
 @media(max-width:760px){
- #game{padding:12px!important;border-radius:18px!important}
- #game .sea{padding:12px!important}
- #game #map{grid-template-columns:repeat(5,minmax(48px,1fr))!important;gap:10px!important;padding:14px!important}
- .chest-art{inset:7% 5% 5%}
+ #game{padding:10px!important}
+ #game .sea{padding:10px!important}
+ #game #map{grid-template-columns:repeat(3,minmax(82px,1fr))!important;gap:12px!important;padding:14px!important}
+ #game .island-bar{gap:8px!important}
+ #game .island-bar strong{font-size:18px!important}
 }
