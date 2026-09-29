@@ -500,7 +500,7 @@ function updateAccountUI(){
   if(!state || !btn) return;
 
   if(hasGoogleIdentity(user)){
-    state.textContent = user.email ? `Googleログイン中：${user.email}` : "Googleログイン中";
+    state.textContent = user.email ? `Google連携済み ✓：${user.email}` : "Google連携済み ✓";
     btn.textContent = "ログアウト";
     btn.disabled = false;
   }else{
@@ -618,7 +618,7 @@ async function finishPendingMigration(){
     if(msg.includes("already been linked")){
       localStorage.removeItem(MIGRATION_TOKEN_KEY);
       await Promise.all([status(),loadWinHistory()]);
-      alert("このGoogleアカウントはすでに連携済みです。\n既存の保存データでログインしました。\n今回のゲストデータは重複防止のため統合されません。");
+      // Already linked: silently keep the existing Google account data.
       return true;
     }
     // Keep the token so a temporary failure can be retried within its 10-minute lifetime.
@@ -884,7 +884,7 @@ function requireGoogleForRedemption(){
 // V57 login bonus
 document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);
 
-// V62 — account linking UI, redemption gate, cumulative wins and bonus-only digging fixes.
+// V63 — linked Google accounts resume silently; account status wording polished.
 
 // V62 — hide visual prize tester on the public player screen.
 document.addEventListener("DOMContentLoaded",()=>{
