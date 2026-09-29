@@ -151,13 +151,6 @@ async function claimLoginBonus(){
   $("message").textContent=x.success?`🎁 ログインボーナス +${x.reward}回GET！`:"今日のログインボーナスは受け取り済み";
  }catch(e){fail(e);await loadLoginBonus()}
 }
-async function prepareBonusTapIfNeeded(){
- if(bonusTaps<=0)return false;
- const d=await req("/rest/v1/rpc/use_bonus_tap",{method:"POST",body:"{}"});
- const x=Array.isArray(d)?d[0]:d;
- if(x?.success){bonusTaps=Number(x.bonus_taps||0);serverEnergy=Math.min(21,Number(serverEnergy||0)+1);paintEnergy();if(loginBonusState){loginBonusState.bonus_taps=bonusTaps;paintLoginBonus()}return true}
- return false;
-}
 
 
 // V58 — daily missions
@@ -445,7 +438,6 @@ async function dig(i,b){
  if(serverEnergy<=0&&bonusTaps<=0){$("message").textContent="⚡ タップ回数切れ。回復を待とう";return}
  b.disabled=true;$("message").textContent="⛏️ サーバーで判定中…";
  try{
-  if(bonusTaps>0) await prepareBonusTapIfNeeded();
   const d=await req("/rest/v1/rpc/dig_treasure",{method:"POST",body:JSON.stringify({p_island_id:currentIsland,p_cell_index:i})});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
   serverEnergy=x.new_energy;paintEnergy();
