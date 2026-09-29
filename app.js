@@ -188,9 +188,6 @@ function paintDailyMissions(){
  allBtn.disabled=!allReady||!!x.all_clear_claimed;allBtn.classList.toggle("ready",allReady&&!x.all_clear_claimed);allBtn.textContent=x.all_clear_claimed?"✓ 受取済み":allReady?"+5回 受取":"未達成";
  allBtn.closest('.daily-all-clear')?.classList.toggle('claimed',!!x.all_clear_claimed);
 }
-async function recordDailyDig(){
- try{const difficulty=String(currentMeta?.difficulty||"").toLowerCase();if(!difficulty)return;await req("/rest/v1/rpc/record_daily_mission_dig",{method:"POST",body:JSON.stringify({p_island:difficulty})});await loadDailyMissions()}catch(e){console.warn("daily dig record:",e)}
-}
 async function claimDailyMission(id){
  try{
   const d=await req("/rest/v1/rpc/claim_daily_mission",{method:"POST",body:JSON.stringify({p_mission:id})});const x=Array.isArray(d)?d[0]:d;
@@ -456,13 +453,12 @@ async function dig(i,b){
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
   myOwnOpenedCells.add(i);
-  await recordDailyDig();
   $("wallet").textContent=x.new_balance+"円";
   if(Number(x.prize||0)>0) animateWalletGain(Number(x.prize||0));
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
   if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
-  await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus()]);
+  await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
