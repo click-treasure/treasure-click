@@ -51,3 +51,29 @@ header a{color:#171717;text-decoration:none;background:#fff;border:1px solid #dd
 /* V60.1: prize-pool connection status (display only) */
 .pool-live{display:inline-flex;align-items:center;gap:5px;margin-left:7px;padding:3px 8px;border-radius:999px;background:#edf8f1;color:#148447;font-size:10px;font-weight:900;vertical-align:middle}
 .pool-live i{width:7px;height:7px;border-radius:50%;background:currentColor;box-shadow:0 0 0 3px rgba(20,132,71,.12)}
+
+/* V60.2: clearer LIVE badge */
+.pool-live{
+  display:inline-flex !important;
+  align-items:center;
+  gap:6px;
+  margin-left:8px;
+  padding:4px 9px;
+  border:1px solid #b7e8c9;
+  border-radius:999px;
+  background:#ecfdf3;
+  color:#11823b !important;
+  font-size:10px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.08em;
+  vertical-align:middle;
+}
+.pool-live i{
+  display:block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#22c55e;
+  box-shadow:0 0 0 3px rgba(34,197,94,.13);
+}
