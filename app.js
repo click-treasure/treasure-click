@@ -834,14 +834,19 @@ function requireGoogleForRedemption(){
   }
   async function refreshAdminShortcut(){
     const a=document.getElementById('adminShortcut');
-    if(!a || !user?.id || !accessToken) return;
-    a.hidden=true;
+    const tester=document.getElementById('devPrizeTester');
+    if(a) a.hidden=true;
+    if(tester) tester.hidden=true;
+    if(!user?.id || !accessToken) return;
     try{
       const result=await req('/rest/v1/rpc/is_app_admin',{method:'POST',body:'{}'});
-      if(adminResultIsTrue(result)) a.hidden=false;
+      const isAdmin=adminResultIsTrue(result);
+      if(a) a.hidden=!isAdmin;
+      if(tester) tester.hidden=!isAdmin;
     }catch(e){
-      console.error('admin shortcut check:',e);
-      a.hidden=true;
+      console.error('admin UI check:',e);
+      if(a) a.hidden=true;
+      if(tester) tester.hidden=true;
     }
   }
   let tries=0;
@@ -884,7 +889,7 @@ function requireGoogleForRedemption(){
 // V57 login bonus
 document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);
 
-// V63 — linked Google accounts resume silently; account status wording polished.
+// V64 — linked Google accounts resume silently; account status wording polished.
 
 // V62 — hide visual prize tester on the public player screen.
 document.addEventListener("DOMContentLoaded",()=>{
