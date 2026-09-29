@@ -505,7 +505,7 @@ function updateAccountUI(){
     btn.disabled = false;
   }else{
     state.textContent = user ? `ゲストでプレイ中：${user.id.slice(0,8)}` : "ゲストでプレイ中";
-    btn.textContent = "G Googleで引き継ぐ";
+    btn.textContent = "G Googleと連携";
     btn.disabled = false;
   }
 }
@@ -567,13 +567,13 @@ async function beginGoogleMigration(){
 
     if(btn){
       btn.disabled = true;
-      btn.textContent = "引き継ぎ準備中…";
+      btn.textContent = "Google連携準備中…";
     }
 
     // Server proves this ticket belongs to the currently authenticated anonymous user.
     const token = await rpc("create_account_migration_ticket");
     if(!token || typeof token !== "string"){
-      throw new Error("引き継ぎチケットを作成できませんでした。");
+      throw new Error("Google連携の準備ができませんでした。");
     }
     localStorage.setItem(MIGRATION_TOKEN_KEY, token);
 
@@ -591,7 +591,7 @@ async function beginGoogleMigration(){
   }catch(e){
     if(btn){
       btn.disabled = false;
-      btn.textContent = "G Googleで引き継ぐ";
+      btn.textContent = "G Googleと連携";
     }
     fail(e);
   }
@@ -607,13 +607,20 @@ async function finishPendingMigration(){
 
     const row = Array.isArray(result) ? result[0] : result;
     const amount = row?.migrated_balance ?? 0;
-    alert(`Googleアカウントへの引き継ぎ完了！\n移行残高：${amount}円`);
+    alert(`Google連携が完了しました！\nゲスト残高：${amount}円\n次回から同じGoogleで続きから遊べます。`);
 
     // Refresh wallet/status using the new Google identity.
     await status();
     await loadWinHistory();
     return true;
   }catch(e){
+    const msg=String(e?.message||e||"");
+    if(msg.includes("already been linked")){
+      localStorage.removeItem(MIGRATION_TOKEN_KEY);
+      await Promise.all([status(),loadWinHistory()]);
+      alert("このGoogleアカウントはすでに連携済みです。\n既存の保存データでログインしました。\n今回のゲストデータは重複防止のため統合されません。");
+      return true;
+    }
     // Keep the token so a temporary failure can be retried within its 10-minute lifetime.
     fail(e);
     return false;
@@ -690,6 +697,14 @@ auth().then(startCountdown);
   });
 })();
 
+// V62 — cash redemption requires a permanent Google-linked account.
+function requireGoogleForRedemption(){
+  if(hasGoogleIdentity(user)) return true;
+  const go=confirm("交換するにはGoogle連携が必要です。\n\n連携すると現在の残高・当選履歴がGoogleアカウントに保存され、次回から同じデータで続けられます。\n\nGoogleと連携しますか？");
+  if(go) beginGoogleMigration();
+  return false;
+}
+
 // V46 — server-backed 100 yen redemption requests.
 (function(){
   const btn=document.getElementById('redeemBtn');
@@ -715,6 +730,7 @@ auth().then(startCountdown);
 
   btn.addEventListener('click',()=>{
     if(walletAmount()<100)return;
+    if(!requireGoogleForRedemption())return;
     modal.hidden=false;
     setTimeout(()=>destination.focus(),50);
   });
@@ -868,4 +884,10 @@ auth().then(startCountdown);
 // V57 login bonus
 document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);
 
-// V61 — cumulative win count fix; bonus taps stay separate and are consumed server-side first.
+// V62 — account linking UI, redemption gate, cumulative wins and bonus-only digging fixes.
+
+// V62 — hide visual prize tester on the public player screen.
+document.addEventListener("DOMContentLoaded",()=>{
+  const tester=document.getElementById("devPrizeTester");
+  if(tester) tester.hidden=true;
+});
