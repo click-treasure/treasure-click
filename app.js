@@ -104,8 +104,6 @@ let loginBonusState=null;
 
 async function loadLoginBonus(){
  try{
-  // V57.3: move legacy/overflow bonus into empty normal slots first
-  try{await req("/rest/v1/rpc/normalize_bonus_energy",{method:"POST",body:"{}"})}catch(e){console.warn("normalize bonus energy:",e)}
   const d=await req("/rest/v1/rpc/get_login_bonus_status",{method:"POST",body:"{}"});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
   loginBonusState=x;bonusTaps=Number(x.bonus_taps||0);
@@ -230,8 +228,12 @@ function renderCards(){
  });
 }
 async function loadWinHistory(){
- const d=await req("/rest/v1/treasure_wins?user_id=eq."+encodeURIComponent(user.id)+"&select=prize,cell_index,island_id,won_at&order=won_at.desc&limit=10");
- $("wins").textContent=(d?.length||0)+"回";
+ const uid=encodeURIComponent(user.id);
+ const [d,allWins]=await Promise.all([
+  req("/rest/v1/treasure_wins?user_id=eq."+uid+"&select=prize,cell_index,island_id,won_at&order=won_at.desc&limit=10"),
+  req("/rest/v1/treasure_wins?user_id=eq."+uid+"&select=id")
+ ]);
+ $("wins").textContent=(Array.isArray(allWins)?allWins.length:0)+"回";
  $("history").innerHTML=d?.length?d.map(x=>`<div class="row"><span>${x.island_id}・マス ${x.cell_index}</span><strong>+${x.prize}円</strong></div>`).join(""):"まだ獲得履歴はありません";
 }
 async function openIsland(x){
@@ -866,4 +868,4 @@ auth().then(startCountdown);
 // V57 login bonus
 document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginBonus);
 
-// V57.3 — normalize overflow bonus into normal energy slots; consume overflow first.
+// V61 — cumulative win count fix; bonus taps stay separate and are consumed server-side first.
