@@ -64,10 +64,13 @@ function v41Jackpot500(){
 
 const URL="https://osawhwcddovhddrxgfju.supabase.co", KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
 const $=id=>document.getElementById(id);
+const POINTS_PER_YEN=10;
+function points(n){return Number(n||0)*POINTS_PER_YEN}
+function pointText(n){return points(n).toLocaleString("ja-JP")+"P"}
 const META={
  easy:{name:"EASY",emoji:"🟢",desc:"宝30個・当たりやすい"},
  normal:{name:"NORMAL",emoji:"🟡",desc:"宝26個・バランス型"},
- hard:{name:"HARD",emoji:"🔴",desc:"宝7個・最大500円"}
+ hard:{name:"HARD",emoji:"🔴",desc:"宝7個・最大5,000P"}
 };
 let accessToken=localStorage.getItem("v261_access_token")||"";
 let refreshToken=localStorage.getItem("v261_refresh_token")||"";
@@ -192,7 +195,7 @@ document.getElementById("dailyAllClaim")?.addEventListener("click",e=>{if(!e.cur
 async function status(){
  const d=await req("/rest/v1/rpc/get_player_status",{method:"POST",body:"{}"});
  const x=Array.isArray(d)?d[0]:d;if(!x)return;
- $("wallet").textContent=x.balance+"円";serverEnergy=x.energy;nextSeconds=x.next_energy_seconds||0;paintEnergy();
+ $("wallet").textContent=pointText(x.balance);serverEnergy=x.energy;nextSeconds=x.next_energy_seconds||0;paintEnergy();
 }
 function paintEnergy(){
  const total=Number(serverEnergy||0)+Number(bonusTaps||0);
@@ -234,7 +237,7 @@ async function loadWinHistory(){
   req("/rest/v1/treasure_wins?user_id=eq."+uid+"&select=id")
  ]);
  $("wins").textContent=(Array.isArray(allWins)?allWins.length:0)+"回";
- $("history").innerHTML=d?.length?d.map(x=>`<div class="row"><span>${x.island_id}・マス ${x.cell_index}</span><strong>+${x.prize}円</strong></div>`).join(""):"まだ獲得履歴はありません";
+ $("history").innerHTML=d?.length?d.map(x=>`<div class="row"><span>${x.island_id}・マス ${x.cell_index}</span><strong>+${pointText(x.prize)}</strong></div>`).join(""):"まだ獲得履歴はありません";
 }
 async function openIsland(x){
  if(x.island_status!=="active")return;
@@ -330,9 +333,9 @@ function burstConfetti(count=30){
 function prizeOverlay(prize){
  const d=document.createElement("div");
  d.className="prize-overlay "+(prize>=100?"prize-tier-mega":prize>=10?"prize-tier-big":"prize-tier-small");
- d.innerHTML=prize>=100?`<div class="prize-kicker">JACKPOT!</div><div class="prize-main">${prize}円！！！</div>`:
-             prize>=10?`<div class="prize-kicker">当たり！</div><div class="prize-main">${prize}円！！！</div>`:
-             `<div class="prize-main">${prize}円 GET!</div>`;
+ d.innerHTML=prize>=100?`<div class="prize-kicker">JACKPOT!</div><div class="prize-main">${pointText(prize)}！！！</div>`:
+             prize>=10?`<div class="prize-kicker">当たり！</div><div class="prize-main">${pointText(prize)}！！！</div>`:
+             `<div class="prize-main">${pointText(prize)} GET!</div>`;
  document.body.appendChild(d);setTimeout(()=>d.remove(),prize>=10?1450:800);
 }
 function soundBigHit(){v36tone(392,.11,"triangle",.12,0);v36tone(659,.15,"sine",.13,.07);v36tone(988,.22,"sine",.12,.16);v36tone(1319,.30,"sine",.09,.25)}
@@ -359,7 +362,7 @@ function originalCelebrate10(){
 }
 function originalJackpot10(prize){
  const o=document.getElementById("jackpotOverlay");if(!o)return;
- document.getElementById("jackpotAmount").textContent=prize;
+ document.getElementById("jackpotAmount").textContent=points(prize).toLocaleString("ja-JP");
  document.getElementById("jackpotLabel").textContent=prize>=100?"💎 超大当たり！！ 💎":"🔥 大当たり！！ 🔥";
  document.getElementById("jackpotBang").textContent=prize>=100?"！！！ JACKPOT ！！！":"！！！";
  o.classList.remove("show");void o.offsetWidth;o.classList.add("show");o.setAttribute("aria-hidden","false");
@@ -398,7 +401,7 @@ function animateWalletGain(prize){
   card.querySelectorAll(".wallet-gain-float").forEach(el=>el.remove());
   const gain=document.createElement("span");
   gain.className="wallet-gain-float"+(prize>=100?" big":"");
-  gain.textContent=`+${prize}円`;
+  gain.textContent=`+${pointText(prize)}`;
   card.appendChild(gain);
 
   setTimeout(()=>{
@@ -447,10 +450,10 @@ async function dig(i,b){
   if(x.result==="already_opened"){$("message").textContent="誰かに先を越された！エネルギー消費なし";await load(true);return}
   if(x.result==="island_finished"&&!x.success){$("message").textContent="🏁 この島は探索終了！";$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");await loadLatest();return}
   myOwnOpenedCells.add(i);
-  $("wallet").textContent=x.new_balance+"円";
+  $("wallet").textContent=pointText(x.new_balance);
   if(Number(x.prize||0)>0) animateWalletGain(Number(x.prize||0));
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
-  if(x.prize>0){$("message").textContent=`🎉 ${x.prize}円GET！`;$("amount").textContent=x.prize+"円";setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
+  if(x.prize>0){$("message").textContent=`🎉 ${pointText(x.prize)} GET！`;$("amount").textContent=pointText(x.prize);setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
   if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
   await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
  }catch(e){fail(e);b.disabled=false}
@@ -607,7 +610,7 @@ async function finishPendingMigration(){
 
     const row = Array.isArray(result) ? result[0] : result;
     const amount = row?.migrated_balance ?? 0;
-    alert(`Google連携が完了しました！\nゲスト残高：${amount}円\n次回から同じGoogleで続きから遊べます。`);
+    alert(`Google連携が完了しました！\n引き継いだポイント：${pointText(amount)}\n次回から同じGoogleで続きから遊べます。`);
 
     // Refresh wallet/status using the new Google identity.
     await status();
@@ -658,9 +661,9 @@ auth().then(startCountdown);
     const wallet=document.getElementById('wallet'), fill=document.getElementById('redeemFill'), text=document.getElementById('redeemText');
     if(!wallet||!fill||!text)return;
     const n=Math.max(0,parseInt((wallet.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
-    const pct=Math.min(100,n);
+    const pct=Math.min(100,n/10);
     fill.style.width=pct+'%';
-    text.textContent=n>=100?'100円達成！交換できます':`あと${100-n}円で交換できます`;
+    text.textContent=n>=1000?'1,000P達成！PayPay 100円分に交換できます':`あと${(1000-n).toLocaleString('ja-JP')}Pで交換できます`;
   }
   document.addEventListener('DOMContentLoaded',()=>{
     const wallet=document.getElementById('wallet');
@@ -719,17 +722,17 @@ function requireGoogleForRedemption(){
     return Math.max(0,parseInt((w?.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
   }
   function syncRedeemButton(){
-    const ok=walletAmount()>=100;
+    const ok=walletAmount()>=1000;
     btn.disabled=!ok;
     const menu=document.getElementById('redeemMenuState');
-    if(menu)menu.textContent=ok?'交換できます':'100円〜';
+    if(menu)menu.textContent=ok?'交換できます':'1,000P〜';
   }
   const wallet=document.getElementById('wallet');
   if(wallet)new MutationObserver(syncRedeemButton).observe(wallet,{childList:true,subtree:true,characterData:true});
   syncRedeemButton();
 
   btn.addEventListener('click',()=>{
-    if(walletAmount()<100)return;
+    if(walletAmount()<1000)return;
     if(!requireGoogleForRedemption())return;
     modal.hidden=false;
     setTimeout(()=>destination.focus(),50);
@@ -751,9 +754,9 @@ function requireGoogleForRedemption(){
       modal.hidden=true;destination.value='';
       await Promise.all([status(),loadWinHistory()]);
       if(window.loadRedemptionHistory)await window.loadRedemptionHistory();
-      alert('100円の交換申請を受け付けました！\n申請ID：'+row.id+'\n現在：処理待ち');
+      alert('1,000P → PayPay 100円分の交換申請を受け付けました！\n申請ID：'+row.id+'\n現在：処理待ち');
     }catch(e){fail(e)}
-    finally{submit.disabled=false;submit.textContent='100円を交換申請する'}
+    finally{submit.disabled=false;submit.textContent='1,000Pを交換する'}
   });
 })();
 
@@ -780,7 +783,7 @@ function requireGoogleForRedemption(){
     box.innerHTML=rows.map(r=>{
       const paid=r.status==='completed'||r.status==='paid';
       return `<div class="redeem-history-row ${paid?'is-paid':'is-pending'}">
-        <div><b>${Number(r.amount||0)}円</b><span>${paid?'✓ 支払済み':'● 処理待ち'}</span></div>
+        <div><b>${pointText(r.amount)} → PayPay ${Number(r.amount||0).toLocaleString("ja-JP")}円分</b><span>${paid?'✓ 支払済み':'● 処理待ち'}</span></div>
         <small>申請 #${r.id} ・ ${fmtDate(r.created_at)}</small>
         <small>受取先：${maskDestination(r.payout_destination)}</small>
         ${paid?`<small class="paid-at">支払完了：${fmtDate(r.completed_at)}</small>`:''}
@@ -879,7 +882,7 @@ function requireGoogleForRedemption(){
   winMenu.addEventListener('click',()=>setOpen('win'));
   redeemMenu.addEventListener('click',()=>setOpen('redeem'));
   if(compactRedeem&&mainRedeem){
-    const sync=()=>{compactRedeem.disabled=mainRedeem.disabled;compactRedeem.textContent=mainRedeem.disabled?'100円から交換できます':'100円を交換申請する';};
+    const sync=()=>{compactRedeem.disabled=mainRedeem.disabled;compactRedeem.textContent=mainRedeem.disabled?'1,000Pから交換できます':'1,000Pを交換する';};
     new MutationObserver(sync).observe(mainRedeem,{attributes:true,attributeFilter:['disabled']});
     sync();
     compactRedeem.addEventListener('click',()=>{if(!mainRedeem.disabled)mainRedeem.click();});
@@ -891,7 +894,7 @@ document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginB
 
 // V64 — linked Google accounts resume silently; account status wording polished.
 
-// V62 — hide visual prize tester on the public player screen.
+// V66 — player UI uses 10P per internal yen-equivalent unit.
 document.addEventListener("DOMContentLoaded",()=>{
   const tester=document.getElementById("devPrizeTester");
   if(tester) tester.hidden=true;

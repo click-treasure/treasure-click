@@ -6,6 +6,8 @@ async function req(path,options={}){const headers=Object.assign({apikey:KEY,"Con
 async function rpc(name,body={}){return req('/rest/v1/rpc/'+name,{method:'POST',body:JSON.stringify(body)})}
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function yen(n){return Number(n||0).toLocaleString('ja-JP')+'円'}
+function pt(n){return (Number(n||0)*10).toLocaleString('ja-JP')+'P'}
+function ptYen(n){return pt(n)+'（'+yen(n)+'相当）'}
 
 async function loadPool(){
   const rows=await rpc('admin_get_prize_pool_summary',{});
@@ -16,15 +18,15 @@ async function loadPool(){
   const discovered=list.reduce((s,x)=>s+Number(x.discovered_value||0),0);
   const count=list.reduce((s,x)=>s+Number(x.total_count||0),0);
 
-  $("poolTotal").textContent=yen(total);
-  $("poolUnallocated").textContent=yen(unallocated);
-  $("poolAllocated").textContent=yen(allocated);
-  $("poolDiscovered").textContent=yen(discovered);
+  $("poolTotal").textContent=ptYen(total);
+  $("poolUnallocated").textContent=ptYen(unallocated);
+  $("poolAllocated").textContent=ptYen(allocated);
+  $("poolDiscovered").textContent=ptYen(discovered);
   $("poolCount").textContent=count.toLocaleString('ja-JP')+'本';
 
   $("poolInventory").innerHTML=list.length?list.map(x=>`
     <div class="prize-stock">
-      <div class="yen">${Number(x.denomination).toLocaleString('ja-JP')}円</div>
+      <div class="yen">${ptYen(x.denomination)}</div>
       <div class="count">${Number(x.total_count).toLocaleString('ja-JP')}本</div>
       <div class="stock-meta">
         未配置 ${Number(x.unallocated_count).toLocaleString('ja-JP')}本<br>
@@ -43,7 +45,7 @@ async function load(){
     const list=Array.isArray(rows)?rows:[];
     $("pendingCount").textContent=list.filter(x=>x.status==='pending').length+'件';
     $("paidCount").textContent=list.filter(x=>x.status==='completed').length+'件';
-    $("requests").innerHTML=list.length?list.map(x=>`<article class="request"><div><div class="meta"><span>#${x.id}</span><span>${esc(new Date(x.created_at).toLocaleString('ja-JP'))}</span><span>${x.amount}円</span></div><div class="dest">PayPay受取先：${esc(x.payout_destination)}</div><div class="status ${x.status==='completed'?'paid':'pending'}">${x.status==='completed'?'✓ 支払済み':'● 処理待ち'}</div>${x.status==='completed'&&x.completed_at?`<div class="paid-at">支払完了：${esc(new Date(x.completed_at).toLocaleString('ja-JP'))}</div>`:''}</div>${x.status==='pending'?`<button class="paid-btn" data-id="${x.id}" data-amount="${x.amount}" data-dest="${esc(x.payout_destination)}">支払済みにする</button>`:''}</article>`).join(''):'<div class="card">交換申請はまだありません。</div>';
+    $("requests").innerHTML=list.length?list.map(x=>`<article class="request"><div><div class="meta"><span>#${x.id}</span><span>${esc(new Date(x.created_at).toLocaleString('ja-JP'))}</span><span>${pt(x.amount)} → PayPay ${x.amount}円分</span></div><div class="dest">PayPay受取先：${esc(x.payout_destination)}</div><div class="status ${x.status==='completed'?'paid':'pending'}">${x.status==='completed'?'✓ 支払済み':'● 処理待ち'}</div>${x.status==='completed'&&x.completed_at?`<div class="paid-at">支払完了：${esc(new Date(x.completed_at).toLocaleString('ja-JP'))}</div>`:''}</div>${x.status==='pending'?`<button class="paid-btn" data-id="${x.id}" data-amount="${x.amount}" data-dest="${esc(x.payout_destination)}">支払済みにする</button>`:''}</article>`).join(''):'<div class="card">交換申請はまだありません。</div>';
     document.querySelectorAll('.paid-btn').forEach(b=>b.onclick=()=>markPaid(Number(b.dataset.id),Number(b.dataset.amount),b.dataset.dest,b));
   }catch(e){
     $("gateMsg").textContent='管理者として確認できませんでした。';
