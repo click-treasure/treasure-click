@@ -466,7 +466,9 @@ $("close").onclick=()=>{$("overlay").hidden=true;$("message").textContent="ã‚µãƒ
 
 // ===== V34 Safe guest -> existing/new Google migration =====
 const MIGRATION_TOKEN_KEY = "treasure_migration_token_v34";
-const OAUTH_REDIRECT = "https://ishikawahiroto0206-debug.github.io/treasure-click/";
+// V67: OAuth redirect follows the currently opened CLICK TREASURE URL.
+// This prevents GitHub username / Pages URL changes from breaking Google login.
+const OAUTH_REDIRECT = `${window.location.origin}${window.location.pathname}`;
 
 function parseOAuthSession(){
   const raw = location.hash.startsWith("#") ? location.hash.slice(1) : "";
