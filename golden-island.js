@@ -3,6 +3,29 @@ const URL='https://osawhwcddovhddrxgfju.supabase.co', KEY='sb_publishable_AMGEh3
 let accessToken="", currentUser=null, goldenTickets=0, opening=false;
 const $=id=>document.getElementById(id);
 
+let goldenAudioCtx=null;
+function goldenCtx(){
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return null;
+  if(!goldenAudioCtx)goldenAudioCtx=new AC();
+  return goldenAudioCtx;
+}
+function unlockGameAudio(){
+  const c=goldenCtx();
+  if(c&&c.state==="suspended")c.resume().catch(()=>{});
+}
+function playAudio(id){
+  const a=$(id);
+  if(!a)return;
+  try{
+    a.pause();a.currentTime=0;a.volume=1;
+    const q=a.play();
+    if(q&&q.catch)q.catch(e=>console.warn("golden audio play failed",id,e));
+  }catch(e){console.warn("golden audio error",id,e)}
+}
+document.addEventListener("pointerdown",unlockGameAudio,{once:true});
+document.addEventListener("keydown",unlockGameAudio,{once:true});
+
 async function req(path,options={}){
   const headers=Object.assign({"apikey":KEY,"Content-Type":"application/json"},options.headers||{});
   if(accessToken) headers.Authorization="Bearer "+accessToken;
@@ -56,14 +79,7 @@ function message(){
     :"🎫 黄金島チケットがありません";
 }
 
-function playGoldenAudio(id){
-  const a=$(id);
-  if(!a)return;
-  try{
-    a.pause(); a.currentTime=0; a.volume=1;
-    const q=a.play(); if(q&&q.catch)q.catch(()=>{});
-  }catch(_e){}
-}
+
 function goldenConfetti(count=36){
   const layer=document.createElement("div");
   layer.className="win-confetti-layer";
@@ -103,13 +119,13 @@ function playGoldenWin(points,button){
   setTimeout(()=>button?.classList.remove("golden-opening-flash"),900);
   // Golden rewards: 100P / 500P / 1000P.
   if(points>=1000){
-    playGoldenAudio("goldenWin100");
+    playAudio("audio100old");
     goldenJackpot(points);
   }else if(points>=500){
-    playGoldenAudio("goldenWin10");
+    playAudio("audio10old");
     goldenJackpot(points);
   }else{
-    playGoldenAudio("goldenWin1");
+    playAudio("audio1old");
     goldenPrizeOverlay(points);
     goldenConfetti(22);
   }
@@ -117,6 +133,7 @@ function playGoldenWin(points,button){
 
 async function dig(button){
   if(opening||goldenTickets<=0)return;
+  unlockGameAudio();
   opening=true;
   document.querySelectorAll(".golden-chest").forEach(b=>b.disabled=true);
   $("goldenMessage").textContent="✨ 黄金の宝箱を開封中…";
