@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-26">
+<title>宝島｜CLICK TREASURE</title>
+<link rel="stylesheet" href="island.css?v=88-27">
 </head>
 <body>
 <main class="island-page">
@@ -17,16 +17,16 @@
     <div class="brand"><span class="brand-chest">▣</span><b>CLICK <em>TREASURE</em></b></div>
   </header>
 
-  <section class="easy-hero">
+  <section class="easy-hero" id="islandHero">
     <div class="hero-shade"></div>
     <div class="hero-copy">
       <span class="eyebrow">TREASURE ISLAND</span>
-      <h1>EASY島 <small id="generation">#—</small></h1>
-      <p>南の楽園の小さな島</p>
+      <h1><span id="difficultyTitle">EASY島</span> <small id="generation">#—</small></h1>
+      <p id="islandSubtitle">南の楽園の小さな島</p>
       <div class="chips">
         <span>🏝️ 100マス</span>
-        <span>🎁 宝30個</span>
-        <span>⭐ 初心者向け</span>
+        <span id="hitRateChip">🎯 当たりやすさ ★★★</span>
+        <span id="rewardChip">💎 当たり報酬 ★☆☆</span>
       </div>
     </div>
   </section>
@@ -39,9 +39,9 @@
       </div>
       <div class="map-count">🧰 残り <strong id="remaining">--</strong> / 100マス</div>
     </div>
-    <div class="chest-board loading" id="chestBoard" aria-label="EASY島 100マス宝箱マップ"></div>
+    <div class="chest-board loading" id="chestBoard" aria-label="100マス宝箱マップ"></div>
     <div class="map-foot">
-      <div><b>この島の報酬</b><span>🪙 10P　🪙 100P　🌟 1,000P</span></div>
+      <div><b>この島の報酬</b><span id="rewardList">🪙 10P　🪙 100P　🌟 1,000P</span></div>
       <div class="energy-preview"><b>⚡ エネルギー</b><strong id="energyBottom">-- / 20</strong></div>
     </div>
   </section>
@@ -68,6 +68,6 @@
 <div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
 <div id="errorToast" class="error-toast" hidden></div>
 
-<script src="island.js?v=88-26"></script>
+<script src="island.js?v=88-27"></script>
 </body>
 </html>

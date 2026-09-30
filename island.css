@@ -1599,3 +1599,23 @@ section.ad ins{
     border-radius:14px!important;
   }
 }
+
+/* V88-27 NORMAL — same layout, different world */
+body[data-difficulty="normal"] .easy-hero{
+  background-image:url("./assets/normal-treasure-ruins-v88.webp")!important;
+  background-position:center 36%!important;
+}
+body[data-difficulty="normal"] .hero-shade{
+  background:linear-gradient(90deg,rgba(20,30,22,.76),rgba(30,42,28,.30) 48%,rgba(20,30,22,.04) 78%)!important;
+}
+body[data-difficulty="normal"] .map-kicker{color:#a9791d!important}
+body[data-difficulty="normal"] .chest-board{
+  background:url("./assets/normal-treasure-ruins-v88.webp") center/cover no-repeat!important;
+  padding:16.5% 14% 18%!important;
+  gap:5px!important;
+}
+body[data-difficulty="normal"] .demo-chest img{
+  width:88%!important;
+  height:88%!important;
+  filter:drop-shadow(0 4px 3px rgba(41,28,10,.40))!important;
+}

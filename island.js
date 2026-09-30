@@ -12,6 +12,12 @@ let knownOpened=new Set(),ownDigCell=null;
 
 const params=new URLSearchParams(location.search);
 const wantedGeneration=Number(params.get("generation")||0);
+const difficulty=(params.get("difficulty")||"easy").toLowerCase();
+const THEMES={
+  easy:{label:"EASY島",subtitle:"南の楽園の小さな島",hit:"🎯 当たりやすさ ★★★",reward:"💎 当たり報酬 ★☆☆",chest:"./assets/easy-chest-closed-v88.webp",open:"./assets/easy-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P"},
+  normal:{label:"NORMAL島",subtitle:"海に浮かぶ古代遺跡の島",hit:"🎯 当たりやすさ ★★☆",reward:"💎 当たり報酬 ★★☆",chest:"./assets/normal-chest-closed-v88.webp",open:"./assets/normal-chest-closed-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P"}
+};
+const theme=THEMES[difficulty]||THEMES.easy;
 
 function points(n){return Number(n||0)*POINTS_PER_YEN}
 function pointText(n){return points(n).toLocaleString("ja-JP")+"P"}
@@ -80,12 +86,19 @@ function startCountdown(){
 
 async function resolveIsland(){
   const d=await req("/rest/v1/rpc/get_latest_islands",{method:"POST",body:"{}"});
-  const easy=(d||[]).find(x=>x.difficulty==="easy");
-  if(!easy)throw new Error("EASY島が見つかりません");
-  island=easy;
-  $("generation").textContent="#"+easy.generation;
-  if(wantedGeneration&&wantedGeneration!==Number(easy.generation)){
-    history.replaceState(null,"",`island.html?difficulty=easy&generation=${easy.generation}`);
+  const found=(d||[]).find(x=>x.difficulty===difficulty);
+  if(!found)throw new Error(theme.label+"が見つかりません");
+  island=found;
+  $("generation").textContent="#"+found.generation;
+  document.body.dataset.difficulty=difficulty;
+  $("difficultyTitle").textContent=theme.label;
+  $("islandSubtitle").textContent=theme.subtitle;
+  $("hitRateChip").textContent=theme.hit;
+  $("rewardChip").textContent=theme.reward;
+  $("rewardList").textContent=theme.rewards;
+  document.title=theme.label+"｜CLICK TREASURE";
+  if(wantedGeneration&&wantedGeneration!==Number(found.generation)){
+    history.replaceState(null,"",`island.html?difficulty=${difficulty}&generation=${found.generation}`);
   }
 }
 
@@ -120,7 +133,7 @@ function renderBoard(){
     b.dataset.cell=String(pos);
     b.setAttribute("aria-label",dug?`発掘済み ${pos}`:`宝箱 ${pos}`);
     if(!dug){
-      b.innerHTML='<img src="./assets/easy-chest-closed-v88.webp" alt="未開封の宝箱" draggable="false">';
+      b.innerHTML=`<img src="${theme.chest}" alt="未開封の宝箱" draggable="false">`;
       b.disabled=digBusy||(serverEnergy<=0&&bonusTaps<=0);
       b.onclick=()=>dig(pos,b);
     }else{
@@ -134,7 +147,7 @@ function renderBoard(){
 function playOpenTransition(button){
   const img=button.querySelector("img");if(!img)return;
   button.classList.add("opening-now");
-  img.src="./assets/easy-chest-open-v88.webp";
+  img.src=theme.open;
 }
 function removeOpenedChest(button){
   button.classList.add("vanish");
