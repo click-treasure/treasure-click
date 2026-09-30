@@ -1077,3 +1077,32 @@ function applyV80ExchangeLock(){
 }
 document.addEventListener("DOMContentLoaded", applyV80ExchangeLock);
 new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{childList:true,subtree:true});
+
+
+// V88-8: Golden Island artwork follows the rendered Golden Ticket count.
+(function(){
+  function goldenCard(){
+    return document.querySelector('.island-card.golden, .island-card.secret, .golden-island-card');
+  }
+  function ticketTextNode(){
+    const card = goldenCard();
+    if (!card) return null;
+    const candidates = [...card.querySelectorAll('*')];
+    return candidates.find(el => /(?:GOLDEN\s*TICKET|チケット)/i.test(el.textContent || '') && /\d+/.test(el.textContent || '')) || null;
+  }
+  function syncGoldenArtwork(){
+    const card = goldenCard();
+    if (!card) return;
+    const node = ticketTextNode();
+    const text = node ? node.textContent : card.textContent;
+    const m = String(text || '').match(/(?:GOLDEN\s*TICKET|チケット)[^\d]*(\d+)/i);
+    const tickets = m ? Number(m[1]) : 0;
+    card.classList.toggle('golden-unlocked', tickets > 0);
+    card.classList.toggle('golden-locked', tickets <= 0);
+  }
+  document.addEventListener('DOMContentLoaded', () => {
+    syncGoldenArtwork();
+    const card = goldenCard();
+    if (card) new MutationObserver(syncGoldenArtwork).observe(card, {subtree:true, childList:true, characterData:true});
+  });
+})();

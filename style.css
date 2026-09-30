@@ -1010,3 +1010,41 @@ main{max-width:1180px}
 @media(max-width:650px){
   .island-card.hard .island-art{height:155px!important}
 }
+
+
+/* V88-8 — Golden Island locked/unlocked artwork */
+.island-card.golden .island-art,
+.island-card.secret .island-art,
+.golden-island-card .island-art{
+  background-image:url("assets/golden-island-locked-v88.webp")!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  height:168px!important;
+}
+.island-card.golden .island-art::before,
+.island-card.golden .island-art::after,
+.island-card.golden .island-art > i,
+.island-card.secret .island-art::before,
+.island-card.secret .island-art::after,
+.island-card.secret .island-art > i,
+.golden-island-card .island-art::before,
+.golden-island-card .island-art::after,
+.golden-island-card .island-art > i{
+  display:none!important;
+}
+.island-card.golden.golden-unlocked .island-art,
+.island-card.secret.golden-unlocked .island-art,
+.golden-island-card.golden-unlocked .island-art{
+  background-image:url("assets/golden-island-unlocked-v88.webp")!important;
+}
+.island-card.golden.golden-unlocked,
+.island-card.secret.golden-unlocked,
+.golden-island-card.golden-unlocked{
+  box-shadow:0 0 0 2px #e8b52b,0 12px 30px rgba(214,160,25,.25)!important;
+}
+@media(max-width:650px){
+  .island-card.golden .island-art,
+  .island-card.secret .island-art,
+  .golden-island-card .island-art{height:155px!important}
+}
