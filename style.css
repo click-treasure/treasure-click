@@ -1048,3 +1048,68 @@ main{max-width:1180px}
   .island-card.secret .island-art,
   .golden-island-card .island-art{height:155px!important}
 }
+
+
+/* V88-10 — unified header navigation; sidebar removed */
+.v88-page-shell{
+  display:block!important;
+  max-width:1180px!important;
+  margin:0 auto!important;
+  padding:0 22px 30px!important;
+}
+.v88-main-column{width:100%!important;min-width:0!important}
+.v88-sidebar{display:none!important}
+
+.v88-topbar{position:relative;z-index:30}
+.v88-header-menu{
+  position:relative;
+  z-index:29;
+  max-width:1180px;
+  margin:-4px auto 16px;
+  padding:0 22px;
+}
+.v88-header-menu[hidden]{display:none!important}
+.v88-header-menu-grid{
+  margin-left:auto;
+  width:min(620px,100%);
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:8px;
+  padding:12px;
+  background:rgba(255,255,255,.97);
+  border:1px solid #dce6f1;
+  border-radius:20px;
+  box-shadow:0 18px 45px rgba(30,59,91,.16);
+}
+.v88-header-menu-grid button,
+.v88-header-menu-grid a{
+  min-height:72px;
+  border:1px solid #e3eaf2;
+  border-radius:14px;
+  background:#fff;
+  color:#18314f;
+  text-decoration:none;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font:inherit;
+  cursor:pointer;
+}
+.v88-header-menu-grid button:hover,
+.v88-header-menu-grid a:hover{
+  background:#f5f9ff;
+  transform:translateY(-1px);
+}
+.v88-header-menu-grid span{font-size:20px;line-height:1}
+.v88-header-menu-grid b{font-size:12px}
+#v88MenuToggle[aria-expanded="true"]{
+  background:#eef6ff;
+  border-color:#a9cdf5;
+}
+@media(max-width:760px){
+  .v88-page-shell{padding:0 12px 24px!important}
+  .v88-header-menu{padding:0 12px}
+  .v88-header-menu-grid{grid-template-columns:repeat(2,minmax(0,1fr));width:100%}
+}
