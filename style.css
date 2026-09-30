@@ -1249,3 +1249,17 @@ main{max-width:1180px}
   position:relative;
   z-index:1;
 }
+
+
+/* V88-13 — generated treasure-world background */
+html{
+  background:#bfeeff;
+}
+body{
+  background:
+    linear-gradient(rgba(246,250,253,.68), rgba(246,250,253,.82)),
+    url("./assets/treasure-world-bg-v88.png") center top / cover fixed no-repeat!important;
+}
+.v88-page-shell{
+  position:relative;
+}
