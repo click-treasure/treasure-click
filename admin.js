@@ -17,13 +17,11 @@ async function loadPool(){
   const allocated=list.reduce((s,x)=>s+Number(x.allocated_value||0),0);
   const discovered=list.reduce((s,x)=>s+Number(x.discovered_value||0),0);
   const count=list.reduce((s,x)=>s+Number(x.total_count||0),0);
-
   $("poolTotal").textContent=ptYen(total);
   $("poolUnallocated").textContent=ptYen(unallocated);
   $("poolAllocated").textContent=ptYen(allocated);
   $("poolDiscovered").textContent=ptYen(discovered);
   $("poolCount").textContent=count.toLocaleString('ja-JP')+'本';
-
   $("poolInventory").innerHTML=list.length?list.map(x=>`
     <div class="prize-stock">
       <div class="yen">${ptYen(x.denomination)}</div>
@@ -45,26 +43,49 @@ async function load(){
     const list=Array.isArray(rows)?rows:[];
     $("pendingCount").textContent=list.filter(x=>x.status==='pending').length+'件';
     $("paidCount").textContent=list.filter(x=>x.status==='completed').length+'件';
-    $("requests").innerHTML=list.length?list.map(x=>`<article class="request"><div><div class="meta"><span>#${x.id}</span><span>${esc(new Date(x.created_at).toLocaleString('ja-JP'))}</span><span>${pt(x.amount)} → PayPay ${x.amount}円分</span></div><div class="dest">PayPay受取先：${esc(x.payout_destination)}</div><div class="status ${x.status==='completed'?'paid':'pending'}">${x.status==='completed'?'✓ 支払済み':'● 処理待ち'}</div>${x.status==='completed'&&x.completed_at?`<div class="paid-at">支払完了：${esc(new Date(x.completed_at).toLocaleString('ja-JP'))}</div>`:''}</div>${x.status==='pending'?`<button class="paid-btn" data-id="${x.id}" data-amount="${x.amount}" data-dest="${esc(x.payout_destination)}">支払済みにする</button>`:''}</article>`).join(''):'<div class="card">交換申請はまだありません。</div>';
+
+    $("requests").innerHTML=list.length?list.map(x=>`
+      <article class="request">
+        <div>
+          <div class="meta">
+            <span>#${x.id}</span>
+            <span>${esc(new Date(x.created_at).toLocaleString('ja-JP'))}</span>
+            <span>${pt(x.amount)} → PayPay ${x.amount}円分</span>
+          </div>
+          <div class="dest"><b>PayPay ID：</b>${esc(x.payout_destination)}</div>
+          <div class="status ${x.status==='completed'?'paid':'pending'}">${x.status==='completed'?'✓ 支払済み':'● 処理待ち'}</div>
+          ${x.status==='completed'&&x.completed_at?`<div class="paid-at">支払完了：${esc(new Date(x.completed_at).toLocaleString('ja-JP'))}</div>`:''}
+        </div>
+        ${x.status==='pending'?`<button class="paid-btn" data-id="${x.id}" data-amount="${x.amount}" data-dest="${esc(x.payout_destination)}">支払済みにする</button>`:''}
+      </article>`).join(''):'<div class="card">交換申請はまだありません。</div>';
+
     document.querySelectorAll('.paid-btn').forEach(b=>b.onclick=()=>markPaid(Number(b.dataset.id),Number(b.dataset.amount),b.dataset.dest,b));
   }catch(e){
     $("gateMsg").textContent='管理者として確認できませんでした。';
     fail(e)
   }
 }
+
 async function markPaid(id,amount,dest,b){
-  const ok=confirm('最終確認\n\n申請 #'+id+'\n送金額：'+amount+'円\nPayPay受取先：'+dest+'\n\nPayPayでの送金は完了しましたか？\n※この操作は送金完了後にだけ実行してください。');
+  const ok=confirm(
+    '支払済み処理の最終確認\n\n' +
+    '申請 #'+id+'\n' +
+    '交換：'+pt(amount)+' → PayPay '+amount+'円分\n' +
+    'PayPay ID：'+dest+'\n\n' +
+    'このPayPay IDへの送金が実際に完了していることを確認しましたか？\n\n' +
+    '※「OK」を押すとCLICK TREASURE上で支払済みになります。'
+  );
   if(!ok)return;
   b.disabled=true;
   try{await rpc('admin_mark_redemption_paid',{p_request_id:id});await load()}
   catch(e){fail(e);b.disabled=false}
 }
+
 $("reload").onclick=load;
 $("poolReload").onclick=async()=>{try{$("error").hidden=true;await loadPool()}catch(e){fail(e)}};
 load();
 
-
-// V59.1 FIXED: local-only business simulator. Existing V59 auth/load code above is unchanged.
+// V59.1 FIXED: local-only business simulator.
 function updateSimulator(){
   const num=id=>Math.max(0,Number($(id)?.value)||0);
   const mau=num('simMau'), taps=num('simTaps'), ads=num('simAds'), affiliate=num('simAffiliate');
