@@ -99,7 +99,7 @@ async function auth(){
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
-  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
+  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions(),loadGoldenTickets()]);
  }catch(e){fail(e);$("session").textContent="認証エラー";}
 }
 let bonusTaps=0;
@@ -216,6 +216,67 @@ function startCountdown(){
   if(serverEnergy<20&&nextSeconds<=0){try{await status()}catch(e){fail(e)}}
  },1000);
 }
+// V86 — SECRET Golden Island
+let goldenTickets=0;
+let goldenDigBusy=false;
+async function loadGoldenTickets(){
+ try{
+  if(!user?.id)return;
+  const d=await req("/rest/v1/golden_ticket_wallets?user_id=eq."+encodeURIComponent(user.id)+"&select=tickets,total_found,total_used");
+  goldenTickets=Number(Array.isArray(d)&&d[0]?d[0].tickets:0);
+  paintGoldenTicketUI();
+ }catch(e){console.error("golden tickets:",e)}
+}
+function paintGoldenTicketUI(){
+ const card=$("goldenIslandCard"),badge=$("goldenTicketBadge"),inside=$("goldenTicketsInGame");
+ if(badge)badge.textContent=`🎫 チケット ${goldenTickets}枚`;
+ if(inside)inside.textContent=goldenTickets;
+ if(card){
+  card.classList.toggle("locked",goldenTickets<=0);
+  card.classList.toggle("unlocked",goldenTickets>0);
+  const s=card.querySelector("span");if(s)s.textContent=goldenTickets>0?"✨ SECRET OPEN":"🔒 SECRET";
+ }
+}
+function goldenTicketEffect(){
+ const d=document.createElement("div");d.className="golden-ticket-overlay";
+ d.innerHTML='<div class="golden-ticket-shine">✦</div><small>SECRET TICKET</small><strong>🎫 GOLDEN TICKET</strong><b>黄金島の採掘権を発見！</b>';
+ document.body.appendChild(d);setTimeout(()=>d.classList.add("show"),20);setTimeout(()=>d.remove(),2600);
+ try{unlockGameAudio();v36tone(659,.10,"sine",.12,0);v36tone(880,.13,"triangle",.13,.10);v36tone(1175,.22,"sine",.12,.22)}catch(_){}
+}
+function renderGoldenMap(){
+ const map=$("goldenMap");if(!map)return;map.innerHTML="";
+ for(let i=0;i<50;i++){
+  const b=document.createElement("button");b.type="button";b.className="golden-chest";b.setAttribute("aria-label",`黄金の宝箱 ${i+1}`);
+  b.innerHTML=`<span>🎁</span><small>${i+1}</small>`;b.onclick=()=>digGoldenIsland(b);map.appendChild(b);
+ }
+}
+function openGoldenIsland(){
+ if(goldenTickets<=0){$("goldenTicketBadge").classList.remove("shake");void $("goldenTicketBadge").offsetWidth;$("goldenTicketBadge").classList.add("shake");return}
+ $("islandSelect").hidden=true;$("game").hidden=true;$("goldenGame").hidden=false;$("goldenMessage").textContent="✨ 50個から黄金の宝箱を1つ選ぼう";renderGoldenMap();paintGoldenTicketUI();
+}
+async function digGoldenIsland(button){
+ if(goldenDigBusy||goldenTickets<=0)return;goldenDigBusy=true;
+ document.querySelectorAll(".golden-chest").forEach(b=>b.disabled=true);button.classList.add("chosen");$("goldenMessage").textContent="🔑 黄金の宝箱を開封中…";
+ try{
+  const d=await req("/rest/v1/rpc/dig_golden_island",{method:"POST",body:"{}"});const x=Array.isArray(d)?d[0]:d;
+  if(!x?.success){
+   if(x?.result==="no_ticket"){$("goldenMessage").textContent="🎫 黄金島チケットがありません";}
+   else if(x?.result==="golden_budget_exhausted"){$("goldenMessage").textContent="🏝️ 黄金島は現在準備中です";}
+   else $("goldenMessage").textContent="開封できませんでした";
+   await loadGoldenTickets();renderGoldenMap();return;
+  }
+  goldenTickets=Number(x.tickets_left||0);paintGoldenTicketUI();
+  const pp=Number(x.prize_points||0);button.classList.add("opened-gold");button.innerHTML=`<span>💰</span><strong>${pp.toLocaleString("ja-JP")}P</strong>`;
+  $("wallet").textContent=pointText(x.new_balance);$("goldenMessage").textContent=`🎉 ${pp.toLocaleString("ja-JP")}P GET！`;
+  const ov=document.createElement("div");ov.className="golden-win-overlay"+(pp>=1000?" ultra":pp>=500?" rare":"");ov.innerHTML=`<small>GOLDEN TREASURE</small><strong>${pp.toLocaleString("ja-JP")}P</strong><b>GET!</b>`;document.body.appendChild(ov);setTimeout(()=>ov.remove(),2200);
+  setTimeout(()=>{if(!$("goldenGame").hidden){renderGoldenMap();$("goldenMessage").textContent=goldenTickets>0?"🎫 次のチケットで挑戦できます":"🎫 チケットを探しに通常島へ戻ろう"}},2300);
+  await Promise.all([status(),loadGoldenTickets()]);
+ }catch(e){fail(e);renderGoldenMap()}
+ finally{goldenDigBusy=false}
+}
+document.getElementById("goldenIslandCard")?.addEventListener("click",openGoldenIsland);
+document.getElementById("goldenBack")?.addEventListener("click",()=>{$("goldenGame").hidden=true;$("islandSelect").hidden=false;});
+
 async function loadLatest(){
  const d=await req("/rest/v1/rpc/get_latest_islands",{method:"POST",body:"{}"});
  latest={};(d||[]).forEach(x=>latest[x.difficulty]=x);renderCards();
@@ -229,6 +290,9 @@ function renderCards(){
   b.innerHTML=`<span>${m.emoji} ${m.name} #${x.generation}</span><b>${x.total_cells}マス</b><small>${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"🏁 探索終了":"残り "+x.remaining_cells+"マス"}</em>`;
   b.onclick=()=>openIsland(x);box.appendChild(b);
  });
+ const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked":"locked");
+ g.innerHTML=`<span>${goldenTickets>0?"✨ SECRET OPEN":"🔒 SECRET"}</span><b>黄金島</b><small>すべての宝箱が100P以上確定</small><em id="goldenTicketBadge" class="status-badge">🎫 チケット ${goldenTickets}枚</em>`;
+ g.onclick=openGoldenIsland;box.appendChild(g);
 }
 async function loadWinHistory(){
  const uid=encodeURIComponent(user.id);
@@ -453,9 +517,12 @@ async function dig(i,b){
   $("wallet").textContent=pointText(x.new_balance);
   if(Number(x.prize||0)>0) animateWalletGain(Number(x.prize||0));
   b.classList.add("mine");playDigEffect(b,Number(x.prize||0));
-  if(x.prize>0){$("message").textContent=`🎉 ${pointText(x.prize)} GET！`;$("amount").textContent=pointText(x.prize);setTimeout(()=>{$("overlay").hidden=false},520)}else $("message").textContent="💨 ハズレ！次のマスへ";
-  if(x.result==="island_finished"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
-  await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
+  const gotGoldenTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
+  if(gotGoldenTicket){goldenTicketEffect();$("message").textContent="🎫 黄金島の採掘権を発見！";}
+  else if(x.prize>0){$("message").textContent=`🎉 ${pointText(x.prize)} GET！`;$("amount").textContent=pointText(x.prize);setTimeout(()=>{$("overlay").hidden=false},520)}
+  else $("message").textContent="💨 ハズレ！次のマスへ";
+  if(x.result==="island_finished"||x.result==="island_finished_ticket"){$("islandState").textContent="🏁 探索終了";$("islandState").classList.add("finished");if(!gotGoldenTicket)$("message").textContent="🏁 最後の宝発見！この島の探索は終了！"}
+  await Promise.all([load(true),loadWinHistory(),status(),loadLatest(),loadLoginBonus(),loadDailyMissions(),loadGoldenTickets()]);
  }catch(e){fail(e);b.disabled=false}
 }
 $("debugNumbers").onclick=()=>{debugNumbers=!debugNumbers;$("debugNumbers").textContent=debugNumbers?"🔢 番号表示 ON":"🔢 番号表示 OFF";$("map").classList.toggle("show-numbers",debugNumbers);render();};
