@@ -231,3 +231,24 @@
   visibility:hidden!important;
   pointer-events:none!important;
 }
+
+
+/* V88-25 — live EASY island */
+.island-statusbar{display:flex;gap:8px;margin-left:auto;margin-right:8px}
+.mini-stat{display:flex;flex-direction:column;justify-content:center;min-width:128px;padding:8px 13px;border:1px solid #dce9f2;border-radius:15px;background:rgba(255,255,255,.94);box-shadow:0 7px 20px rgba(23,56,88,.10)}
+.mini-stat span,.mini-stat small{font-size:10px;color:#6c8194;font-weight:700}.mini-stat strong{font-size:18px;color:#123858}.mini-stat.energy strong{color:#0870dc}
+.chest-board.loading{min-height:700px;opacity:.55}
+.demo-chest:not(.demo-dug){cursor:pointer}
+.demo-chest:not(.demo-dug):hover img{transform:translateY(-4px) scale(1.05);filter:drop-shadow(0 9px 7px rgba(69,42,13,.32))}
+.demo-chest:disabled:not(.demo-dug){cursor:wait}
+.demo-chest.opening-now img{animation:easyChestOpen .45s ease both}
+.demo-chest.vanish img{animation:easyChestVanish .42s ease forwards}
+@keyframes easyChestOpen{0%{transform:scale(1)}45%{transform:scale(1.12) translateY(-5px)}100%{transform:scale(1)}}
+@keyframes easyChestVanish{to{opacity:0;transform:scale(.7) translateY(8px);filter:blur(2px)}}
+.reward-toast,.ticket-toast,.error-toast{position:fixed;z-index:9999;left:50%;top:50%;transform:translate(-50%,-50%) scale(.82);opacity:0;border-radius:24px;box-shadow:0 22px 70px rgba(0,0,0,.28);text-align:center;pointer-events:none}
+.reward-toast{min-width:270px;padding:24px 36px;background:linear-gradient(145deg,#fff8d5,#fff);border:3px solid #ffc536}.reward-toast small{display:block;color:#9b6a00;font-weight:900;letter-spacing:.14em}.reward-toast strong{display:block;margin-top:4px;font-size:46px;color:#e99400}
+.ticket-toast{padding:24px 34px;background:#17150e;color:#ffd75b;border:2px solid #e5b834;font-size:25px;font-weight:950}
+.error-toast{top:auto;bottom:24px;padding:14px 20px;background:#311;color:#fff;font-weight:800}
+.reward-toast.show,.ticket-toast.show{animation:toastPop 1.5s ease both}.error-toast:not([hidden]){opacity:1;transform:translate(-50%,0)}
+@keyframes toastPop{0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}18%,75%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-50%) scale(.92)}}
+@media(max-width:700px){.island-statusbar{order:3;width:100%;margin:6px 0 0}.island-top{flex-wrap:wrap}.mini-stat{flex:1;min-width:0}.chest-board.loading{min-height:360px}}

@@ -4,12 +4,16 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-24">
+<link rel="stylesheet" href="island.css?v=88-25">
 </head>
 <body>
 <main class="island-page">
   <header class="island-top">
     <a class="back" href="index.html#islandSelect">← 島選択に戻る</a>
+    <div class="island-statusbar">
+      <div class="mini-stat"><span>保有ポイント</span><strong id="wallet">---P</strong></div>
+      <div class="mini-stat energy"><span>⚡ エネルギー</span><strong id="energy">-- / 20</strong><small id="energyTimer">読み込み中</small></div>
+    </div>
     <div class="brand"><span class="brand-chest">▣</span><b>CLICK <em>TREASURE</em></b></div>
   </header>
 
@@ -31,33 +35,24 @@
     <div class="map-head">
       <div>
         <span class="map-kicker">TREASURE MAP</span>
-        <h2>🗺️ 宝箱マップ <small>タップして宝箱を開けよう！</small></h2>
+        <h2>🗺️ 宝箱マップ <small id="message">島データを読み込み中…</small></h2>
       </div>
-      <div class="map-count">🧰 残り <strong>37</strong> / 100マス</div>
+      <div class="map-count">🧰 残り <strong id="remaining">--</strong> / 100マス</div>
     </div>
-    <div class="chest-board" id="chestBoard" aria-label="EASY島 100マス宝箱マップ"></div>
+    <div class="chest-board loading" id="chestBoard" aria-label="EASY島 100マス宝箱マップ"></div>
     <div class="map-foot">
       <div><b>この島の報酬</b><span>🪙 10P　🪙 100P　🌟 1,000P</span></div>
-      <div class="energy-preview"><b>⚡ エネルギー</b><strong>20 / 20</strong></div>
+      <div class="energy-preview"><b>⚡ エネルギー</b><strong id="energyBottom">-- / 20</strong></div>
     </div>
   </section>
 </main>
-<script>
-const p=new URLSearchParams(location.search);
-document.getElementById("generation").textContent="#"+(p.get("generation")||"—");
 
-const board=document.getElementById("chestBoard");
-const demoRemaining=new Set([0, 3, 6, 9, 12, 15, 17, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 55, 57, 60, 63, 66, 69, 72, 75, 78, 81, 82, 84, 87, 90, 93, 96, 99]);
-for(let i=0;i<100;i++){
-  const cell=document.createElement("button");
-  cell.type="button";
-  cell.className="demo-chest"+(demoRemaining.has(i)?"":" demo-dug");
-  cell.setAttribute("aria-label",demoRemaining.has(i)?`宝箱 ${i+1}`:`発掘済み ${i+1}`);
-  if(demoRemaining.has(i)){
-    cell.innerHTML='<img src="./assets/easy-chest-closed-v88.webp" alt="" draggable="false">';
-  }
-  board.appendChild(cell);
-}
-</script>
+<div id="rewardToast" class="reward-toast" hidden>
+  <small>TREASURE GET!</small><strong id="rewardAmount">0P</strong>
+</div>
+<div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
+<div id="errorToast" class="error-toast" hidden></div>
+
+<script src="island.js?v=88-25"></script>
 </body>
 </html>
