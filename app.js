@@ -281,7 +281,7 @@ async function digGoldenIsland(button){
  }catch(e){fail(e);renderGoldenMap()}
  finally{goldenDigBusy=false}
 }
-document.getElementById("goldenIslandCard")?.addEventListener("click",openGoldenIsland);
+document.getElementById("goldenIslandCard")?.addEventListener("click",()=>{if(goldenTickets>0)location.href="./golden-island.html";});
 document.getElementById("goldenBack")?.addEventListener("click",()=>{$("goldenGame").hidden=true;$("islandSelect").hidden=false;});
 
 async function loadLatest(){
@@ -301,7 +301,7 @@ function renderCards(){
  });
  const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
  g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">50個から1つ選択。最低100P確定。</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
- g.onclick=openGoldenIsland;box.appendChild(g);
+ g.onclick=()=>{if(goldenTickets>0)location.href="./golden-island.html";};box.appendChild(g);
 }
 async function loadWinHistory(){
  const uid=encodeURIComponent(user.id);

@@ -74,7 +74,7 @@
 <script src="https://adm.shinobi.jp/s/87367a901842c04cb35344ce335b7de3"></script>
 <!-- admax --></section>
 <section id="game" hidden><div class="head"><div><span>EASY / SHARED ONLINE</span><h2>宝箱を選ぼう</h2></div><div class="live"><i></i><b>ONLINE</b><small id="remaining">—</small></div></div><div class="sea"><div class="island-bar"><button id="back">← 一覧</button><strong id="islandName">EASY</strong><div class="island-tools"><button id="debugNumbers" type="button">🔢 番号表示 OFF</button><span id="islandState" class="island-state">探索中</span></div></div><div id="map"></div></div><div id="message">好きな宝箱を選ぼう</div></section>
-<section id="goldenGame" class="golden-game" hidden><div class="golden-hero"><div class="golden-hero-shade"></div><div class="golden-head"><div><span>SECRET TREASURE ISLAND</span><h2>✨ 黄金島 ✨</h2><p>天空に眠る50個の神聖な宝箱。1つ選べば100P以上確定。</p></div><button id="goldenBack" type="button">← 島一覧</button></div><div class="golden-ticket-status">🎫 所持チケット <strong id="goldenTicketsInGame">0</strong>枚</div></div><div class="golden-map-head"><div><small>TREASURE MAP</small><b>👑 黄金の宝箱</b></div><span>50 CHESTS / GUARANTEED WIN</span></div><div id="goldenMap" class="golden-map"></div><div id="goldenMessage" class="golden-message">黄金の宝箱を1つ選ぼう</div></section>
+
 </main>
 <footer class="site-footer" style="padding:24px 16px 36px;text-align:center;font-size:13px;">
   <nav style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;margin-bottom:10px;">
@@ -95,7 +95,7 @@
 </div>
 <small id="adminRefillStatus">※上2つは管理者テスト用・実データに反映</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=88-35"></script>
+<script src="app.js?v=88-36"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");
