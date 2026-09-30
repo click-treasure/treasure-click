@@ -1,4 +1,4 @@
-// V88-31 NORMAL open chest asset
+// V88-32 HARD island complete
 const SUPABASE_URL="https://osawhwcddovhddrxgfju.supabase.co";
 const SUPABASE_KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
 const POINTS_PER_YEN=10;
@@ -16,7 +16,8 @@ const wantedGeneration=Number(params.get("generation")||0);
 const difficulty=(params.get("difficulty")||"easy").toLowerCase();
 const THEMES={
   easy:{label:"EASY島",subtitle:"南の楽園の小さな島",hit:"🎯 当たりやすさ ★★★",reward:"💎 当たり報酬 ★☆☆",chest:"./assets/easy-chest-closed-v88.webp",open:"./assets/easy-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P"},
-  normal:{label:"NORMAL島",subtitle:"海に浮かぶ古代遺跡の島",hit:"🎯 当たりやすさ ★★☆",reward:"💎 当たり報酬 ★★☆",chest:"./assets/normal-chest-closed-v88.webp",open:"./assets/normal-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P"}
+  normal:{label:"NORMAL島",subtitle:"海に浮かぶ古代遺跡の島",hit:"🎯 当たりやすさ ★★☆",reward:"💎 当たり報酬 ★★☆",chest:"./assets/normal-chest-closed-v88.webp",open:"./assets/normal-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P"},
+  hard:{label:"HARD島",subtitle:"灼熱の溶岩に囲まれた魔城",hit:"🎯 当たりやすさ ★☆☆",reward:"💎 当たり報酬 ★★★",chest:"./assets/hard-chest-closed-v88.webp",open:"./assets/hard-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P　🔥 5,000P"}
 };
 const theme=THEMES[difficulty]||THEMES.easy;
 

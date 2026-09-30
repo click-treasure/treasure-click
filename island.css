@@ -1622,3 +1622,24 @@ body[data-difficulty="normal"] .demo-chest img{
 
 /* V88-30 NORMAL chest spacing refinement */
 body[data-difficulty="normal"] .demo-chest img{width:78%!important;height:78%!important;}
+
+
+/* V88-32 HARD — same 10x10 layout, volcanic world */
+body[data-difficulty="hard"] .easy-hero{
+  background-image:url("./assets/hard-treasure-volcano-v88.webp")!important;
+  background-position:center 28%!important;
+}
+body[data-difficulty="hard"] .hero-shade{
+  background:linear-gradient(90deg,rgba(34,8,5,.82),rgba(65,16,8,.36) 48%,rgba(40,8,4,.06) 78%)!important;
+}
+body[data-difficulty="hard"] .map-kicker{color:#d94a1a!important}
+body[data-difficulty="hard"] .chest-board{
+  background:url("./assets/hard-treasure-volcano-v88.webp") center/cover no-repeat!important;
+  padding:16.5% 14% 18%!important;
+  gap:5px!important;
+}
+body[data-difficulty="hard"] .demo-chest img{
+  width:78%!important;
+  height:78%!important;
+  filter:drop-shadow(0 4px 4px rgba(24,3,0,.58))!important;
+}

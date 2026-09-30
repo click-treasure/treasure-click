@@ -296,7 +296,7 @@ function renderCards(){
   if(x.island_status==="finished"){b.disabled=true;b.classList.add("finished")}
   b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><small class="island-desc">${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
   b.onclick=()=>{
-   window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}&v=88-29`;
+   window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}&v=88-32`;
   };box.appendChild(b);
  });
  const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
