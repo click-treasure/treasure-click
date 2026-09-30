@@ -509,3 +509,24 @@ main{max-width:980px;padding:20px 22px 50px}
   cursor:not-allowed!important;
   pointer-events:none!important;
 }
+
+/* V81: beta banner */
+.beta-banner{
+  width:min(1180px,calc(100% - 32px));
+  margin:12px auto 0;
+  padding:10px 14px;
+  box-sizing:border-box;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#fffbe8;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:12px;
+  line-height:1.45;
+  color:#6b5b16;
+}
+.beta-banner strong{color:#111827;white-space:nowrap}
+@media(max-width:760px){
+  .beta-banner{width:calc(100% - 20px);margin-top:8px;align-items:flex-start;flex-direction:column;gap:2px}
+}
