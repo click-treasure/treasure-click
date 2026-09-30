@@ -1643,3 +1643,26 @@ body[data-difficulty="hard"] .demo-chest img{
   height:78%!important;
   filter:drop-shadow(0 4px 4px rgba(24,3,0,.58))!important;
 }
+
+
+/* V88-44 — island ad placement */
+.island-page > .island-ad{
+  width:min(780px,calc(100% - 24px));
+  min-height:110px;
+  margin:18px auto 28px;
+  padding:14px 18px;
+  box-sizing:border-box;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  z-index:5;
+  overflow:hidden;
+  background:#fff;
+  border:1px solid rgba(218,226,234,.95);
+  border-radius:18px;
+  box-shadow:0 8px 24px rgba(22,49,75,.12);
+}
+@media(max-width:820px){
+  .island-page > .island-ad{min-height:90px;padding:10px;border-radius:14px;}
+}
