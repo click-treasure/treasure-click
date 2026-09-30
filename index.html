@@ -7,7 +7,7 @@
   gtag('js', new Date());
   gtag('config', 'G-S7C8F83L5W');
 </script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLICK TREASURE｜宝箱を掘ってポイントを貯める無料Webゲーム</title><link rel="stylesheet" href="style.css?v=87">  <meta name="description" content="CLICK TREASUREは、宝箱を掘ってポイントを集める無料Webゲームです。毎日のログインやミッションを楽しみながらポイントを貯められます。現在β版テスト運用中。">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLICK TREASURE｜宝箱を掘ってポイントを貯める無料Webゲーム</title><link rel="stylesheet" href="style.css?v=88-1">  <meta name="description" content="CLICK TREASUREは、宝箱を掘ってポイントを集める無料Webゲームです。毎日のログインやミッションを楽しみながらポイントを貯められます。現在β版テスト運用中。">
 </head><body>
 
 <div class="beta-banner" role="status">
@@ -22,10 +22,30 @@
 <audio id="audio10old" preload="auto" src="sounds/win_10.wav"></audio><audio id="audio100old" preload="auto" src="sounds/win_100.wav"></audio>
 <div id="accountPanel" class="account-panel"><div class="account-copy"><span class="eyebrow">ACCOUNT</span><b id="accountState">ゲストでプレイ中</b><small>Google連携で残高・当選履歴を保存。交換にはGoogle連携が必要です。</small></div><div class="account-actions"><a id="adminShortcut" class="admin-shortcut" href="admin.html" hidden>⚙ 管理画面</a><button id="googleLoginBtn" class="google-btn">G&nbsp;&nbsp;Googleと連携</button></div></div>
 <main>
-<header class="app-header v87-header"><div class="v87-brandmark" aria-hidden="true"><span></span></div><div class="v87-brandcopy"><span class="brand-kicker">CLICK TREASURE</span><h1>クリック宝探し</h1><p>宝探しで楽しむ、新しいポイ活。</p></div><div class="avatar v87-avatar" aria-hidden="true"></div></header>
+<header class="v88-topbar">
+  <div class="v88-logo">
+    <div class="v88-logo-chest" aria-hidden="true"><i></i></div>
+    <div><strong>CLICK <span>TREASURE</span></strong><small>宝探しで楽しむ、新しいポイ活。</small></div>
+  </div>
+  <div class="v88-wallet">
+    <div class="v88-coin" aria-hidden="true">P</div>
+    <div class="v88-statcopy"><small>保有ポイント</small><b id="wallet">—P</b></div>
+    <button id="redeemBtn" type="button" class="v88-exchange" disabled>交換</button>
+    <div class="v88-hidden-progress" aria-hidden="true"><i id="redeemFill"></i><span id="redeemText">交換まで計算中…</span></div>
+  </div>
+  <div class="v88-energy">
+    <div class="v88-bolt" aria-hidden="true"></div>
+    <div class="v88-statcopy"><small>エネルギー</small><b id="energy">— / 20</b><em id="energyTimer">サーバー確認中</em></div>
+  </div>
+  <nav class="v88-shortcuts" aria-label="ホームメニュー">
+    <button type="button" data-v88-target="loginBonus"><i class="v88-gift"></i><span>ログボ</span></button>
+    <button type="button" data-v88-target="dailyMissions"><i class="v88-check"></i><span>ミッション</span></button>
+    <button type="button" data-v88-click="winHistoryMenu"><i class="v88-book"></i><span>獲得履歴</span></button>
+    <button type="button" data-v88-target="pointOffers"><i class="v88-menuicon"></i><span>メニュー</span></button>
+  </nav>
+</header>
 <section id="homeDashboard" class="home-dashboard">
-<div class="balance-card"><div class="balance-top"><span>保有ポイント</span><span class="safe-badge">● サーバー保存</span></div><div class="balance-value"><b id="wallet">—P</b><small>/ 1,000P</small></div><div class="redeem-track"><i id="redeemFill"></i></div><div class="balance-foot"><span id="redeemText">交換まで計算中…</span><button id="redeemBtn" type="button" class="redeem-btn" disabled>交換する</button></div></div>
-<div class="quick-stats"><div class="quick-card energy-card"><div class="quick-icon">⚡</div><div><small>探索エネルギー</small><b id="energy">— / 20</b><em id="energyTimer">サーバー確認中</em></div></div><div class="quick-card"><div class="quick-icon">🎁</div><div><small>獲得回数</small><b id="wins">—</b><em>見つけた宝</em></div></div><div class="quick-card"><div class="quick-icon">🧭</div><div><small>探索状況</small><b id="progress">—</b><em>現在の島</em></div></div></div>
+<div class="v88-legacy-stats" aria-hidden="true"><span id="wins">—</span><span id="progress">—</span></div>
 <section id="loginBonus" class="login-bonus-card"><div class="login-bonus-copy"><span>DAILY BONUS</span><b>🎁 ログインボーナス</b><small id="loginBonusText">今日のボーナスを確認中…</small></div><div class="login-bonus-side"><strong id="loginBonusReward">+—回</strong><button id="loginBonusClaim" type="button" disabled>受け取る</button></div><div class="login-streak" id="loginStreak"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div></section>
 <section id="dailyMissions" class="daily-missions-card"><div class="daily-missions-head"><div><span>DAILY MISSIONS</span><b>🎯 デイリーミッション</b><small>毎日0:00にリセット</small></div><strong id="dailyMissionSummary">0 / 3</strong></div><div id="dailyMissionList" class="daily-mission-list"><small>ミッションを読み込み中…</small></div><div class="daily-all-clear"><div><b>⭐ 全達成ボーナス</b><small>3つクリアで +5回</small></div><button id="dailyAllClaim" type="button" disabled>未達成</button></div></section>
 <section id="islandSelect" class="island-select"><div class="section-title"><div><span>PLAY</span><h2>宝探しに行こう</h2></div><p>エネルギーと残高は全島共通</p></div><div id="islandCards" class="island-cards"><p class="loading-islands">最新の島を取得中…</p><button id="goldenIslandCard" class="island-card golden locked" type="button"><span>🔒 SECRET</span><b>黄金島</b><small>すべての宝箱が100P以上確定</small><em id="goldenTicketBadge" class="status-badge">🎫 チケット 0枚</em></button></div></section>
@@ -54,7 +74,7 @@
 <div id="overlay" hidden><div class="burst"></div><div class="win"><small>TREASURE FOUND</small><strong id="amount">10P</strong><p>サーバー残高に追加されました</p><button id="close">島に戻る</button></div></div>
 <div id="devPrizeTester" class="dev-prize-tester" hidden><button id="devToggle" class="dev-toggle" type="button">🧪 演出テスト</button><div id="devButtons" class="dev-buttons" hidden><button type="button" data-test-prize="1">10P</button><button type="button" data-test-prize="10">100P</button><button type="button" data-test-prize="100">1,000P</button><button type="button" data-test-prize="500">5,000P</button><small>※残高・エネルギー・宝箱は変化しません</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=87"></script>
+<script src="app.js?v=88-1"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");
@@ -89,5 +109,23 @@ document.addEventListener("DOMContentLoaded", () => {
   <strong>🔒 交換機能は正式リリース準備中です</strong>
   <span>PayPayへの交換は現在ご利用いただけません。</span>
 </div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-v88-target]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const el = document.getElementById(btn.dataset.v88Target);
+      if (el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    });
+  });
+  document.querySelectorAll("[data-v88-click]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const el = document.getElementById(btn.dataset.v88Click);
+      if (el) el.click();
+    });
+  });
+});
+</script>
 
 </body></html>
