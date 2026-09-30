@@ -1549,6 +1549,11 @@ section.ad ins{
 #adminAddEnergy{background:#dff8ff!important;color:#075a72!important}
 #adminRefillStatus{display:block;max-width:220px;line-height:1.35}
 
-/* V88-39: Golden chests remain visible when no ticket; only interaction is locked */
-.golden-chest.ticket-locked img{filter:grayscale(.28) brightness(.82) drop-shadow(0 3px 3px rgba(45,76,115,.18));opacity:.78}
-.golden-chest.ticket-locked{cursor:not-allowed!important}
+/* V88-42 Golden Island open feedback */
+.golden-chest.golden-opening-flash img{animation:goldenChestFlash .85s cubic-bezier(.16,.85,.2,1) both}
+@keyframes goldenChestFlash{
+  0%{transform:scale(.8);filter:brightness(1) drop-shadow(0 3px 3px rgba(45,76,115,.2))}
+  28%{transform:scale(1.35);filter:brightness(2.1) drop-shadow(0 0 24px #fff) drop-shadow(0 0 42px #ffd84b)}
+  55%{transform:scale(1.12);filter:brightness(1.45) drop-shadow(0 0 18px #ffd84b)}
+  100%{transform:scale(1);filter:brightness(1) drop-shadow(0 4px 4px rgba(45,76,115,.28))}
+}

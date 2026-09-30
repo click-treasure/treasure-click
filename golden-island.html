@@ -24,6 +24,20 @@ body.golden-page{min-height:100vh}
 </style>
 </head>
 <body class="golden-page">
+<div id="fx"></div>
+<div id="jackpotOverlay" class="jackpot-overlay" aria-hidden="true">
+  <div class="jackpot-rays"></div>
+  <div class="jackpot-card">
+    <div id="jackpotLabel" class="jackpot-label">✨ 黄金大当たり！！ ✨</div>
+    <div class="jackpot-caption">獲得ポイント</div>
+    <div class="jackpot-money"><span id="jackpotAmount">100</span><small>P</small></div>
+    <div id="jackpotBang" class="jackpot-bang">！！！</div>
+  </div>
+</div>
+<audio id="goldenWin1" preload="auto" src="sounds/win_1.wav"></audio>
+<audio id="goldenWin10" preload="auto" src="sounds/win_10.wav"></audio>
+<audio id="goldenWin100" preload="auto" src="sounds/win_100.wav"></audio>
+
 <main class="golden-page-wrap">
 <section id="goldenGame" class="golden-game">
   <div class="golden-hero">
@@ -46,6 +60,6 @@ body.golden-page{min-height:100vh}
   <div id="goldenMessage" class="golden-message">黄金の宝箱を1つ選ぼう</div>
 </section>
 </main>
-<script src="./golden-island.js?v=88-41"></script>
+<script src="./golden-island.js?v=88-42"></script>
 </body>
 </html>

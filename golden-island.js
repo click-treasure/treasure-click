@@ -56,6 +56,65 @@ function message(){
     :"🎫 黄金島チケットがありません";
 }
 
+function playGoldenAudio(id){
+  const a=$(id);
+  if(!a)return;
+  try{
+    a.pause(); a.currentTime=0; a.volume=1;
+    const q=a.play(); if(q&&q.catch)q.catch(()=>{});
+  }catch(_e){}
+}
+function goldenConfetti(count=36){
+  const layer=document.createElement("div");
+  layer.className="win-confetti-layer";
+  for(let i=0;i<count;i++){
+    const s=document.createElement("i");
+    s.style.left=(Math.random()*100)+"vw";
+    s.style.setProperty("--dx",((Math.random()-.5)*360)+"px");
+    layer.appendChild(s);
+  }
+  document.body.appendChild(layer);
+  setTimeout(()=>layer.remove(),1700);
+}
+function goldenPrizeOverlay(points){
+  const d=document.createElement("div");
+  d.className="prize-overlay "+(points>=1000?"prize-tier-mega":points>=500?"prize-tier-big":"prize-tier-small");
+  d.innerHTML=points>=1000
+    ?`<div class="prize-kicker">GOLDEN JACKPOT!</div><div class="prize-main">${points.toLocaleString("ja-JP")}P！！！</div>`
+    :points>=500
+      ?`<div class="prize-kicker">黄金大当たり！</div><div class="prize-main">${points.toLocaleString("ja-JP")}P！！！</div>`
+      :`<div class="prize-main">${points.toLocaleString("ja-JP")}P GET!</div>`;
+  document.body.appendChild(d);
+  setTimeout(()=>d.remove(),points>=500?1450:900);
+}
+function goldenJackpot(points){
+  const o=$("jackpotOverlay");
+  if(!o)return goldenPrizeOverlay(points);
+  $("jackpotAmount").textContent=points.toLocaleString("ja-JP");
+  $("jackpotLabel").textContent=points>=1000?"💎 黄金超大当たり！！ 💎":"✨ 黄金大当たり！！ ✨";
+  $("jackpotBang").textContent=points>=1000?"！！！ JACKPOT ！！！":"！！！";
+  o.classList.remove("show"); void o.offsetWidth;
+  o.classList.add("show"); o.setAttribute("aria-hidden","false");
+  goldenConfetti(points>=1000?60:42);
+  setTimeout(()=>{o.classList.remove("show");o.setAttribute("aria-hidden","true")},2150);
+}
+function playGoldenWin(points,button){
+  button?.classList.add("golden-opening-flash");
+  setTimeout(()=>button?.classList.remove("golden-opening-flash"),900);
+  // Golden rewards: 100P / 500P / 1000P.
+  if(points>=1000){
+    playGoldenAudio("goldenWin100");
+    goldenJackpot(points);
+  }else if(points>=500){
+    playGoldenAudio("goldenWin10");
+    goldenJackpot(points);
+  }else{
+    playGoldenAudio("goldenWin1");
+    goldenPrizeOverlay(points);
+    goldenConfetti(22);
+  }
+}
+
 async function dig(button){
   if(opening||goldenTickets<=0)return;
   opening=true;
@@ -69,6 +128,7 @@ async function dig(button){
     button.classList.add("opened-gold");
     button.innerHTML=`<img src="./assets/golden-chest-open-v88.webp" alt=""><strong>${pp.toLocaleString("ja-JP")}P</strong>`;
     $("goldenMessage").textContent=`🎉 ${pp.toLocaleString("ja-JP")}P GET！`;
+    playGoldenWin(pp,button);
     await loadTickets();
     await new Promise(r=>setTimeout(r,1400));
   }catch(e){
