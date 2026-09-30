@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-25">
+<link rel="stylesheet" href="island.css?v=88-26">
 </head>
 <body>
 <main class="island-page">
@@ -47,12 +47,27 @@
   </section>
 </main>
 
+
+
+<div id="fx"></div>
+<div id="v41Jackpot" class="v41-jackpot" hidden>
+  <div class="v41-blackout"></div><div class="v42-whiteflash"></div><div class="v42-golddot"></div><div class="v41-goldburst"></div>
+  <div class="v41-jackpot-content"><div class="v41-jackpot-kicker">JACKPOT</div><div class="v41-jackpot-money"><strong>5,000</strong><small>P</small><em>獲得！</em></div><div class="v41-jackpot-sub">TREASURE FOUND</div></div>
+  <div id="v41Coins" class="v41-coins"></div>
+</div>
+<div id="jackpotOverlay" class="jackpot-overlay" aria-hidden="true">
+  <div class="jackpot-rays"></div><div class="jackpot-card"><div id="jackpotLabel" class="jackpot-label">🔥 大当たり！！ 🔥</div><div class="jackpot-caption">当選ポイント</div><div class="jackpot-money"><span id="jackpotAmount">100</span><small>P</small></div><div id="jackpotBang" class="jackpot-bang">！！！</div></div>
+</div>
+<audio id="audio1old" preload="auto" src="sounds/win_1.wav"></audio>
+<audio id="audio10old" preload="auto" src="sounds/win_10.wav"></audio>
+<audio id="audio100old" preload="auto" src="sounds/win_100.wav"></audio>
+
 <div id="rewardToast" class="reward-toast" hidden>
   <small>TREASURE GET!</small><strong id="rewardAmount">0P</strong>
 </div>
 <div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
 <div id="errorToast" class="error-toast" hidden></div>
 
-<script src="island.js?v=88-25"></script>
+<script src="island.js?v=88-26"></script>
 </body>
 </html>

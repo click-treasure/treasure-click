@@ -150,10 +150,35 @@ function showTicket(){
   setTimeout(()=>{t.classList.remove("show");t.hidden=true},1900);
 }
 
+
+// V88-26 — restored legacy prize sounds/effects
+let legacyAudioCtx=null;
+function legacyCtx(){const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return null;if(!legacyAudioCtx)legacyAudioCtx=new AC();return legacyAudioCtx}
+function unlockGameAudio(){const c=legacyCtx();if(c&&c.state==="suspended")c.resume().catch(()=>{})}
+function legacyTone(freq,duration,type="sine",gain=.09,delay=0){const c=legacyCtx();if(!c)return;if(c.state==="suspended")c.resume().catch(()=>{});const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03)}
+function soundDig(){const c=legacyCtx();if(!c)return;const n=Math.floor(c.sampleRate*.11),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type="lowpass";f.frequency.value=900;g.gain.value=.16;s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);s.start();legacyTone(135,.10,"triangle",.08,.01)}
+function soundMiss(){legacyTone(170,.12,"triangle",.07);legacyTone(120,.16,"triangle",.05,.08)}
+function playAudio(id,fallback){const a=$(id);if(!a)return fallback?.();try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>fallback?.())}catch(_){fallback?.()}}
+function v44Play500Sound(name,volume=1){try{const a=new Audio(`sounds/${name}?v=88-26`);a.volume=volume;const q=a.play();if(q&&q.catch)q.catch(()=>{})}catch(_){}}
+function originalCelebrate10(){const fx=$("fx");if(!fx)return;for(let i=0;i<35;i++){const s=document.createElement("span");s.className="old-confetti";s.textContent=["✨","🎉","⭐"][i%3];s.style.left=Math.random()*100+"vw";s.style.animationDelay=Math.random()*.5+"s";s.style.fontSize=(16+Math.random()*25)+"px";fx.appendChild(s);setTimeout(()=>s.remove(),2500)}}
+function originalJackpot10(prize){const o=$("jackpotOverlay");if(!o)return;$("jackpotAmount").textContent=points(prize).toLocaleString("ja-JP");$("jackpotLabel").textContent=prize>=100?"💎 超大当たり！！ 💎":"🔥 大当たり！！ 🔥";$("jackpotBang").textContent=prize>=100?"！！！ JACKPOT ！！！":"！！！";o.classList.remove("show");void o.offsetWidth;o.classList.add("show");o.setAttribute("aria-hidden","false");if(prize>=100)playAudio("audio100old");else playAudio("audio10old");originalCelebrate10();setTimeout(()=>{o.classList.remove("show");o.setAttribute("aria-hidden","true")},2150)}
+function v41Jackpot500(){const root=$("v41Jackpot"),coins=$("v41Coins");if(!root)return;root.hidden=false;root.classList.remove("v42-cut","v42-dot","reveal","finish");void root.offsetWidth;setTimeout(()=>{v44Play500Sound("win_500_puchun.wav",.95);root.classList.add("v42-cut")},120);setTimeout(()=>root.classList.add("v42-dot"),1820);setTimeout(()=>{v44Play500Sound("win_500_jackpot.wav",1);root.classList.add("reveal");if(coins){coins.innerHTML="";for(let i=0;i<42;i++){const s=document.createElement("i");s.textContent=i%6===0?"◆":"●";s.style.setProperty("--x",(Math.random()*190-95)+"vw");s.style.setProperty("--d",(Math.random()*.65)+"s");s.style.setProperty("--r",(Math.random()*900-450)+"deg");coins.appendChild(s)}}},2420);setTimeout(()=>root.classList.add("finish"),5200);setTimeout(()=>{root.hidden=true;root.classList.remove("v42-cut","v42-dot","reveal","finish")},5750)}
+function v43GemOmen(button,after){const r=button?.getBoundingClientRect(),gem=document.createElement("div");gem.className="v43-gem-omen";gem.innerHTML='<span class="v43-gem">◆</span><i></i><b>！？</b>';if(r){gem.style.left=(r.left+r.width/2)+"px";gem.style.top=(r.top+r.height*.42)+"px"}else{gem.style.left="50vw";gem.style.top="50vh"}document.body.appendChild(gem);v44Play500Sound("win_500_gem.wav",.9);setTimeout(()=>gem.classList.add("charge"),180);setTimeout(()=>{gem.remove();after?.()},850)}
+function legacyPrizeEffect(button,prize){
+  soundDig();
+  if(prize<=0){setTimeout(soundMiss,260);return}
+  if(prize>=500){v43GemOmen(button,()=>v41Jackpot500());return}
+  if(prize>=10){setTimeout(()=>originalJackpot10(prize),260);return}
+  setTimeout(()=>{playAudio("audio1old");showReward(prize)},260);
+}
+document.addEventListener("pointerdown",unlockGameAudio,{once:true});
+document.addEventListener("keydown",unlockGameAudio,{once:true});
+
 async function dig(cellIndex,button){
   if(digBusy||!island)return;
   if(serverEnergy<=0&&bonusTaps<=0){setMessage("⚡ タップ回数切れ。回復を待とう");return}
   digBusy=true;ownDigCell=cellIndex;
+  unlockGameAudio();
   document.querySelectorAll(".demo-chest:not(.demo-dug)").forEach(b=>b.disabled=true);
   setMessage("⛏️ サーバーで判定中…");
   try{
@@ -175,11 +200,12 @@ async function dig(cellIndex,button){
 
     playOpenTransition(button);
     const prize=Number(x.prize||0);
+    legacyPrizeEffect(button,prize);
     const gotTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
 
     if(x.new_balance!=null)$("wallet").textContent=pointText(x.new_balance);
     if(gotTicket){setMessage("🎫 黄金島の採掘権を発見！");showTicket()}
-    else if(prize>0){setMessage(`🎉 ${pointText(prize)} GET！`);showReward(prize)}
+    else if(prize>0){setMessage(`🎉 ${pointText(prize)} GET！`)}
     else setMessage("💨 ハズレ！次の宝箱へ");
 
     setTimeout(()=>removeOpenedChest(button),520);
