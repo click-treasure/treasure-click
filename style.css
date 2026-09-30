@@ -944,3 +944,12 @@ main{max-width:1180px}
   .v88-page-shell{grid-template-columns:1fr;padding:0 12px 24px}
   .v88-sidebar{display:none}
 }
+
+/* V88-4 — island section physically moved before bonus/mission */
+.v88-main-column #homeDashboard{display:block!important}
+.v88-main-column main{display:block!important}
+.v88-main-column #islandSelect{margin:0 0 14px!important}
+.v88-main-column #loginBonus{margin:0 0 14px!important}
+.v88-main-column #dailyMissions{margin:0 0 14px!important}
+.v88-main-column #pointOffers{margin-top:14px!important}
+@media(min-width:1180px){.v88-main-column main{display:block!important}}
