@@ -465,50 +465,31 @@ main{max-width:980px;padding:20px 22px 50px}
   }
 }
 
-/* V77 — mobile chest overlap fix only */
+/* V77 — mobile row-height fix
+   Fix stacked chests by giving every grid item its own explicit square size. */
 @media (max-width:760px){
   #game #map{
     grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    grid-auto-rows:auto!important;
-    align-items:stretch!important;
-    justify-items:stretch!important;
-    gap:10px 8px!important;
-    padding:14px 8px!important;
+    grid-auto-rows:unset!important;
+    align-items:start!important;
   }
 
-  #game #map .cell.chest{
-    display:block!important;
-    position:relative!important;
+  #game .cell.chest{
     width:100%!important;
     height:auto!important;
     min-width:0!important;
     min-height:0!important;
     aspect-ratio:1 / 1!important;
-    overflow:hidden!important;
-    contain:layout paint!important;
+    align-self:start!important;
+    overflow:visible!important;
   }
 
-  #game #map .cell.chest img{
+  #game .cell.chest img{
     position:absolute!important;
     inset:8%!important;
     width:84%!important;
     height:84%!important;
-    max-width:84%!important;
-    max-height:84%!important;
     margin:0!important;
     object-fit:contain!important;
-  }
-
-  #game #map .cell.chest.opened:after{
-    right:7%!important;
-    top:7%!important;
-    width:20px!important;
-    height:20px!important;
-    font-size:11px!important;
-  }
-
-  #game #map .chest-no{
-    right:5px!important;
-    bottom:4px!important;
   }
 }
