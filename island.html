@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-19">
+<link rel="stylesheet" href="island.css?v=88-20">
 </head>
 <body>
 <main class="island-page">
@@ -52,7 +52,7 @@ for(let i=0;i<100;i++){
   cell.type="button";
   cell.className="demo-chest";
   cell.setAttribute("aria-label",`宝箱 ${i+1}`);
-  cell.innerHTML='<span class="lid"></span><span class="box"></span><span class="lock">●</span>';
+  cell.innerHTML='<img src="./assets/easy-chest-closed-v88.webp" alt="" draggable="false">';
   board.appendChild(cell);
 }
 </script>

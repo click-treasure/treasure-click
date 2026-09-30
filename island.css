@@ -140,3 +140,29 @@
   .map-foot{flex-direction:column}
   .map-foot>div{justify-content:space-between}
 }
+
+
+/* V88-20 — EASY generated wooden chest asset */
+.demo-chest{
+  display:grid!important;
+  place-items:center!important;
+  filter:none!important;
+  overflow:visible!important;
+}
+.demo-chest img{
+  display:block;
+  width:88%;
+  height:88%;
+  object-fit:contain;
+  pointer-events:none;
+  user-select:none;
+  -webkit-user-drag:none;
+  filter:drop-shadow(0 5px 4px rgba(69,42,13,.30));
+  transition:transform .15s ease,filter .15s ease;
+}
+/* old CSS-drawn chest parts are no longer used */
+.demo-chest .lid,
+.demo-chest .box,
+.demo-chest .lock{
+  display:none!important;
+}
