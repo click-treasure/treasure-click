@@ -1541,3 +1541,10 @@ section.ad ins{
   .golden-map{grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:2px!important;padding:20% 5% 18%!important}
   .golden-chest img{width:92%;height:92%}
 }
+
+/* V88-34 admin beta refill controls */
+.dev-refill-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-top:7px;padding-top:7px;border-top:1px solid rgba(255,255,255,.16)}
+.dev-refill-row button{white-space:nowrap}
+#adminAddGoldenTicket{background:#fff3b7!important;color:#6f4c00!important}
+#adminAddEnergy{background:#dff8ff!important;color:#075a72!important}
+#adminRefillStatus{display:block;max-width:220px;line-height:1.35}

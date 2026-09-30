@@ -1115,3 +1115,37 @@ new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{chi
     if (card) new MutationObserver(syncGoldenArtwork).observe(card, {subtree:true, childList:true, characterData:true});
   });
 })();
+
+
+// V88-34 — admin-only beta refill controls.
+// Security is enforced again inside each RPC with is_app_admin().
+(function(){
+  async function runAdminRefill(kind){
+    const statusEl=document.getElementById("adminRefillStatus");
+    const ticketBtn=document.getElementById("adminAddGoldenTicket");
+    const energyBtn=document.getElementById("adminAddEnergy");
+    const btn=kind==="ticket"?ticketBtn:energyBtn;
+    if(!btn||btn.disabled)return;
+    const old=btn.textContent;
+    btn.disabled=true;
+    if(statusEl)statusEl.textContent="反映中…";
+    try{
+      if(kind==="ticket"){
+        await req("/rest/v1/rpc/admin_add_golden_ticket",{method:"POST",body:JSON.stringify({p_amount:1})});
+        await loadGoldenTickets();
+        if(statusEl)statusEl.textContent=`🎫 黄金チケットを+1しました（現在 ${goldenTickets}枚）`;
+      }else{
+        await req("/rest/v1/rpc/admin_add_test_energy",{method:"POST",body:JSON.stringify({p_amount:5})});
+        await status();
+        if(statusEl)statusEl.textContent=`⚡ エネルギーを補充しました（現在 ${serverEnergy}/20）`;
+      }
+    }catch(e){
+      console.error("admin refill:",e);
+      if(statusEl)statusEl.textContent="⚠ 補充できませんでした。RPCのSQLを確認してください";
+    }finally{
+      btn.disabled=false;btn.textContent=old;
+    }
+  }
+  document.getElementById("adminAddGoldenTicket")?.addEventListener("click",()=>runAdminRefill("ticket"));
+  document.getElementById("adminAddEnergy")?.addEventListener("click",()=>runAdminRefill("energy"));
+})();
