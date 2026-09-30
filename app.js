@@ -295,7 +295,13 @@ function renderCards(){
   const b=document.createElement("button");b.className="island-card "+diff;
   if(x.island_status==="finished"){b.disabled=true;b.classList.add("finished")}
   b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><small class="island-desc">${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
-  b.onclick=()=>openIsland(x);box.appendChild(b);
+  b.onclick=()=>{
+   if(diff==="easy"){
+     window.location.href=`island.html?difficulty=easy&generation=${encodeURIComponent(x.generation)}`;
+     return;
+   }
+   openIsland(x);
+  };box.appendChild(b);
  });
  const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
  g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">50個から1つ選択。最低100P確定。</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
