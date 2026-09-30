@@ -974,3 +974,21 @@ main{max-width:1180px}
 @media(max-width:650px){
   .island-card.easy .island-art{height:155px!important}
 }
+
+
+/* V88-6 — real NORMAL ancient-ruins island artwork */
+.island-card.normal .island-art{
+  background-image:url("assets/normal-island-v88.webp")!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+  height:168px!important;
+}
+.island-card.normal .island-art::before,
+.island-card.normal .island-art::after,
+.island-card.normal .island-art > i{
+  display:none!important;
+}
+@media(max-width:650px){
+  .island-card.normal .island-art{height:155px!important}
+}
