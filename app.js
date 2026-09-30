@@ -1176,25 +1176,61 @@ new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{chi
   document.getElementById("adminAddEnergy")?.addEventListener("click",()=>runAdminRefill("energy"));
 })();
 
-// V88-35 dedicated Golden Island page bootstrap
+// V88-39 dedicated Golden Island bootstrap.
+// Restore the same saved session used by the homepage, then read the real ticket wallet.
 window.addEventListener("DOMContentLoaded", async ()=>{
   if(!document.body.classList.contains("golden-page")) return;
+  const msg=$("goldenMessage");
   try{
-    for(let i=0;i<100 && !(user?.id&&accessToken);i++) await new Promise(r=>setTimeout(r,50));
-    if(!(user?.id&&accessToken)) throw new Error("ログイン情報を取得できませんでした");
+    // First let the normal auth bootstrap restore an existing Google/anonymous session.
+    for(let i=0;i<60 && !(user?.id && accessToken);i++){
+      await new Promise(r=>setTimeout(r,50));
+    }
+
+    // If the shared auth flow did not populate globals, recover from Supabase auth storage.
+    // The homepage and this page share the same origin/localStorage.
+    if(!(user?.id && accessToken)){
+      const keys=Object.keys(localStorage).filter(k=>k.startsWith("sb-") && k.endsWith("-auth-token"));
+      for(const key of keys){
+        try{
+          const raw=localStorage.getItem(key);
+          if(!raw) continue;
+          const saved=JSON.parse(raw);
+          const session=saved?.currentSession || saved?.session || saved;
+          const token=session?.access_token;
+          const savedUser=session?.user;
+          if(token && savedUser?.id){
+            accessToken=token;
+            user=savedUser;
+            break;
+          }
+        }catch(_){}
+      }
+    }
+
+    if(!(user?.id && accessToken)) throw new Error("saved session not found");
+
     await loadGoldenTickets();
     paintGoldenTicketUI();
+
     const game=$("goldenGame");
     if(game) game.hidden=false;
+
     renderGoldenMap();
-    const msg=$("goldenMessage");
+
+    // Always show all 50 chests; lock clicks when ticket count is zero.
+    document.querySelectorAll(".golden-chest").forEach(b=>{
+      b.disabled=goldenTickets<=0;
+      b.classList.toggle("ticket-locked",goldenTickets<=0);
+    });
+
     if(msg) msg.textContent=goldenTickets>0
       ?"✨ 50個から黄金の宝箱を1つ選ぼう"
       :"🎫 黄金島チケットがありません";
-    document.querySelectorAll(".golden-chest").forEach(b=>b.disabled=goldenTickets<=0);
   }catch(e){
-    console.error("golden page bootstrap:",e);
-    const msg=$("goldenMessage");
-    if(msg) msg.textContent="⚠ ログイン情報を読み込めませんでした";
+    console.error("golden standalone auth:",e);
+    renderGoldenMap();
+    document.querySelectorAll(".golden-chest").forEach(b=>b.disabled=true);
+    if(msg) msg.textContent="⚠ ログイン情報を読み込めませんでした。島一覧へ戻って再度お試しください";
   }
 });

@@ -1548,3 +1548,7 @@ section.ad ins{
 #adminAddGoldenTicket{background:#fff3b7!important;color:#6f4c00!important}
 #adminAddEnergy{background:#dff8ff!important;color:#075a72!important}
 #adminRefillStatus{display:block;max-width:220px;line-height:1.35}
+
+/* V88-39: Golden chests remain visible when no ticket; only interaction is locked */
+.golden-chest.ticket-locked img{filter:grayscale(.28) brightness(.82) drop-shadow(0 3px 3px rgba(45,76,115,.18));opacity:.78}
+.golden-chest.ticket-locked{cursor:not-allowed!important}
