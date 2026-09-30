@@ -1452,3 +1452,92 @@ section.ad ins{
     border-radius:14px!important;
   }
 }
+
+
+/* V88-33 GOLDEN ISLAND — celestial 50 chest stage */
+.golden-game{
+  margin:24px 0 8px;
+  border-radius:28px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 18px 55px rgba(38,79,137,.14);
+}
+.golden-hero{
+  min-height:300px;
+  position:relative;
+  background:url("./assets/golden-treasure-heaven-v88.webp") center 18%/cover no-repeat;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  padding:26px;
+}
+.golden-hero-shade{
+  position:absolute;inset:0;
+  background:linear-gradient(90deg,rgba(24,52,104,.72),rgba(24,52,104,.22) 52%,rgba(255,255,255,.04));
+}
+.golden-head,.golden-ticket-status{position:relative;z-index:1}
+.golden-head{
+  padding:0;background:none;border-radius:0;
+  align-items:flex-start;
+}
+.golden-head span{color:#fff1a8;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+.golden-head h2{font-size:clamp(34px,5vw,58px);text-shadow:0 3px 14px rgba(18,48,91,.5)}
+.golden-head p{font-size:13px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.45)}
+.golden-head button{background:rgba(255,255,255,.92);color:#33527f;border:0}
+.golden-ticket-status{
+  align-self:flex-start;margin:0;padding:11px 18px;
+  color:#5b4200;background:rgba(255,250,222,.94);
+  border:1px solid rgba(226,179,46,.45);box-shadow:0 5px 20px rgba(30,68,121,.15);
+}
+.golden-map-head{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:18px 22px 12px;background:#fff;color:#26496e;
+}
+.golden-map-head div{display:grid;gap:3px}.golden-map-head small{font-size:9px;letter-spacing:.18em;color:#c69222;font-weight:1000}
+.golden-map-head b{font-size:18px}.golden-map-head span{font-size:10px;font-weight:900;color:#7890aa}
+.golden-map{
+  grid-template-columns:repeat(10,minmax(0,1fr))!important;
+  gap:5px!important;
+  padding:20% 11% 19%!important;
+  border:0!important;border-radius:20px!important;
+  margin:0 4px;
+  background:url("./assets/golden-treasure-heaven-v88.webp") center/cover no-repeat!important;
+  box-shadow:inset 0 0 0 1px rgba(218,172,47,.25);
+}
+.golden-chest{
+  aspect-ratio:1/1!important;border:0!important;border-radius:0!important;
+  background:transparent!important;box-shadow:none!important;padding:0!important;
+  display:grid!important;place-items:center!important;overflow:visible!important;
+}
+.golden-chest img{
+  display:block;width:82%;height:82%;object-fit:contain;
+  filter:drop-shadow(0 4px 4px rgba(45,76,115,.28));
+  transition:transform .14s ease,filter .14s ease;
+  pointer-events:none;
+}
+.golden-chest:hover:not(:disabled){transform:none!important;box-shadow:none!important}
+.golden-chest:hover:not(:disabled) img{transform:translateY(-3px) scale(1.07);filter:drop-shadow(0 5px 8px rgba(197,145,20,.5))}
+.golden-chest.chosen{transform:none!important;box-shadow:none!important}
+.golden-chest.chosen img{transform:scale(1.12);filter:drop-shadow(0 0 13px rgba(255,210,60,.9))}
+.golden-chest.opened-gold strong{
+  position:absolute;left:50%;bottom:-7px;transform:translateX(-50%);
+  padding:2px 5px;border-radius:999px;background:#fff7c8;color:#9b6a00!important;
+  font-size:8px!important;white-space:nowrap;z-index:2;box-shadow:0 2px 6px #72500055;
+}
+.golden-message{
+  margin:12px 18px 20px;border-radius:14px;
+  background:linear-gradient(90deg,#fff8d8,#eef8ff,#fff8d8);
+  border:1px solid #efd36c;color:#6d5011;
+}
+@media(max-width:900px){
+  .golden-map{grid-template-columns:repeat(10,minmax(0,1fr))!important;padding:20% 8% 18%!important}
+}
+@media(max-width:650px){
+  .golden-hero{min-height:235px;padding:18px}
+  .golden-head h2{font-size:34px}
+  .golden-head p{font-size:11px}
+  .golden-map-head{padding:14px 12px 9px}
+  .golden-map-head span{display:none}
+  .golden-map{grid-template-columns:repeat(10,minmax(0,1fr))!important;gap:2px!important;padding:20% 5% 18%!important}
+  .golden-chest img{width:92%;height:92%}
+}

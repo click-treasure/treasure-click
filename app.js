@@ -254,7 +254,7 @@ function renderGoldenMap(){
  const map=$("goldenMap");if(!map)return;map.innerHTML="";
  for(let i=0;i<50;i++){
   const b=document.createElement("button");b.type="button";b.className="golden-chest";b.setAttribute("aria-label",`黄金の宝箱 ${i+1}`);
-  b.innerHTML=`<span>🎁</span><small>${i+1}</small>`;b.onclick=()=>digGoldenIsland(b);map.appendChild(b);
+  b.innerHTML=`<img src="./assets/golden-chest-closed-v88.webp" alt="">`;b.onclick=()=>digGoldenIsland(b);map.appendChild(b);
  }
 }
 function openGoldenIsland(){
@@ -273,7 +273,7 @@ async function digGoldenIsland(button){
    await loadGoldenTickets();renderGoldenMap();return;
   }
   goldenTickets=Number(x.tickets_left||0);paintGoldenTicketUI();
-  const pp=Number(x.prize_points||0);button.classList.add("opened-gold");button.innerHTML=`<span>💰</span><strong>${pp.toLocaleString("ja-JP")}P</strong>`;
+  const pp=Number(x.prize_points||0);button.classList.add("opened-gold");button.innerHTML=`<img src="./assets/golden-chest-open-v88.webp" alt=""><strong>${pp.toLocaleString("ja-JP")}P</strong>`;
   $("wallet").textContent=pointText(x.new_balance);$("goldenMessage").textContent=`🎉 ${pp.toLocaleString("ja-JP")}P GET！`;
   const ov=document.createElement("div");ov.className="golden-win-overlay"+(pp>=1000?" ultra":pp>=500?" rare":"");ov.innerHTML=`<small>GOLDEN TREASURE</small><strong>${pp.toLocaleString("ja-JP")}P</strong><b>GET!</b>`;document.body.appendChild(ov);setTimeout(()=>ov.remove(),2200);
   setTimeout(()=>{if(!$("goldenGame").hidden){renderGoldenMap();$("goldenMessage").textContent=goldenTickets>0?"🎫 次のチケットで挑戦できます":"🎫 チケットを探しに通常島へ戻ろう"}},2300);
