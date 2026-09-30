@@ -1149,3 +1149,14 @@ new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{chi
   document.getElementById("adminAddGoldenTicket")?.addEventListener("click",()=>runAdminRefill("ticket"));
   document.getElementById("adminAddEnergy")?.addEventListener("click",()=>runAdminRefill("energy"));
 })();
+
+// V88-35 dedicated Golden Island page bootstrap
+window.addEventListener("DOMContentLoaded", async ()=>{
+  if(!document.body.classList.contains("golden-page")) return;
+  try{
+    await loadGoldenTickets();
+    const game=document.getElementById("goldenGame");
+    if(game) game.hidden=false;
+    renderGoldenMap();
+  }catch(e){console.error("golden page bootstrap",e);}
+});
