@@ -1620,9 +1620,5 @@ body[data-difficulty="normal"] .demo-chest img{
   filter:drop-shadow(0 4px 3px rgba(41,28,10,.40))!important;
 }
 
-
 /* V88-30 NORMAL chest spacing refinement */
-body[data-difficulty="normal"] .demo-chest img{
-  width:78%!important;
-  height:78%!important;
-}
+body[data-difficulty="normal"] .demo-chest img{width:78%!important;height:78%!important;}
