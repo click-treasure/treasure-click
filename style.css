@@ -345,80 +345,139 @@ main{max-width:980px;padding:20px 22px 50px}
 @media(max-width:650px){.compact-redeem-top{align-items:flex-start;flex-direction:column}.compact-redeem-btn{width:100%}}
 
 
-/* V56.1 — visual polish: fixed valid CSS */
-@media (min-width:761px){
-  #game .sea{overflow-x:hidden!important;overflow-y:visible!important}
-  #game #map{
-    box-sizing:border-box!important;
-    width:100%!important;
-    min-width:0!important;
-    max-width:100%!important;
-    grid-template-columns:repeat(6,minmax(0,1fr))!important;
-    gap:22px 14px!important;
-    padding:28px 18px!important;
-    overflow-x:hidden!important;
-    overflow-y:auto!important;
+/* V73 — mobile treasure board fix */
+@media (max-width: 760px) {
+  html, body {
+    max-width: 100%;
+    overflow-x: hidden;
   }
-  #game .cell.chest{min-width:0!important;width:100%!important}
+
+  #game {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 8px !important;
+  }
+
+  #game .sea {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 8px !important;
+    overflow: hidden !important;
+  }
+
+  #game #map {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    grid-auto-rows: auto !important;
+    gap: 8px 6px !important;
+    padding: 10px 6px !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border-radius: 18px !important;
+  }
+
+  #game .cell.chest {
+    width: 100% !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    touch-action: manipulation;
+  }
+
+  #game .cell.chest img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    object-fit: contain !important;
+  }
+
+  #game .cell.chest.opened:after {
+    width: 24px !important;
+    height: 24px !important;
+    right: 3% !important;
+    top: 3% !important;
+    font-size: 14px !important;
+  }
+
+  #game .cell.chest:hover:not(:disabled) {
+    transform: none !important;
+  }
+
+  #game .head h2 {
+    font-size: 20px !important;
+  }
+
+  #game .live {
+    font-size: 9px !important;
+  }
 }
-#wallet{display:inline-block;transform-origin:center;will-change:transform,filter}
-#wallet.wallet-pop{animation:v561WalletPop .72s cubic-bezier(.2,1.45,.35,1)}
-#wallet.wallet-pop-big{animation:v561WalletBig .88s cubic-bezier(.18,1.55,.3,1)}
-@keyframes v561WalletPop{
-  0%{transform:scale(1);filter:brightness(1)}
-  32%{transform:scale(1.12);filter:brightness(1.45) drop-shadow(0 0 12px rgba(223,255,98,.55))}
-  100%{transform:scale(1);filter:brightness(1)}
+
+
+/* V74 — treasure grid polish (desktop + mobile) */
+
+/* Desktop: turn the board into a compact 6-column grid */
+@media (min-width: 761px) {
+  #game #map {
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+    padding: 14px !important;
+    align-items: start !important;
+  }
+
+  #game .cell.chest {
+    width: 100% !important;
+    min-width: 0 !important;
+    aspect-ratio: 1 / 1 !important;
+    min-height: 0 !important;
+    border-radius: 14px !important;
+    overflow: hidden !important;
+    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease !important;
+  }
+
+  #game .cell.chest img {
+    width: 88% !important;
+    height: 88% !important;
+    display: block !important;
+    margin: 6% auto !important;
+    object-fit: contain !important;
+  }
+
+  #game .cell.chest:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.025) !important;
+    filter: brightness(1.04) !important;
+    box-shadow: 0 7px 16px rgba(0,0,0,.10) !important;
+  }
+
+  #game .cell.chest.opened:after {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 14px !important;
+    top: 7px !important;
+    right: 7px !important;
+  }
 }
-@keyframes v561WalletBig{
-  0%{transform:scale(1);filter:brightness(1)}
-  28%{transform:scale(1.18);filter:brightness(1.65) drop-shadow(0 0 18px rgba(223,255,98,.8))}
-  55%{transform:scale(.98)}
-  100%{transform:scale(1);filter:brightness(1)}
+
+/* Mobile: compact 3-column grid, fully inside the viewport */
+@media (max-width: 760px) {
+  #game #map {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 7px !important;
+    padding: 8px !important;
+  }
+
+  #game .cell.chest {
+    aspect-ratio: 1 / 1 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+  }
+
+  #game .cell.chest img {
+    width: 92% !important;
+    height: 92% !important;
+    margin: 4% auto !important;
+    display: block !important;
+    object-fit: contain !important;
+  }
 }
-.compact-redeem-btn{background:var(--lime)!important;color:#171717!important;box-shadow:0 4px 12px rgba(0,0,0,.08)!important;transition:transform .15s ease,filter .15s ease}
-.compact-redeem-btn:not(:disabled):hover{transform:translateY(-1px);filter:brightness(.98)}
-.compact-redeem-btn:disabled{background:#eee!important;color:#999!important;box-shadow:none!important}
-@media (prefers-reduced-motion:reduce){#wallet.wallet-pop,#wallet.wallet-pop-big{animation-duration:.01ms!important}}
-
-
-/* V56.2 — visible wallet gain feedback */
-.balance-card{position:relative;overflow:visible!important}
-#wallet.wallet-pop{animation:v562WalletPop 1.05s cubic-bezier(.16,1.5,.3,1)!important}
-#wallet.wallet-pop-big{animation:v562WalletBig 1.18s cubic-bezier(.14,1.6,.25,1)!important}
-.balance-card.wallet-gain-card{animation:v562CardGlow 1.1s ease both}
-.balance-card.wallet-gain-card-big{animation:v562CardGlowBig 1.2s ease both}
-.wallet-gain-float{position:absolute;z-index:8;left:210px;top:54px;padding:7px 12px;border-radius:999px;background:var(--lime);color:#171717;font-size:18px;font-weight:1000;line-height:1;box-shadow:0 7px 22px rgba(0,0,0,.24);pointer-events:none;animation:v562GainFloat 1.35s cubic-bezier(.15,.9,.25,1) forwards}
-.wallet-gain-float.big{font-size:22px;padding:9px 15px}
-@keyframes v562WalletPop{0%{transform:scale(1)}20%{transform:scale(1.18)}38%{transform:scale(.98)}58%{transform:scale(1.08)}100%{transform:scale(1)}}
-@keyframes v562WalletBig{0%{transform:scale(1)}18%{transform:scale(1.28)}36%{transform:scale(.96)}55%{transform:scale(1.13)}72%{transform:scale(1.03)}100%{transform:scale(1)}}
-@keyframes v562GainFloat{0%{opacity:0;transform:translateY(18px) scale(.55)}18%{opacity:1;transform:translateY(0) scale(1.12)}62%{opacity:1;transform:translateY(-18px) scale(1)}100%{opacity:0;transform:translateY(-42px) scale(.92)}}
-@keyframes v562CardGlow{0%,100%{box-shadow:0 12px 30px #00000012}22%{box-shadow:0 12px 38px rgba(199,255,45,.48),inset 0 0 0 2px rgba(223,255,98,.72)}}
-@keyframes v562CardGlowBig{0%,100%{box-shadow:0 12px 30px #00000012}20%{box-shadow:0 12px 48px rgba(199,255,45,.7),inset 0 0 0 3px rgba(223,255,98,.95)}}
-@media(max-width:650px){.wallet-gain-float{left:auto;right:18px;top:62px;font-size:16px}.wallet-gain-float.big{font-size:19px}}
-@media(prefers-reduced-motion:reduce){.wallet-gain-float{animation-duration:.01ms!important}.balance-card.wallet-gain-card,.balance-card.wallet-gain-card-big{animation-duration:.01ms!important}}
-
-/* V57 — daily login bonus */
-.login-bonus-card{display:grid;grid-template-columns:1fr auto;gap:12px 18px;align-items:center;margin:18px 0 22px;padding:18px 20px;border:1px solid #e6e6e8;border-radius:22px;background:linear-gradient(135deg,#fff 0%,#fbfff0 100%);box-shadow:0 8px 24px #0000000a}
-.login-bonus-copy span{display:block;font-size:10px;font-weight:1000;letter-spacing:.16em;color:#8b8b8f}.login-bonus-copy b{display:block;margin-top:3px;font-size:17px}.login-bonus-copy small{display:block;margin-top:5px;color:#777;font-weight:700}
-.login-bonus-side{display:flex;align-items:center;gap:10px}.login-bonus-side strong{font-size:18px;white-space:nowrap}.login-bonus-side button{border:0;border-radius:999px;padding:10px 16px;background:var(--lime);color:#171717;font-weight:1000;cursor:pointer}.login-bonus-side button:disabled{background:#eee;color:#999;cursor:default}
-.login-streak{grid-column:1/-1;display:grid;grid-template-columns:repeat(7,1fr);gap:7px}.login-streak i{display:grid;place-items:center;height:28px;border-radius:9px;background:#f1f1f3;color:#999;font-size:11px;font-style:normal;font-weight:1000}.login-streak i.done{background:#171717;color:#fff}.login-streak i.next{background:var(--lime);color:#171717;box-shadow:0 0 0 2px #17171712}
-@media(max-width:650px){.login-bonus-card{grid-template-columns:1fr}.login-bonus-side{justify-content:space-between}.login-streak{grid-column:1}}
-
-/* V57.1 — clearer login bonus feedback + energy recovery timer */
-.login-bonus-card{position:relative;overflow:visible}
-.login-bonus-card.login-bonus-claimed-pop{animation:v571BonusCard .9s ease both}
-.energy-card.energy-bonus-pop{animation:v571EnergyCard .9s cubic-bezier(.18,1.35,.3,1) both}
-#energy.energy-number-pop{display:inline-block;animation:v571EnergyNumber .75s cubic-bezier(.16,1.6,.3,1)}
-.login-bonus-get-float{position:absolute;z-index:30;right:22px;top:50%;transform:translateY(-50%);padding:12px 18px;border-radius:999px;background:#171717;color:var(--lime);font-size:20px;font-weight:1000;box-shadow:0 12px 34px #0003;pointer-events:none;animation:v571BonusFloat 1.55s cubic-bezier(.16,1,.3,1) forwards}
-@keyframes v571BonusCard{0%,100%{box-shadow:0 8px 24px #0000000a}25%{box-shadow:0 10px 38px rgba(199,255,45,.52),inset 0 0 0 2px rgba(199,255,45,.85)}}
-@keyframes v571EnergyCard{0%,100%{transform:scale(1)}35%{transform:scale(1.035);box-shadow:0 10px 30px rgba(199,255,45,.38)}}
-@keyframes v571EnergyNumber{0%{transform:scale(1)}35%{transform:scale(1.34)}60%{transform:scale(.96)}100%{transform:scale(1)}}
-@keyframes v571BonusFloat{0%{opacity:0;transform:translateY(-25%) scale(.65)}18%{opacity:1;transform:translateY(-50%) scale(1.08)}68%{opacity:1;transform:translateY(-65%) scale(1)}100%{opacity:0;transform:translateY(-110%) scale(.92)}}
-@media(max-width:650px){.login-bonus-get-float{right:12px;top:44%;font-size:16px;padding:10px 13px}}
-@media(prefers-reduced-motion:reduce){.login-bonus-card.login-bonus-claimed-pop,.energy-card.energy-bonus-pop,#energy.energy-number-pop,.login-bonus-get-float{animation-duration:.01ms!important}}
-
-/* V58 — daily missions */
-.daily-missions-card{margin:14px 0 22px;padding:18px;background:#fff;border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(20,20,30,.05)}
-.daily-missions-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:13px}.daily-missions-head div{display:grid;gap:2px}.daily-missions-head span{font-size:9px;font-weight:900;letter-spacing:.16em;color:#7457ff}.daily-missions-head b{font-size:15px}.daily-missions-head small{font-size:10px;color:#888}.daily-missions-head>strong{font-size:13px;background:#f1efff;color:#6248db;border-radius:999px;padding:7px 10px}
-.daily-mission-list{display:grid;gap:9px}.daily-mission-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;border:1px solid #eee;border-radius:15px;background:#fafafa}.daily-mission-row.done{background:#f8fff0;border-color:#dff1bd}.daily-mission-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#fff;font-size:18px}.daily-mission-copy{min-width:0}.daily-mission-copy b,.daily-mission-copy small{display:block}.daily-mission-copy b{font-size:12px}.daily-mission-copy small{margin-top:3px;color:#777;font-size:10px}.daily-mission-progress{height:5px;background:#e9e9ec;border-radius:99px;overflow:hidden;margin-top:7px}.daily-mission-progress i{display:block;height:100%;background:var(--lime);border-radius:99px}.daily-mission-row button,.daily-all-clear button{border:0;border-radius:999px;padding:8px 11px;font-weight:900;font-size:10px;background:#171717;color:#fff;white-space:nowrap;cursor:pointer}.daily-mission-row button.ready,.daily-all-clear button.ready{background:var(--lime);color:#171717}.daily-mission-row button:disabled,.daily-all-clear button:disabled{background:#eee;color:#999;cursor:default}.daily-all-clear{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding:12px;border-radius:15px;background:#171717;color:#fff}.daily-all-clear b,.daily-all-clear small{display:block}.daily-all-clear b{font-size:12px}.daily-all-clear small{margin-top:2px;font-size:10px;color:#aaa}.daily-all-clear.claimed{background:#efffd2;color:#222}.daily-all-clear.claimed small{color:#657348}
-@media(max-width:650px){.daily-mission-row{grid-template-columns:34px minmax(0,1fr) auto;padding:10px 9px}.daily-mission-icon{width:34px;height:34px}.daily-missions-card{padding:14px}.daily-mission-row button{padding:8px 9px}}
