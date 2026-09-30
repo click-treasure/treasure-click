@@ -7,7 +7,7 @@
   gtag('js', new Date());
   gtag('config', 'G-S7C8F83L5W');
 </script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLICK TREASURE｜宝箱を掘ってポイントを貯める無料Webゲーム</title><link rel="stylesheet" href="style.css?v=83">  <meta name="description" content="CLICK TREASUREは、宝箱を掘ってポイントを集める無料Webゲームです。毎日のログインやミッションを楽しみながらポイントを貯められます。現在β版テスト運用中。">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLICK TREASURE｜宝箱を掘ってポイントを貯める無料Webゲーム</title><link rel="stylesheet" href="style.css?v=87">  <meta name="description" content="CLICK TREASUREは、宝箱を掘ってポイントを集める無料Webゲームです。毎日のログインやミッションを楽しみながらポイントを貯められます。現在β版テスト運用中。">
 </head><body>
 
 <div class="beta-banner" role="status">
@@ -22,7 +22,7 @@
 <audio id="audio10old" preload="auto" src="sounds/win_10.wav"></audio><audio id="audio100old" preload="auto" src="sounds/win_100.wav"></audio>
 <div id="accountPanel" class="account-panel"><div class="account-copy"><span class="eyebrow">ACCOUNT</span><b id="accountState">ゲストでプレイ中</b><small>Google連携で残高・当選履歴を保存。交換にはGoogle連携が必要です。</small></div><div class="account-actions"><a id="adminShortcut" class="admin-shortcut" href="admin.html" hidden>⚙ 管理画面</a><button id="googleLoginBtn" class="google-btn">G&nbsp;&nbsp;Googleと連携</button></div></div>
 <main>
-<header class="app-header"><div><span class="brand-kicker">CLICK TREASURE</span><h1>クリック宝探し</h1><p>掘って、見つけて、お小遣い。</p></div><div class="avatar">🏝️</div></header>
+<header class="app-header v87-header"><div class="v87-brandmark" aria-hidden="true"><span></span></div><div class="v87-brandcopy"><span class="brand-kicker">CLICK TREASURE</span><h1>クリック宝探し</h1><p>宝探しで楽しむ、新しいポイ活。</p></div><div class="avatar v87-avatar" aria-hidden="true"></div></header>
 <section id="homeDashboard" class="home-dashboard">
 <div class="balance-card"><div class="balance-top"><span>保有ポイント</span><span class="safe-badge">● サーバー保存</span></div><div class="balance-value"><b id="wallet">—P</b><small>/ 1,000P</small></div><div class="redeem-track"><i id="redeemFill"></i></div><div class="balance-foot"><span id="redeemText">交換まで計算中…</span><button id="redeemBtn" type="button" class="redeem-btn" disabled>交換する</button></div></div>
 <div class="quick-stats"><div class="quick-card energy-card"><div class="quick-icon">⚡</div><div><small>探索エネルギー</small><b id="energy">— / 20</b><em id="energyTimer">サーバー確認中</em></div></div><div class="quick-card"><div class="quick-icon">🎁</div><div><small>獲得回数</small><b id="wins">—</b><em>見つけた宝</em></div></div><div class="quick-card"><div class="quick-icon">🧭</div><div><small>探索状況</small><b id="progress">—</b><em>現在の島</em></div></div></div>
@@ -54,7 +54,7 @@
 <div id="overlay" hidden><div class="burst"></div><div class="win"><small>TREASURE FOUND</small><strong id="amount">10P</strong><p>サーバー残高に追加されました</p><button id="close">島に戻る</button></div></div>
 <div id="devPrizeTester" class="dev-prize-tester" hidden><button id="devToggle" class="dev-toggle" type="button">🧪 演出テスト</button><div id="devButtons" class="dev-buttons" hidden><button type="button" data-test-prize="1">10P</button><button type="button" data-test-prize="10">100P</button><button type="button" data-test-prize="100">1,000P</button><button type="button" data-test-prize="500">5,000P</button><small>※残高・エネルギー・宝箱は変化しません</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=86"></script>
+<script src="app.js?v=87"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");
