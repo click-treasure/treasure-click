@@ -345,139 +345,102 @@ main{max-width:980px;padding:20px 22px 50px}
 @media(max-width:650px){.compact-redeem-top{align-items:flex-start;flex-direction:column}.compact-redeem-btn{width:100%}}
 
 
-/* V73 — mobile treasure board fix */
+
+
+
+/* V75 — final responsive treasure-board layout */
+/* Keep the existing application UI untouched; only adjust the map/chests. */
+
+@media (min-width: 761px) {
+  #game #map {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 760px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+    grid-auto-rows: 104px !important;
+    column-gap: 12px !important;
+    row-gap: 12px !important;
+    padding: 16px !important;
+    align-items: center !important;
+    justify-items: center !important;
+  }
+
+  #game #map .cell.chest {
+    width: 92px !important;
+    height: 92px !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    transition: transform .12s ease, filter .12s ease !important;
+  }
+
+  #game #map .cell.chest img {
+    width: 92px !important;
+    height: 92px !important;
+    max-width: 92px !important;
+    max-height: 92px !important;
+    margin: 0 !important;
+    object-fit: contain !important;
+    display: block !important;
+  }
+
+  #game #map .cell.chest:hover:not(:disabled) {
+    transform: translateY(-2px) scale(1.035) !important;
+    filter: brightness(1.05) !important;
+  }
+
+  #game #map .cell.chest.opened::after {
+    width: 22px !important;
+    height: 22px !important;
+    font-size: 13px !important;
+  }
+}
+
 @media (max-width: 760px) {
   html, body {
     max-width: 100%;
     overflow-x: hidden;
   }
 
-  #game {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 8px !important;
-  }
-
+  #game,
   #game .sea {
-    width: 100% !important;
+    min-width: 0 !important;
     max-width: 100% !important;
-    padding: 8px !important;
-    overflow: hidden !important;
   }
 
   #game #map {
-    width: 100% !important;
     min-width: 0 !important;
+    width: 100% !important;
     max-width: 100% !important;
+    margin: 0 auto !important;
     grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     grid-auto-rows: auto !important;
-    gap: 8px 6px !important;
-    padding: 10px 6px !important;
-    margin: 0 !important;
-    overflow: hidden !important;
-    border-radius: 18px !important;
+    gap: 8px !important;
+    padding: 8px !important;
+    overflow-x: hidden !important;
   }
 
-  #game .cell.chest {
+  #game #map .cell.chest {
     width: 100% !important;
+    height: auto !important;
     min-width: 0 !important;
     min-height: 0 !important;
     aspect-ratio: 1 / 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
     touch-action: manipulation;
   }
 
-  #game .cell.chest img {
-    width: 100% !important;
-    height: 100% !important;
-    max-width: 100% !important;
-    object-fit: contain !important;
-  }
-
-  #game .cell.chest.opened:after {
-    width: 24px !important;
-    height: 24px !important;
-    right: 3% !important;
-    top: 3% !important;
-    font-size: 14px !important;
-  }
-
-  #game .cell.chest:hover:not(:disabled) {
-    transform: none !important;
-  }
-
-  #game .head h2 {
-    font-size: 20px !important;
-  }
-
-  #game .live {
-    font-size: 9px !important;
-  }
-}
-
-
-/* V74 — treasure grid polish (desktop + mobile) */
-
-/* Desktop: turn the board into a compact 6-column grid */
-@media (min-width: 761px) {
-  #game #map {
-    grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
-    gap: 10px !important;
-    padding: 14px !important;
-    align-items: start !important;
-  }
-
-  #game .cell.chest {
-    width: 100% !important;
-    min-width: 0 !important;
-    aspect-ratio: 1 / 1 !important;
-    min-height: 0 !important;
-    border-radius: 14px !important;
-    overflow: hidden !important;
-    transition: transform .12s ease, filter .12s ease, box-shadow .12s ease !important;
-  }
-
-  #game .cell.chest img {
+  #game #map .cell.chest img {
     width: 88% !important;
     height: 88% !important;
-    display: block !important;
+    max-width: 100% !important;
     margin: 6% auto !important;
     object-fit: contain !important;
-  }
-
-  #game .cell.chest:hover:not(:disabled) {
-    transform: translateY(-2px) scale(1.025) !important;
-    filter: brightness(1.04) !important;
-    box-shadow: 0 7px 16px rgba(0,0,0,.10) !important;
-  }
-
-  #game .cell.chest.opened:after {
-    width: 24px !important;
-    height: 24px !important;
-    font-size: 14px !important;
-    top: 7px !important;
-    right: 7px !important;
-  }
-}
-
-/* Mobile: compact 3-column grid, fully inside the viewport */
-@media (max-width: 760px) {
-  #game #map {
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    gap: 7px !important;
-    padding: 8px !important;
-  }
-
-  #game .cell.chest {
-    aspect-ratio: 1 / 1 !important;
-    border-radius: 12px !important;
-    overflow: hidden !important;
-  }
-
-  #game .cell.chest img {
-    width: 92% !important;
-    height: 92% !important;
-    margin: 4% auto !important;
     display: block !important;
-    object-fit: contain !important;
   }
 }
