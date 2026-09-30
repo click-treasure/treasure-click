@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-18">
+<link rel="stylesheet" href="island.css?v=88-19">
 </head>
 <body>
 <main class="island-page">
@@ -27,15 +27,34 @@
     </div>
   </section>
 
-  <section class="coming">
-    <span>STEP 1</span>
-    <h2>EASY島へようこそ！</h2>
-    <p>次の段階で、ここに実際の100マス宝箱マップを接続します。</p>
+  <section class="treasure-panel">
+    <div class="map-head">
+      <div>
+        <span class="map-kicker">TREASURE MAP</span>
+        <h2>🗺️ 宝箱マップ <small>タップして宝箱を開けよう！</small></h2>
+      </div>
+      <div class="map-count">🧰 残り <strong>37</strong> / 100マス</div>
+    </div>
+    <div class="chest-board" id="chestBoard" aria-label="EASY島 100マス宝箱マップ"></div>
+    <div class="map-foot">
+      <div><b>この島の報酬</b><span>🪙 10P　🪙 100P　🌟 1,000P</span></div>
+      <div class="energy-preview"><b>⚡ エネルギー</b><strong>20 / 20</strong></div>
+    </div>
   </section>
 </main>
 <script>
 const p=new URLSearchParams(location.search);
 document.getElementById("generation").textContent="#"+(p.get("generation")||"—");
+
+const board=document.getElementById("chestBoard");
+for(let i=0;i<100;i++){
+  const cell=document.createElement("button");
+  cell.type="button";
+  cell.className="demo-chest";
+  cell.setAttribute("aria-label",`宝箱 ${i+1}`);
+  cell.innerHTML='<span class="lid"></span><span class="box"></span><span class="lock">●</span>';
+  board.appendChild(cell);
+}
 </script>
 </body>
 </html>
