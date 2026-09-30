@@ -704,7 +704,6 @@ auth().then(startCountdown);
 
 // V62 — cash redemption requires a permanent Google-linked account.
 function requireGoogleForRedemption(){
-  alert("交換機能は正式リリース準備中です。");
   return;
   if(hasGoogleIdentity(user)) return true;
   const go=confirm("準備中にはGoogle連携が必要です。\n\n連携すると現在の残高・当選履歴がGoogleアカウントに保存され、次回から同じデータで続けられます。\n\nGoogleと連携しますか？");
@@ -726,7 +725,6 @@ function requireGoogleForRedemption(){
     return Math.max(0,parseInt((w?.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
   }
   function syncRedeemButton(){
-  alert("交換機能は正式リリース準備中です。");
   return;
     const ok=walletAmount()>=1000;
     btn.disabled=!ok;
@@ -797,7 +795,6 @@ function requireGoogleForRedemption(){
     }).join('');
   }
   async function loadRedemptionHistory(){
-  alert("交換機能は正式リリース準備中です。");
   return;
     if(loading)return;
     if(!user?.id||!accessToken){box.innerHTML='<div class="redeem-history-empty">ログイン情報を確認中…</div>';return}
@@ -927,7 +924,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOCK_MESSAGE = "交換機能は正式リリース準備中です。PayPayへの交換は現在ご利用いただけません。";
 
   function looksLikeExchange(el) {
-  alert("交換機能は正式リリース準備中です。");
   return;
     if (!el) return false;
     const text = ((el.textContent || "") + " " + (el.id || "") + " " + (el.className || "") + " " +
@@ -936,7 +932,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function lockExchangeUI() {
-  alert("交換機能は正式リリース準備中です。");
   return;
     const notice = document.getElementById("exchangeBetaNotice");
     const exchangeCandidates = [...document.querySelectorAll("button, input[type='submit'], a, form, section, div")];
@@ -971,7 +966,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (/交換申請|準備中|redeem|redemption|paypay.*交換/.test(s)) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      alert(LOCK_MESSAGE);
+      
     }
   }, true);
 
@@ -980,7 +975,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (looksLikeExchange(form)) {
       e.preventDefault();
       e.stopImmediatePropagation();
-      alert(LOCK_MESSAGE);
+      
     }
   }, true);
 
