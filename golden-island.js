@@ -12,26 +12,24 @@ async function req(path,options={}){
   return t?JSON.parse(t):null;
 }
 
-function savedSession(){
-  for(const k of Object.keys(localStorage)){
-    if(!k.startsWith("sb-")||!k.endsWith("-auth-token")) continue;
-    try{
-      const x=JSON.parse(localStorage.getItem(k)||"null");
-      const s=x?.currentSession||x?.session||x;
-      if(s?.access_token&&s?.user?.id) return s;
-    }catch(_e){}
-  }
-  return null;
-}
-
 async function restoreAuth(){
-  const s=savedSession();
-  if(!s) throw new Error("no saved session");
-  accessToken=s.access_token;
-  currentUser=s.user;
-  const r=await fetch(URL+"/auth/v1/user",{headers:{apikey:KEY,Authorization:"Bearer "+accessToken}});
+  // Use exactly the same auth storage as the homepage app.js.
+  accessToken=localStorage.getItem("v261_access_token")||"";
+  const savedUser=localStorage.getItem("v261_user");
+  try{ currentUser=savedUser?JSON.parse(savedUser):null; }catch(_e){ currentUser=null; }
+
+  if(!accessToken) throw new Error("no saved access token");
+
+  const r=await fetch(URL+"/auth/v1/user",{
+    headers:{apikey:KEY,Authorization:"Bearer "+accessToken}
+  });
   if(!r.ok) throw new Error("session verify failed");
+
   currentUser=await r.json();
+  if(!currentUser?.id) throw new Error("user id missing");
+
+  // Keep the verified user synchronized with the homepage storage.
+  localStorage.setItem("v261_user",JSON.stringify(currentUser));
 }
 
 async function loadTickets(){
