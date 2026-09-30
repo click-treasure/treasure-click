@@ -901,3 +901,16 @@ document.addEventListener("DOMContentLoaded",()=>{
   const tester=document.getElementById("devPrizeTester");
   if(tester) tester.hidden=true;
 });
+
+
+// V78 — point offer category tabs (UI only)
+document.addEventListener("DOMContentLoaded", () => {
+  const tabs = [...document.querySelectorAll(".offer-tab")];
+  const cards = [...document.querySelectorAll(".offer-card")];
+  if (!tabs.length || !cards.length) return;
+  tabs.forEach(tab => tab.addEventListener("click", () => {
+    const filter = tab.dataset.offerFilter || "all";
+    tabs.forEach(t => t.classList.toggle("active", t === tab));
+    cards.forEach(card => { card.hidden = filter !== "all" && card.dataset.offerCategory !== filter; });
+  }));
+});
