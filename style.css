@@ -465,31 +465,37 @@ main{max-width:980px;padding:20px 22px 50px}
   }
 }
 
-/* V77 — mobile row-height fix
-   Fix stacked chests by giving every grid item its own explicit square size. */
+/* V77 — mobile chest row-height fix only */
 @media (max-width:760px){
   #game #map{
-    grid-template-columns:repeat(3,minmax(0,1fr))!important;
-    grid-auto-rows:unset!important;
-    align-items:start!important;
+    grid-auto-rows:1fr!important;
+  }
+
+  #game #map::before{
+    content:"";
+    width:0;
+    padding-bottom:100%;
+    grid-row:1 / 1;
+    grid-column:1 / 1;
+  }
+
+  #game #map > *:first-child{
+    grid-row:1 / 1;
+    grid-column:1 / 1;
   }
 
   #game .cell.chest{
+    align-self:stretch!important;
+    justify-self:stretch!important;
     width:100%!important;
-    height:auto!important;
-    min-width:0!important;
-    min-height:0!important;
+    height:100%!important;
     aspect-ratio:1 / 1!important;
-    align-self:start!important;
     overflow:visible!important;
   }
 
   #game .cell.chest img{
-    position:absolute!important;
-    inset:8%!important;
-    width:84%!important;
-    height:84%!important;
-    margin:0!important;
-    object-fit:contain!important;
+    width:82%!important;
+    height:82%!important;
+    margin:9%!important;
   }
 }
