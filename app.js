@@ -665,7 +665,7 @@ auth().then(startCountdown);
     const n=Math.max(0,parseInt((wallet.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
     const pct=Math.min(100,n/10);
     fill.style.width=pct+'%';
-    text.textContent=n>=1000?'1,000P達成！PayPay 100円分に交換できます':`あと${(1000-n).toLocaleString('ja-JP')}Pで交換できます`;
+    text.textContent=n>=1000?'🔒 交換機能は正式リリース準備中です':`あと${(1000-n).toLocaleString('ja-JP')}Pで交換機能は準備中です`;
   }
   document.addEventListener('DOMContentLoaded',()=>{
     const wallet=document.getElementById('wallet');
@@ -704,8 +704,10 @@ auth().then(startCountdown);
 
 // V62 — cash redemption requires a permanent Google-linked account.
 function requireGoogleForRedemption(){
+  alert("交換機能は正式リリース準備中です。");
+  return;
   if(hasGoogleIdentity(user)) return true;
-  const go=confirm("交換するにはGoogle連携が必要です。\n\n連携すると現在の残高・当選履歴がGoogleアカウントに保存され、次回から同じデータで続けられます。\n\nGoogleと連携しますか？");
+  const go=confirm("準備中にはGoogle連携が必要です。\n\n連携すると現在の残高・当選履歴がGoogleアカウントに保存され、次回から同じデータで続けられます。\n\nGoogleと連携しますか？");
   if(go) beginGoogleMigration();
   return false;
 }
@@ -724,10 +726,12 @@ function requireGoogleForRedemption(){
     return Math.max(0,parseInt((w?.textContent||'0').replace(/[^0-9-]/g,''),10)||0);
   }
   function syncRedeemButton(){
+  alert("交換機能は正式リリース準備中です。");
+  return;
     const ok=walletAmount()>=1000;
     btn.disabled=!ok;
     const menu=document.getElementById('redeemMenuState');
-    if(menu)menu.textContent=ok?'交換できます':'1,000P〜';
+    if(menu)menu.textContent=ok?'交換機能は準備中です':'1,000P〜';
   }
   const wallet=document.getElementById('wallet');
   if(wallet)new MutationObserver(syncRedeemButton).observe(wallet,{childList:true,subtree:true,characterData:true});
@@ -758,7 +762,7 @@ function requireGoogleForRedemption(){
       if(window.loadRedemptionHistory)await window.loadRedemptionHistory();
       alert('1,000P → PayPay 100円分の交換申請を受け付けました！\n申請ID：'+row.id+'\n現在：処理待ち');
     }catch(e){fail(e)}
-    finally{submit.disabled=false;submit.textContent='1,000Pを交換する'}
+    finally{submit.disabled=false;submit.textContent='1,000Pを準備中'}
   });
 })();
 
@@ -793,6 +797,8 @@ function requireGoogleForRedemption(){
     }).join('');
   }
   async function loadRedemptionHistory(){
+  alert("交換機能は正式リリース準備中です。");
+  return;
     if(loading)return;
     if(!user?.id||!accessToken){box.innerHTML='<div class="redeem-history-empty">ログイン情報を確認中…</div>';return}
     loading=true;
@@ -884,7 +890,7 @@ function requireGoogleForRedemption(){
   winMenu.addEventListener('click',()=>setOpen('win'));
   redeemMenu.addEventListener('click',()=>setOpen('redeem'));
   if(compactRedeem&&mainRedeem){
-    const sync=()=>{compactRedeem.disabled=mainRedeem.disabled;compactRedeem.textContent=mainRedeem.disabled?'1,000Pから交換できます':'1,000Pを交換する';};
+    const sync=()=>{compactRedeem.disabled=mainRedeem.disabled;compactRedeem.textContent=mainRedeem.disabled?'1,000Pから交換機能は準備中です':'1,000Pを準備中';};
     new MutationObserver(sync).observe(mainRedeem,{attributes:true,attributeFilter:['disabled']});
     sync();
     compactRedeem.addEventListener('click',()=>{if(!mainRedeem.disabled)mainRedeem.click();});
@@ -921,6 +927,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const LOCK_MESSAGE = "交換機能は正式リリース準備中です。PayPayへの交換は現在ご利用いただけません。";
 
   function looksLikeExchange(el) {
+  alert("交換機能は正式リリース準備中です。");
+  return;
     if (!el) return false;
     const text = ((el.textContent || "") + " " + (el.id || "") + " " + (el.className || "") + " " +
       (el.getAttribute?.("aria-label") || "")).toLowerCase();
@@ -928,6 +936,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function lockExchangeUI() {
+  alert("交換機能は正式リリース準備中です。");
+  return;
     const notice = document.getElementById("exchangeBetaNotice");
     const exchangeCandidates = [...document.querySelectorAll("button, input[type='submit'], a, form, section, div")];
     const exchangeAreas = exchangeCandidates.filter(looksLikeExchange);
@@ -945,7 +955,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!looksLikeExchange(el)) return;
       const t = (el.textContent || el.value || "").trim();
       // Keep accordion/header controls usable; only disable action-looking controls.
-      if (/申請|交換する|redeem|submit|paypay.*交換/i.test(t + " " + (el.id||"") + " " + (el.className||""))) {
+      if (/申請|準備中|redeem|submit|paypay.*交換/i.test(t + " " + (el.id||"") + " " + (el.className||""))) {
         if ("disabled" in el) el.disabled = true;
         el.setAttribute("aria-disabled", "true");
         el.classList.add("exchange-locked-control");
@@ -958,7 +968,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const target = e.target.closest?.("button, input[type='submit'], a");
     if (!target) return;
     const s = ((target.textContent || target.value || "") + " " + (target.id || "") + " " + (target.className || "")).toLowerCase();
-    if (/交換申請|交換する|redeem|redemption|paypay.*交換/.test(s)) {
+    if (/交換申請|準備中|redeem|redemption|paypay.*交換/.test(s)) {
       e.preventDefault();
       e.stopImmediatePropagation();
       alert(LOCK_MESSAGE);
@@ -981,3 +991,27 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   setTimeout(lockExchangeUI, 800);
 })();
+
+
+/* V80: definitive exchange lock */
+function applyV80ExchangeLock(){
+  document.querySelectorAll("button").forEach(btn=>{
+    const t=(btn.textContent||"").trim();
+    if(t==="交換する" || t==="交換できます" || /PayPay.*交換/.test(t)){
+      btn.textContent="準備中";
+      btn.disabled=true;
+      btn.setAttribute("aria-disabled","true");
+      btn.classList.add("exchange-locked-control");
+    }
+  });
+  document.querySelectorAll("*").forEach(el=>{
+    if(el.children.length===0){
+      const t=(el.textContent||"").trim();
+      if(t==="1,000P達成！PayPay 100円分に交換できます"){
+        el.textContent="🔒 交換機能は正式リリース準備中です";
+      }
+    }
+  });
+}
+document.addEventListener("DOMContentLoaded", applyV80ExchangeLock);
+new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{childList:true,subtree:true});
