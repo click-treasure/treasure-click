@@ -202,3 +202,25 @@
     height:88%!important;
   }
 }
+
+
+/* V88-23 — move the 10x10 chest field fully into the clear sand */
+.chest-board{
+  padding:12% 13.5% 15%!important;
+  gap:6px!important;
+}
+.demo-chest img{
+  width:82%!important;
+  height:82%!important;
+}
+
+@media(max-width:700px){
+  .chest-board{
+    padding:11% 11% 14%!important;
+    gap:2px!important;
+  }
+  .demo-chest img{
+    width:84%!important;
+    height:84%!important;
+  }
+}
