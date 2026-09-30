@@ -225,7 +225,9 @@ async function dig(cellIndex,button){
     const d=await req("/rest/v1/rpc/dig_treasure",{method:"POST",body:JSON.stringify({p_island_id:island.island_id,p_cell_index:cellIndex})});
     const x=Array.isArray(d)?d[0]:d;if(!x)return;
     const energyBeforeDig=serverEnergy;
-    serverEnergy=Number(x.new_energy??serverEnergy);paintEnergy();
+    serverEnergy=Number(x.new_energy??serverEnergy);
+    const energyJustEmptied=energyBeforeDig>0&&serverEnergy<=0;
+    paintEnergy();
     if(serverEnergy>0)energyEmptyShownForThisZero=false;
 
     if(x.result==="no_energy"){
@@ -253,7 +255,7 @@ async function dig(cellIndex,button){
     setTimeout(()=>removeOpenedChest(button),520);
     await new Promise(r=>setTimeout(r,700));
     await Promise.all([loadStatus(),loadCells(true)]);
-    if(energyBeforeDig>0&&serverEnergy<=0&&bonusTaps<=0)showEnergyEmptyModal();
+    if(energyJustEmptied)showEnergyEmptyModal();
 
     if(x.result==="island_finished"||x.result==="island_finished_ticket"){
       setMessage(gotTicket?"🏁 黄金チケット発見！この島の探索は終了！":"🏁 最後の宝発見！この島の探索は終了！");
