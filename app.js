@@ -99,7 +99,8 @@ async function auth(){
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
-  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions(),loadGoldenTickets()]);
+  await loadGoldenTickets();
+  await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
  }catch(e){fail(e);$("session").textContent="認証エラー";}
 }
 let bonusTaps=0;
@@ -229,12 +230,18 @@ async function loadGoldenTickets(){
 }
 function paintGoldenTicketUI(){
  const card=$("goldenIslandCard"),badge=$("goldenTicketBadge"),inside=$("goldenTicketsInGame");
- if(badge)badge.textContent=`🎫 チケット ${goldenTickets}枚`;
+ if(badge)badge.textContent=`GOLDEN TICKET　${goldenTickets}枚`;
  if(inside)inside.textContent=goldenTickets;
  if(card){
-  card.classList.toggle("locked",goldenTickets<=0);
-  card.classList.toggle("unlocked",goldenTickets>0);
-  const s=card.querySelector("span");if(s)s.textContent=goldenTickets>0?"✨ SECRET OPEN":"🔒 SECRET";
+  const unlocked=goldenTickets>0;
+  card.classList.toggle("locked",!unlocked);
+  card.classList.toggle("unlocked",unlocked);
+  card.classList.toggle("golden-locked",!unlocked);
+  card.classList.toggle("golden-unlocked",unlocked);
+  const level=card.querySelector(".island-level");
+  if(level)level.innerHTML=`${unlocked?"✨ SECRET OPEN":"🔒 SECRET"} <small>${unlocked?"UNLOCKED":"LOCKED"}</small>`;
+  const cta=card.querySelector(".island-cta");
+  if(cta)cta.innerHTML=`${unlocked?"黄金島へ行く":"チケットが必要です"} <strong>›</strong>`;
  }
 }
 function goldenTicketEffect(){
@@ -290,7 +297,7 @@ function renderCards(){
   b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><small class="island-desc">${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
   b.onclick=()=>openIsland(x);box.appendChild(b);
  });
- const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked":"locked");
+ const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
  g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">50個から1つ選択。最低100P確定。</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
  g.onclick=openGoldenIsland;box.appendChild(g);
 }
