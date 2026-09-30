@@ -1199,3 +1199,53 @@ main{max-width:1180px}
   .v88-header-stats{padding:0!important}
   .v88-top-actions{border-left:0!important;padding-left:0!important}
 }
+
+
+/* V88-12 — header background only */
+.v88-topbar{
+  position:relative!important;
+  overflow:hidden!important;
+  isolation:isolate!important;
+  background:
+    radial-gradient(circle at 16% 5%, rgba(255,255,255,.98) 0 7%, transparent 22%),
+    radial-gradient(ellipse at 77% 8%, rgba(255,255,255,.78) 0 10%, transparent 27%),
+    linear-gradient(180deg,#cfeeff 0%,#e9f7ff 56%,#f9fcff 100%)!important;
+  border-color:#a9d8f4!important;
+}
+.v88-topbar::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  left:-4%;
+  right:-4%;
+  bottom:-28px;
+  height:72px;
+  opacity:.52;
+  background:
+    radial-gradient(ellipse at 8% 70%,#fff 0 24%,transparent 25%),
+    radial-gradient(ellipse at 24% 82%,#fff 0 23%,transparent 24%),
+    radial-gradient(ellipse at 43% 68%,#fff 0 22%,transparent 23%),
+    radial-gradient(ellipse at 65% 82%,#fff 0 25%,transparent 26%),
+    radial-gradient(ellipse at 84% 66%,#fff 0 24%,transparent 25%);
+  filter:blur(2px);
+  pointer-events:none;
+}
+.v88-topbar::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:160px;
+  height:160px;
+  right:18%;
+  top:-116px;
+  border-radius:50%;
+  background:rgba(255,245,178,.62);
+  box-shadow:0 0 42px rgba(255,238,138,.46);
+  pointer-events:none;
+}
+.v88-brand,
+.v88-header-stats,
+.v88-top-actions{
+  position:relative;
+  z-index:1;
+}
