@@ -953,3 +953,24 @@ main{max-width:1180px}
 .v88-main-column #dailyMissions{margin:0 0 14px!important}
 .v88-main-column #pointOffers{margin-top:14px!important}
 @media(min-width:1180px){.v88-main-column main{display:block!important}}
+
+
+/* V88-5 — real EASY island artwork */
+.island-card.easy .island-art{
+  background-image:url("assets/easy-island-v88.webp")!important;
+  background-size:cover!important;
+  background-position:center center!important;
+  background-repeat:no-repeat!important;
+}
+.island-card.easy .island-art::before,
+.island-card.easy .island-art::after,
+.island-card.easy .island-art > i{
+  display:none!important;
+}
+/* Give the artwork a little more presence like the target design */
+.island-card.easy .island-art{
+  height:168px!important;
+}
+@media(max-width:650px){
+  .island-card.easy .island-art{height:155px!important}
+}
