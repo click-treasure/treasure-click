@@ -296,8 +296,8 @@ function renderCards(){
   if(x.island_status==="finished"){b.disabled=true;b.classList.add("finished")}
   b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><small class="island-desc">${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
   b.onclick=()=>{
-   if(diff==="easy"){
-     window.location.href=`island.html?difficulty=easy&generation=${encodeURIComponent(x.generation)}`;
+   if(diff==="easy" || diff==="normal"){
+     window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}`;
      return;
    }
    openIsland(x);
