@@ -1400,3 +1400,55 @@ iframe[src*="doubleclick"],
   position:relative;
   z-index:1;
 }
+
+
+/* V88-16 — solid Ninja AdMax plate */
+section.ad{
+  width:min(100%, 780px)!important;
+  min-height:110px!important;
+  margin:18px auto 22px!important;
+  padding:14px 18px!important;
+  box-sizing:border-box!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  position:relative!important;
+  z-index:5!important;
+  overflow:hidden!important;
+
+  background:#fff!important;
+  opacity:1!important;
+  border:1px solid rgba(218,226,234,.95)!important;
+  border-radius:18px!important;
+  box-shadow:0 8px 24px rgba(22,49,75,.12)!important;
+  isolation:isolate!important;
+}
+
+/* Opaque layer behind third-party ad contents */
+section.ad::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:-1;
+  background:#fff!important;
+  opacity:1!important;
+  pointer-events:none;
+}
+
+section.ad iframe,
+section.ad > div,
+section.ad > span,
+section.ad > a,
+section.ad ins{
+  position:relative;
+  z-index:1;
+}
+
+@media(max-width:820px){
+  section.ad{
+    width:calc(100% - 24px)!important;
+    min-height:90px!important;
+    padding:10px!important;
+    border-radius:14px!important;
+  }
+}
