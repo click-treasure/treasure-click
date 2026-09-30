@@ -487,3 +487,25 @@ main{max-width:980px;padding:20px 22px 50px}
 .offer-tabs{display:flex;gap:8px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none}.offer-tabs::-webkit-scrollbar{display:none}.offer-tab{flex:0 0 auto;border:1px solid #e8e8eb;background:#f7f7f8;color:#666;border-radius:999px;padding:9px 13px;font-size:11px;font-weight:900;cursor:pointer}.offer-tab.active{background:#171717;color:#fff;border-color:#171717}
 .offer-list{display:grid;gap:10px}.offer-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;align-items:center;gap:12px;padding:13px;border:1px solid #ececef;border-radius:17px;background:#fafafa}.offer-card[hidden]{display:none!important}.offer-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:15px;background:#fff;font-size:23px;box-shadow:0 3px 12px #0000000a}.offer-copy{min-width:0}.offer-meta{display:flex;align-items:center;gap:7px;margin-bottom:4px}.offer-meta span{font-size:9px;font-weight:1000;letter-spacing:.06em;color:#7457ff}.offer-meta em{font-style:normal;font-size:9px;font-weight:900;color:#777;background:#eee;border-radius:999px;padding:3px 6px}.offer-copy>b,.offer-copy>small{display:block}.offer-copy>b{font-size:13px}.offer-copy>small{margin-top:4px;color:#777;font-size:10px;line-height:1.5}.offer-card>strong{text-align:right;font-size:9px;line-height:1.2;letter-spacing:.08em;color:#aaa}.offer-note{display:flex;gap:10px;align-items:flex-start;margin-top:12px;padding:12px 13px;border-radius:15px;background:#f4f2ff}.offer-note>span{font-size:17px}.offer-note p{margin:0}.offer-note b,.offer-note small{display:block}.offer-note b{font-size:11px}.offer-note small{margin-top:3px;color:#777;font-size:9px;line-height:1.5}
 @media(max-width:650px){.point-offers{padding:14px}.offer-card{grid-template-columns:42px minmax(0,1fr) auto;padding:11px 10px;gap:9px}.offer-icon{width:42px;height:42px;font-size:20px}.offer-copy>b{font-size:12px}.offer-card>strong{font-size:8px}}
+
+
+/* V79: exchange beta lock */
+.exchange-beta-notice{
+  margin:12px 0 0;
+  padding:12px 14px;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#f8fafc;
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+  font-size:13px;
+  line-height:1.5;
+}
+.exchange-beta-notice strong{font-size:14px;color:#111827}
+.exchange-beta-notice span{color:#6b7280}
+.exchange-locked-control{
+  opacity:.55!important;
+  cursor:not-allowed!important;
+  pointer-events:none!important;
+}

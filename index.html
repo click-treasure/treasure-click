@@ -1,4 +1,4 @@
-<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>クリック宝探し | CLICK TREASURE</title><link rel="stylesheet" href="style.css?v=78"></head><body><div id="fx"></div><div id="v41Jackpot" class="v41-jackpot" hidden>
+<!doctype html><html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>クリック宝探し | CLICK TREASURE</title><link rel="stylesheet" href="style.css?v=79"></head><body><div id="fx"></div><div id="v41Jackpot" class="v41-jackpot" hidden>
 <div class="v41-blackout"></div><div class="v42-whiteflash"></div><div class="v42-golddot"></div><div class="v41-goldburst"></div>
 <div class="v41-jackpot-content"><div class="v41-jackpot-kicker">JACKPOT</div><div class="v41-jackpot-money"><strong>5,000</strong><small>P</small><em>獲得！</em></div><div class="v41-jackpot-sub">TREASURE FOUND</div></div><div id="v41Coins" class="v41-coins"></div>
 </div>
@@ -37,7 +37,7 @@
 <div id="overlay" hidden><div class="burst"></div><div class="win"><small>TREASURE FOUND</small><strong id="amount">10P</strong><p>サーバー残高に追加されました</p><button id="close">島に戻る</button></div></div>
 <div id="devPrizeTester" class="dev-prize-tester" hidden><button id="devToggle" class="dev-toggle" type="button">🧪 演出テスト</button><div id="devButtons" class="dev-buttons" hidden><button type="button" data-test-prize="1">10P</button><button type="button" data-test-prize="10">100P</button><button type="button" data-test-prize="100">1,000P</button><button type="button" data-test-prize="500">5,000P</button><small>※残高・エネルギー・宝箱は変化しません</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=78"></script>
+<script src="app.js?v=79"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");
@@ -67,4 +67,10 @@ document.addEventListener("DOMContentLoaded", () => {
     submit.dataset.confirmed = "1";
   }, true);
 });
-</script></body></html>
+</script>
+<div id="exchangeBetaNotice" class="exchange-beta-notice" hidden>
+  <strong>🔒 交換機能は正式リリース準備中です</strong>
+  <span>PayPayへの交換は現在ご利用いただけません。</span>
+</div>
+
+</body></html>

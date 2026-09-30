@@ -914,3 +914,70 @@ document.addEventListener("DOMContentLoaded", () => {
     cards.forEach(card => { card.hidden = filter !== "all" && card.dataset.offerCategory !== filter; });
   }));
 });
+
+
+/* V79: beta exchange lock */
+(function () {
+  const LOCK_MESSAGE = "交換機能は正式リリース準備中です。PayPayへの交換は現在ご利用いただけません。";
+
+  function looksLikeExchange(el) {
+    if (!el) return false;
+    const text = ((el.textContent || "") + " " + (el.id || "") + " " + (el.className || "") + " " +
+      (el.getAttribute?.("aria-label") || "")).toLowerCase();
+    return /交換|paypay|redeem|redemption/.test(text);
+  }
+
+  function lockExchangeUI() {
+    const notice = document.getElementById("exchangeBetaNotice");
+    const exchangeCandidates = [...document.querySelectorAll("button, input[type='submit'], a, form, section, div")];
+    const exchangeAreas = exchangeCandidates.filter(looksLikeExchange);
+
+    // Put notice near the first visible exchange area.
+    const anchor = exchangeAreas.find(el => el.offsetParent !== null && /交換|paypay|redeem|redemption/i.test(el.textContent || el.id || el.className || ""));
+    if (notice) {
+      notice.hidden = false;
+      if (anchor && anchor.parentElement && !anchor.parentElement.contains(notice)) {
+        anchor.parentElement.appendChild(notice);
+      }
+    }
+
+    document.querySelectorAll("button, input[type='submit'], a").forEach(el => {
+      if (!looksLikeExchange(el)) return;
+      const t = (el.textContent || el.value || "").trim();
+      // Keep accordion/header controls usable; only disable action-looking controls.
+      if (/申請|交換する|redeem|submit|paypay.*交換/i.test(t + " " + (el.id||"") + " " + (el.className||""))) {
+        if ("disabled" in el) el.disabled = true;
+        el.setAttribute("aria-disabled", "true");
+        el.classList.add("exchange-locked-control");
+        if (el.tagName === "A") el.removeAttribute("href");
+      }
+    });
+  }
+
+  document.addEventListener("click", function (e) {
+    const target = e.target.closest?.("button, input[type='submit'], a");
+    if (!target) return;
+    const s = ((target.textContent || target.value || "") + " " + (target.id || "") + " " + (target.className || "")).toLowerCase();
+    if (/交換申請|交換する|redeem|redemption|paypay.*交換/.test(s)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      alert(LOCK_MESSAGE);
+    }
+  }, true);
+
+  document.addEventListener("submit", function (e) {
+    const form = e.target;
+    if (looksLikeExchange(form)) {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      alert(LOCK_MESSAGE);
+    }
+  }, true);
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", lockExchangeUI);
+  } else {
+    lockExchangeUI();
+  }
+  setTimeout(lockExchangeUI, 800);
+})();
