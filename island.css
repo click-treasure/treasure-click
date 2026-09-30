@@ -178,3 +178,27 @@
     inset 0 0 0 1px rgba(29,122,153,.10),
     inset 0 0 38px rgba(16,92,119,.08)!important;
 }
+
+
+/* V88-22 — keep all 100 chests inside the sandy center */
+.chest-board{
+  padding:9% 9% 10%!important;
+  gap:7px!important;
+  aspect-ratio:1.06 / 1!important;
+  align-content:center!important;
+}
+.demo-chest img{
+  width:84%!important;
+  height:84%!important;
+}
+
+@media(max-width:700px){
+  .chest-board{
+    padding:9% 7% 10%!important;
+    gap:3px!important;
+  }
+  .demo-chest img{
+    width:88%!important;
+    height:88%!important;
+  }
+}
