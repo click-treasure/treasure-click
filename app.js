@@ -98,10 +98,21 @@ async function auth(){
    accessToken=d.access_token;refreshToken=d.refresh_token;user=d.user;
    localStorage.setItem("v261_access_token",accessToken);localStorage.setItem("v261_refresh_token",refreshToken);localStorage.setItem("v261_user",JSON.stringify(user));
   }
+  // Dedicated Golden Island page only needs authentication + ticket state.
+  // Do not touch homepage-only DOM nodes there.
+  if(document.body.classList.contains("golden-page")){
+    await loadGoldenTickets();
+    paintGoldenTicketUI();
+    return;
+  }
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
   await loadGoldenTickets();
   await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
- }catch(e){fail(e);$("session").textContent="認証エラー";}
+ }catch(e){
+   console.error("auth:",e);
+   if($("error"))fail(e);
+   if($("session"))$("session").textContent="認証エラー";
+ }
 }
 let bonusTaps=0;
 let loginBonusState=null;
@@ -1154,9 +1165,16 @@ new MutationObserver(applyV80ExchangeLock).observe(document.documentElement,{chi
 window.addEventListener("DOMContentLoaded", async ()=>{
   if(!document.body.classList.contains("golden-page")) return;
   try{
+    // auth() may still be restoring the saved Google session. Wait briefly for user.
+    for(let i=0;i<40 && !user?.id;i++) await new Promise(r=>setTimeout(r,50));
     await loadGoldenTickets();
+    paintGoldenTicketUI();
     const game=document.getElementById("goldenGame");
     if(game) game.hidden=false;
     renderGoldenMap();
+    const msg=document.getElementById("goldenMessage");
+    if(msg) msg.textContent=goldenTickets>0
+      ?"✨ 50個から黄金の宝箱を1つ選ぼう"
+      :"🎫 黄金島チケットがありません";
   }catch(e){console.error("golden page bootstrap",e);}
 });
