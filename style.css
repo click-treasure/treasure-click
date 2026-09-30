@@ -422,3 +422,45 @@ main{max-width:980px;padding:20px 22px 50px}
 .daily-missions-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:13px}.daily-missions-head div{display:grid;gap:2px}.daily-missions-head span{font-size:9px;font-weight:900;letter-spacing:.16em;color:#7457ff}.daily-missions-head b{font-size:15px}.daily-missions-head small{font-size:10px;color:#888}.daily-missions-head>strong{font-size:13px;background:#f1efff;color:#6248db;border-radius:999px;padding:7px 10px}
 .daily-mission-list{display:grid;gap:9px}.daily-mission-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:10px;padding:11px 12px;border:1px solid #eee;border-radius:15px;background:#fafafa}.daily-mission-row.done{background:#f8fff0;border-color:#dff1bd}.daily-mission-icon{display:grid;place-items:center;width:38px;height:38px;border-radius:12px;background:#fff;font-size:18px}.daily-mission-copy{min-width:0}.daily-mission-copy b,.daily-mission-copy small{display:block}.daily-mission-copy b{font-size:12px}.daily-mission-copy small{margin-top:3px;color:#777;font-size:10px}.daily-mission-progress{height:5px;background:#e9e9ec;border-radius:99px;overflow:hidden;margin-top:7px}.daily-mission-progress i{display:block;height:100%;background:var(--lime);border-radius:99px}.daily-mission-row button,.daily-all-clear button{border:0;border-radius:999px;padding:8px 11px;font-weight:900;font-size:10px;background:#171717;color:#fff;white-space:nowrap;cursor:pointer}.daily-mission-row button.ready,.daily-all-clear button.ready{background:var(--lime);color:#171717}.daily-mission-row button:disabled,.daily-all-clear button:disabled{background:#eee;color:#999;cursor:default}.daily-all-clear{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding:12px;border-radius:15px;background:#171717;color:#fff}.daily-all-clear b,.daily-all-clear small{display:block}.daily-all-clear b{font-size:12px}.daily-all-clear small{margin-top:2px;font-size:10px;color:#aaa}.daily-all-clear.claimed{background:#efffd2;color:#222}.daily-all-clear.claimed small{color:#657348}
 @media(max-width:650px){.daily-mission-row{grid-template-columns:34px minmax(0,1fr) auto;padding:10px 9px}.daily-mission-icon{width:34px;height:34px}.daily-missions-card{padding:14px}.daily-mission-row button{padding:8px 9px}}
+
+/* V76 — mobile treasure map only
+   PC and all other UI are intentionally untouched. */
+@media (max-width:760px){
+  #game .sea{
+    overflow-x:hidden!important;
+  }
+
+  #game #map{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-auto-rows:auto!important;
+    gap:12px 8px!important;
+    padding:14px 8px!important;
+    overflow:visible!important;
+  }
+
+  #game .cell.chest{
+    box-sizing:border-box!important;
+    width:100%!important;
+    min-width:0!important;
+    min-height:0!important;
+    height:auto!important;
+    aspect-ratio:1/1!important;
+  }
+
+  #game .cell.chest img{
+    width:88%!important;
+    height:88%!important;
+    margin:6%!important;
+    object-fit:contain!important;
+  }
+
+  #game .cell.chest.opened:after{
+    width:22px!important;
+    height:22px!important;
+    font-size:12px!important;
+  }
+}
