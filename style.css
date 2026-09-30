@@ -1263,3 +1263,140 @@ body{
 .v88-page-shell{
   position:relative;
 }
+
+
+/* V88-14 — treasure world only behind island selection */
+body{
+  background:#f4f8fc!important;
+}
+.v88-main-column #islandSelect{
+  position:relative!important;
+  isolation:isolate!important;
+  overflow:hidden!important;
+  margin-left:-18px!important;
+  margin-right:-18px!important;
+  padding:22px 18px 24px!important;
+  border-radius:28px!important;
+  background:
+    linear-gradient(180deg,rgba(239,250,255,.20),rgba(223,247,255,.30)),
+    url("./assets/treasure-world-bg-v88.png") center 43% / cover no-repeat!important;
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.58),
+    0 12px 28px rgba(35,91,126,.12)!important;
+}
+.v88-main-column #islandSelect::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.10),transparent 28%,transparent 72%,rgba(255,255,255,.08));
+  pointer-events:none;
+}
+.v88-main-column #islandSelect .section-title{
+  position:relative;
+  z-index:1;
+  padding:8px 12px!important;
+  margin:0 0 14px!important;
+  width:max-content;
+  max-width:100%;
+  border-radius:14px;
+  background:rgba(255,255,255,.86);
+  box-shadow:0 5px 15px rgba(28,73,104,.10);
+  backdrop-filter:blur(6px);
+}
+.v88-main-column #islandSelect .section-title p{
+  display:none;
+}
+.v88-main-column #islandSelect .island-cards{
+  position:relative;
+  z-index:1;
+}
+@media(max-width:900px){
+  .v88-main-column #islandSelect{
+    margin-left:-8px!important;
+    margin-right:-8px!important;
+    padding:16px 8px 18px!important;
+    border-radius:22px!important;
+    background-position:center top!important;
+  }
+}
+
+
+/* V88-15 — full world background + opaque ad surfaces */
+html{
+  background:#bfeeff!important;
+}
+body{
+  background:
+    linear-gradient(rgba(246,250,253,.42), rgba(246,250,253,.58)),
+    url("./assets/treasure-world-bg-v88.png") center top / cover fixed no-repeat!important;
+}
+
+/* Cancel V88-14 island-only framed background */
+.v88-main-column #islandSelect{
+  margin-left:0!important;
+  margin-right:0!important;
+  padding:0!important;
+  border-radius:0!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.v88-main-column #islandSelect::before{
+  display:none!important;
+}
+.v88-main-column #islandSelect .section-title{
+  padding:0!important;
+  margin:0 0 14px!important;
+  background:transparent!important;
+  box-shadow:none!important;
+  backdrop-filter:none!important;
+}
+.v88-main-column #islandSelect .section-title p{
+  display:block!important;
+}
+
+/* Ads must never inherit/show the game background */
+ins.adsbygoogle,
+iframe[id*="google_ads"],
+iframe[name*="google_ads"],
+iframe[src*="googleads"],
+iframe[src*="doubleclick"],
+[id*="admax"],
+[class*="admax"],
+[id*="ninja"],
+[class*="ninja"],
+.ad-slot,
+.ad-container,
+.ads-container,
+.ad-banner,
+.ad-wrap,
+.v88-ad,
+.v88-ad-slot{
+  background:#fff!important;
+  opacity:1!important;
+}
+
+/* Give common ad wrappers a clean opaque plate */
+.ad-slot,
+.ad-container,
+.ads-container,
+.ad-banner,
+.ad-wrap,
+.v88-ad,
+.v88-ad-slot{
+  position:relative!important;
+  z-index:2!important;
+  overflow:hidden!important;
+  border-radius:14px!important;
+  box-shadow:0 5px 18px rgba(27,58,88,.08)!important;
+}
+
+/* Keep primary content cards solid and readable */
+.v88-topbar,
+.login-bonus-card,
+.daily-missions-card,
+.point-offers-card{
+  position:relative;
+  z-index:1;
+}
