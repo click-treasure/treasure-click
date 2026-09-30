@@ -224,3 +224,10 @@
     height:84%!important;
   }
 }
+
+
+/* V88-24 — visual test: dug cells become empty sand */
+.demo-chest.demo-dug{
+  visibility:hidden!important;
+  pointer-events:none!important;
+}

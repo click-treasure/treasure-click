@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>EASY島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-23">
+<link rel="stylesheet" href="island.css?v=88-24">
 </head>
 <body>
 <main class="island-page">
@@ -47,12 +47,15 @@ const p=new URLSearchParams(location.search);
 document.getElementById("generation").textContent="#"+(p.get("generation")||"—");
 
 const board=document.getElementById("chestBoard");
+const demoRemaining=new Set([0, 3, 6, 9, 12, 15, 17, 18, 21, 24, 27, 30, 33, 36, 39, 42, 45, 48, 51, 54, 55, 57, 60, 63, 66, 69, 72, 75, 78, 81, 82, 84, 87, 90, 93, 96, 99]);
 for(let i=0;i<100;i++){
   const cell=document.createElement("button");
   cell.type="button";
-  cell.className="demo-chest";
-  cell.setAttribute("aria-label",`宝箱 ${i+1}`);
-  cell.innerHTML='<img src="./assets/easy-chest-closed-v88.webp" alt="" draggable="false">';
+  cell.className="demo-chest"+(demoRemaining.has(i)?"":" demo-dug");
+  cell.setAttribute("aria-label",demoRemaining.has(i)?`宝箱 ${i+1}`:`発掘済み ${i+1}`);
+  if(demoRemaining.has(i)){
+    cell.innerHTML='<img src="./assets/easy-chest-closed-v88.webp" alt="" draggable="false">';
+  }
   board.appendChild(cell);
 }
 </script>
