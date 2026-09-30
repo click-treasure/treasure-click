@@ -22,6 +22,17 @@
 <!-- admax --></section>
 <section id="game" hidden><div class="head"><div><span>EASY / SHARED ONLINE</span><h2>宝箱を選ぼう</h2></div><div class="live"><i></i><b>ONLINE</b><small id="remaining">—</small></div></div><div class="sea"><div class="island-bar"><button id="back">← 一覧</button><strong id="islandName">EASY</strong><div class="island-tools"><button id="debugNumbers" type="button">🔢 番号表示 OFF</button><span id="islandState" class="island-state">探索中</span></div></div><div id="map"></div></div><div id="message">好きな宝箱を選ぼう</div></section>
 </main>
+<footer class="site-footer" style="padding:24px 16px 36px;text-align:center;font-size:13px;">
+  <nav style="display:flex;flex-wrap:wrap;justify-content:center;gap:10px 18px;margin-bottom:10px;">
+    <a href="howto.html">遊び方</a>
+    <a href="terms.html">利用規約</a>
+    <a href="privacy.html">プライバシーポリシー</a>
+    <a href="contact.html">お問い合わせ</a>
+    <a href="operator.html">運営者情報</a>
+  </nav>
+  <small>© 2026 CLICK TREASURE</small>
+</footer>
+
 <div id="overlay" hidden><div class="burst"></div><div class="win"><small>TREASURE FOUND</small><strong id="amount">10P</strong><p>サーバー残高に追加されました</p><button id="close">島に戻る</button></div></div>
 <div id="devPrizeTester" class="dev-prize-tester" hidden><button id="devToggle" class="dev-toggle" type="button">🧪 演出テスト</button><div id="devButtons" class="dev-buttons" hidden><button type="button" data-test-prize="1">10P</button><button type="button" data-test-prize="10">100P</button><button type="button" data-test-prize="100">1,000P</button><button type="button" data-test-prize="500">5,000P</button><small>※残高・エネルギー・宝箱は変化しません</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID / 受け取り用情報<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：PayPay ID"></label><small id="redeemNote">支払い完了までは「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
