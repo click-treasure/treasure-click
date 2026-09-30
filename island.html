@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>宝島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-44">
+<link rel="stylesheet" href="island.css?v=88-45">
 </head>
 <body>
 <main class="island-page">
@@ -54,6 +54,22 @@
 
 
 
+<div id="energyEmptyModal" class="energy-empty-modal" hidden aria-hidden="true">
+  <div class="energy-empty-backdrop"></div>
+  <section class="energy-empty-card" role="dialog" aria-modal="true" aria-labelledby="energyEmptyTitle">
+    <div class="energy-empty-icon">⚡</div>
+    <small>ENERGY EMPTY</small>
+    <h2 id="energyEmptyTitle">エネルギーを使い切りました！</h2>
+    <p>少し休んで、また宝探しに出発しよう。</p>
+    <div class="energy-empty-times">
+      <div><span>次の1回復まで</span><strong id="energyEmptyNext">--:--</strong></div>
+      <div><span>20 / 20 最大回復</span><strong id="energyEmptyFull">--:--</strong></div>
+    </div>
+    <div id="energyAdSlot" class="energy-ad-slot" hidden></div>
+    <button id="energyEmptyClose" type="button">閉じる</button>
+  </section>
+</div>
+
 <div id="fx"></div>
 <div id="v41Jackpot" class="v41-jackpot" hidden>
   <div class="v41-blackout"></div><div class="v42-whiteflash"></div><div class="v42-golddot"></div><div class="v41-goldburst"></div>
@@ -73,6 +89,6 @@
 <div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
 <div id="errorToast" class="error-toast" hidden></div>
 
-<script src="island.js?v=88-32"></script>
+<script src="island.js?v=88-45"></script>
 </body>
 </html>

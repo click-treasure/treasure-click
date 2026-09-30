@@ -81,7 +81,7 @@ function paintEnergy(){
 function startCountdown(){
   clearInterval(countTimer);
   countTimer=setInterval(async()=>{
-    if(serverEnergy<20&&nextSeconds>0){nextSeconds--;paintEnergy()}
+    if(serverEnergy<20&&nextSeconds>0){nextSeconds--;paintEnergy();paintEnergyEmptyModal()}
     if(serverEnergy<20&&nextSeconds<=0){try{await loadStatus()}catch(e){console.error(e)}}
   },1000);
 }
@@ -189,6 +189,31 @@ function legacyPrizeEffect(button,prize){
 document.addEventListener("pointerdown",unlockGameAudio,{once:true});
 document.addEventListener("keydown",unlockGameAudio,{once:true});
 
+
+// V88-45 — energy empty recovery popup. Ad hook is reserved for the next step.
+let energyEmptyShownForThisZero=false;
+function energyRecoveryInfo(){
+  const e=Math.max(0,Math.min(20,Number(serverEnergy||0)));
+  const first=Math.max(0,Number(nextSeconds||0));
+  const missing=Math.max(0,20-e);
+  const fullSeconds=missing<=0?0:first+Math.max(0,missing-1)*15*60;
+  const fullAt=new Date(Date.now()+fullSeconds*1000);
+  const hh=String(fullAt.getHours()).padStart(2,"0"), mm=String(fullAt.getMinutes()).padStart(2,"0");
+  return {first,fullAtText:`${hh}:${mm}ごろ`};
+}
+function paintEnergyEmptyModal(){
+  const modal=$("energyEmptyModal");if(!modal||modal.hidden)return;
+  const info=energyRecoveryInfo(),m=Math.floor(info.first/60),s=info.first%60;
+  $("energyEmptyNext").textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  $("energyEmptyFull").textContent=info.fullAtText;
+}
+function showEnergyEmptyModal(){
+  const modal=$("energyEmptyModal");if(!modal||energyEmptyShownForThisZero)return;
+  energyEmptyShownForThisZero=true;modal.hidden=false;modal.setAttribute("aria-hidden","false");paintEnergyEmptyModal();
+}
+function closeEnergyEmptyModal(){const modal=$("energyEmptyModal");if(!modal)return;modal.hidden=true;modal.setAttribute("aria-hidden","true")}
+document.addEventListener("click",e=>{if(e.target?.id==="energyEmptyClose"||e.target?.classList?.contains("energy-empty-backdrop"))closeEnergyEmptyModal()});
+
 async function dig(cellIndex,button){
   if(digBusy||!island)return;
   if(serverEnergy<=0&&bonusTaps<=0){setMessage("⚡ タップ回数切れ。回復を待とう");return}
@@ -199,7 +224,9 @@ async function dig(cellIndex,button){
   try{
     const d=await req("/rest/v1/rpc/dig_treasure",{method:"POST",body:JSON.stringify({p_island_id:island.island_id,p_cell_index:cellIndex})});
     const x=Array.isArray(d)?d[0]:d;if(!x)return;
+    const energyBeforeDig=serverEnergy;
     serverEnergy=Number(x.new_energy??serverEnergy);paintEnergy();
+    if(serverEnergy>0)energyEmptyShownForThisZero=false;
 
     if(x.result==="no_energy"){
       setMessage("⚡ エネルギー切れ");await loadStatus();return;
@@ -226,6 +253,7 @@ async function dig(cellIndex,button){
     setTimeout(()=>removeOpenedChest(button),520);
     await new Promise(r=>setTimeout(r,700));
     await Promise.all([loadStatus(),loadCells(true)]);
+    if(energyBeforeDig>0&&serverEnergy<=0&&bonusTaps<=0)showEnergyEmptyModal();
 
     if(x.result==="island_finished"||x.result==="island_finished_ticket"){
       setMessage(gotTicket?"🏁 黄金チケット発見！この島の探索は終了！":"🏁 最後の宝発見！この島の探索は終了！");
