@@ -372,6 +372,15 @@ async function boot(){
     ctStartRealtime();
   }catch(e){showError(e);setMessage("島を読み込めませんでした")}
 }
+window.addEventListener("ct:bgm-volume",(e)=>{
+  const a=ctEnsureBgm();
+  const v=Math.max(0,Math.min(1,Number(e.detail)));
+  a.volume=v;
+  if(v<=0){a.pause();return;}
+  ctBgmUnlocked=true;
+  a.play().catch(()=>{});
+});
+
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)Promise.all([loadStatus(),loadCells(true)]).catch(console.error)});
 boot();
 

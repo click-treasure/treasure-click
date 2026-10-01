@@ -253,6 +253,15 @@ document.addEventListener("pointerdown",ctTryStartBgm,{once:true,capture:true});
 document.addEventListener("touchstart",ctTryStartBgm,{once:true,capture:true,passive:true});
 document.addEventListener("click",ctTryStartBgm,{once:true,capture:true});
 document.addEventListener("keydown",ctTryStartBgm,{once:true,capture:true});
+window.addEventListener("ct:bgm-volume",(e)=>{
+  const a=ctEnsureBgm();
+  const v=Math.max(0,Math.min(1,Number(e.detail)));
+  a.volume=v;
+  if(v<=0){a.pause();return;}
+  ctBgmUnlocked=true;
+  a.play().catch(()=>{});
+});
+
 document.addEventListener("visibilitychange",()=>{
   if(!ctBgm)return;
   if(document.hidden)ctBgm.pause();
