@@ -1325,3 +1325,87 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
     setTimeout(loadNicknameToHeader,900);
   });
 })();
+
+
+// V88-66: Home BGM - 港町
+(() => {
+  const CT_BGM_ENABLED_KEY="ct_bgm_enabled";
+  const CT_HOME_BGM_VOLUME=0.12;
+  let bgm=null;
+  let unlocked=false;
+
+  function enabled(){
+    return localStorage.getItem(CT_BGM_ENABLED_KEY)!=="0";
+  }
+  function ensure(){
+    if(bgm) return bgm;
+    bgm=new Audio("./assets/bgm/home.mp3");
+    bgm.loop=true;
+    bgm.preload="auto";
+    bgm.volume=CT_HOME_BGM_VOLUME;
+    return bgm;
+  }
+  function updateButton(){
+    const b=document.getElementById("ctBgmToggle");
+    if(b) b.textContent=enabled()?"🔊 BGM ON":"🔇 BGM OFF";
+  }
+  function start(){
+    unlocked=true;
+    if(!enabled()) return;
+    const a=ensure();
+    a.volume=CT_HOME_BGM_VOLUME;
+    a.play().catch(()=>{});
+  }
+  function toggle(e){
+    if(e){ e.preventDefault(); e.stopPropagation(); }
+    const next=!enabled();
+    localStorage.setItem(CT_BGM_ENABLED_KEY,next?"1":"0");
+    updateButton();
+    const a=ensure();
+    if(next){
+      unlocked=true;
+      a.volume=CT_HOME_BGM_VOLUME;
+      a.play().catch(()=>{});
+    }else{
+      a.pause();
+    }
+  }
+  function install(){
+    if(!document.getElementById("ctBgmToggle")){
+      const btn=document.createElement("button");
+      btn.id="ctBgmToggle";
+      btn.type="button";
+      btn.setAttribute("aria-label","BGMのオン・オフ");
+      Object.assign(btn.style,{
+        position:"fixed",right:"14px",bottom:"14px",zIndex:"9998",
+        border:"1px solid rgba(255,255,255,.35)",borderRadius:"999px",
+        padding:"9px 13px",background:"rgba(12,18,28,.82)",color:"#fff",
+        fontWeight:"800",cursor:"pointer",backdropFilter:"blur(8px)",
+        boxShadow:"0 4px 18px rgba(0,0,0,.25)"
+      });
+      btn.addEventListener("click",toggle);
+      document.body.appendChild(btn);
+    }
+    updateButton();
+    const a=ensure();
+    if(enabled()){
+      a.volume=CT_HOME_BGM_VOLUME;
+      a.play().then(()=>{unlocked=true;}).catch(()=>{});
+    }
+  }
+
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",install);
+  else install();
+
+  document.addEventListener("pointerdown",start,{once:true,capture:true});
+  document.addEventListener("touchstart",start,{once:true,capture:true,passive:true});
+  document.addEventListener("click",start,{once:true,capture:true});
+  document.addEventListener("keydown",start,{once:true,capture:true});
+
+  document.addEventListener("visibilitychange",()=>{
+    if(!bgm) return;
+    if(document.hidden) bgm.pause();
+    else if(unlocked&&enabled()) bgm.play().catch(()=>{});
+  });
+})();
+
