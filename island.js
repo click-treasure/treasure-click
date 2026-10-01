@@ -118,9 +118,8 @@ async function loadCells(silent=false){
       other=[...openedNow].filter(i=>!knownOpened.has(i)&&i!==ownDigCell);
       if(other.length){
         setMessage(`⚔️ ほかのプレイヤーが ${other.length}箱発掘！`);
-        const now=new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
-        other.forEach(i=>battleEvents.unshift({cell:i,time:now}));
-        battleEvents=battleEvents.slice(0,4);
+        // 名前のない仮ログは作らず、DBの battle_events からニックネーム付きログを取得する。
+        await loadBattleEvents();
       }
     }
     cells=next;knownOpened=openedNow;ownDigCell=null;

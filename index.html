@@ -49,12 +49,28 @@
     <button type="button" data-v88-target="islandSelect"><span>🏝️</span><b>島を選ぶ</b></button>
     <button type="button" data-v88-target="pointOffers"><span>🪙</span><b>ポイント大量GET！</b></button>
     <button type="button" data-v88-click="redeemMenu"><span>↻</span><b>交換</b></button>
+    <button id="nicknameMenuBtn" type="button"><span>🏴‍☠️</span><b>ニックネーム変更</b></button>
     <button type="button" data-v88-target="betaNotice"><span>🔔</span><b>お知らせ</b></button>
     <a href="howto.html"><span>📖</span><b>遊び方</b></a>
     <a href="terms.html"><span>📄</span><b>利用規約</b></a>
     <a href="contact.html"><span>✉️</span><b>お問い合わせ</b></a>
     <a href="operator.html"><span>⚙️</span><b>運営者情報</b></a>
   </div>
+</div>
+
+
+<div id="nicknameSettingsModal" class="nickname-settings-modal" hidden aria-hidden="true">
+  <div class="nickname-settings-backdrop" data-nickname-close></div>
+  <section class="nickname-settings-card" role="dialog" aria-modal="true" aria-labelledby="nicknameSettingsTitle">
+    <small>PLAYER NAME</small>
+    <h2 id="nicknameSettingsTitle">ニックネーム変更</h2>
+    <p>オンライン争奪戦で他のプレイヤーに表示される名前です。</p>
+    <form id="nicknameSettingsForm">
+      <input id="nicknameSettingsInput" type="text" minlength="2" maxlength="12" autocomplete="off" placeholder="2〜12文字">
+      <div id="nicknameSettingsError" class="nickname-settings-error" aria-live="polite"></div>
+      <div class="nickname-settings-actions"><button type="button" data-nickname-close>キャンセル</button><button type="submit">変更する</button></div>
+    </form>
+  </section>
 </div>
 
 <div class="v88-page-shell">
