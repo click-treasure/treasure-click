@@ -176,7 +176,10 @@ async function loadBattleEvents(){
   try{
     const battleIslandId=ctBattleIslandKey();
     if(!battleIslandId)return;
-    const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(battleIslandId)+"&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=8");
+    const cutoff=new Date(Date.now()-30000).toISOString();
+    const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(battleIslandId)+
+      "&created_at=gte."+encodeURIComponent(cutoff)+
+      "&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=5");
     battleEvents=(rows||[]).map(r=>({nickname:r.nickname||"冒険者",cell:r.cell_index,time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}));
     renderBattleFeed();
   }catch(e){console.warn("battle feed:",e)}
@@ -447,3 +450,14 @@ function ctStartRealtime(){
 }
 
 window.addEventListener("load",()=>setTimeout(()=>{if(island?.island_id)ctStartRealtime()},1800));
+
+// V88-63: remove stale battle messages even when no new dig occurs.
+setInterval(()=>{
+  if(!Array.isArray(battleEvents)||!battleEvents.length)return;
+  const before=battleEvents.length;
+  battleEvents=battleEvents.filter(e=>{
+    if(!e.createdAt)return true;
+    return Date.now()-new Date(e.createdAt).getTime()<=30000;
+  }).slice(0,5);
+  if(battleEvents.length!==before)renderBattleFeed();
+},1000);
