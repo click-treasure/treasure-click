@@ -171,3 +171,74 @@ async function boot(){
   }
 }
 document.addEventListener("DOMContentLoaded",boot);
+
+
+// V88-64: Golden Island BGM
+const CT_BGM_ENABLED_KEY="ct_bgm_enabled";
+const CT_BGM_VOLUME=0.15;
+let ctBgm=null;
+let ctBgmUnlocked=false;
+
+function ctBgmEnabled(){
+  return localStorage.getItem(CT_BGM_ENABLED_KEY)!=="0";
+}
+function ctUpdateBgmButton(){
+  const b=document.getElementById("ctBgmToggle");
+  if(b)b.textContent=ctBgmEnabled()?"🔊 BGM ON":"🔇 BGM OFF";
+}
+function ctEnsureBgm(){
+  if(ctBgm)return ctBgm;
+  ctBgm=new Audio("./assets/bgm/golden.mp3");
+  ctBgm.loop=true;
+  ctBgm.preload="auto";
+  ctBgm.volume=CT_BGM_VOLUME;
+  return ctBgm;
+}
+function ctTryStartBgm(){
+  ctBgmUnlocked=true;
+  if(!ctBgmEnabled())return;
+  const a=ctEnsureBgm();
+  a.volume=CT_BGM_VOLUME;
+  a.play().catch(()=>{});
+}
+function ctToggleBgm(e){
+  if(e){e.preventDefault();e.stopPropagation();}
+  const next=!ctBgmEnabled();
+  localStorage.setItem(CT_BGM_ENABLED_KEY,next?"1":"0");
+  ctUpdateBgmButton();
+  const a=ctEnsureBgm();
+  if(next){
+    ctBgmUnlocked=true;
+    a.volume=CT_BGM_VOLUME;
+    a.play().catch(()=>{});
+  }else a.pause();
+}
+function ctInstallBgmUi(){
+  if(document.getElementById("ctBgmToggle"))return;
+  const btn=document.createElement("button");
+  btn.id="ctBgmToggle";
+  btn.type="button";
+  btn.setAttribute("aria-label","BGMのオン・オフ");
+
+  Object.assign(btn.style,{
+    position:"fixed",right:"14px",bottom:"14px",zIndex:"9998",
+    border:"1px solid rgba(255,255,255,.35)",borderRadius:"999px",
+    padding:"9px 13px",background:"rgba(12,18,28,.82)",color:"#fff",
+    fontWeight:"800",cursor:"pointer",backdropFilter:"blur(8px)",
+    boxShadow:"0 4px 18px rgba(0,0,0,.25)"
+  });
+
+  btn.addEventListener("click",ctToggleBgm);
+  document.body.appendChild(btn);
+  ctUpdateBgmButton();
+  ctEnsureBgm();
+}
+document.addEventListener("DOMContentLoaded",ctInstallBgmUi);
+document.addEventListener("pointerdown",ctTryStartBgm,{once:true,capture:true});
+document.addEventListener("keydown",ctTryStartBgm,{once:true,capture:true});
+document.addEventListener("visibilitychange",()=>{
+  if(!ctBgm)return;
+  if(document.hidden)ctBgm.pause();
+  else if(ctBgmUnlocked&&ctBgmEnabled())ctBgm.play().catch(()=>{});
+});
+
