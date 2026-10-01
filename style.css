@@ -1916,3 +1916,42 @@ section.ad ins{
     margin:0 !important;
   }
 }
+
+/* V88-90 — fit compact desktop header fully inside container */
+@media (min-width:901px){
+  body main > header.v88-topbar{
+    gap:7px !important;
+    padding:10px 12px !important;
+    box-sizing:border-box !important;
+    overflow:hidden !important;
+  }
+  body main > header.v88-topbar > .v88-logo{
+    flex:1 1 220px !important;
+    min-width:220px !important;
+  }
+  body main > header.v88-topbar > .header-nickname{
+    flex:0 0 110px !important;
+    width:110px !important;
+    min-width:110px !important;
+    max-width:110px !important;
+  }
+  body main > header.v88-topbar > .v88-wallet{
+    flex:0 0 195px !important;
+    min-width:195px !important;
+  }
+  body main > header.v88-topbar > .v88-energy{
+    flex:0 0 205px !important;
+    min-width:205px !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts{
+    flex:0 0 177px !important;
+    width:177px !important;
+    gap:6px !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts > button{
+    flex:0 0 55px !important;
+    width:55px !important;
+    min-width:55px !important;
+    max-width:55px !important;
+  }
+}
