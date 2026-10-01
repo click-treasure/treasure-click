@@ -26,7 +26,7 @@ function playAudio(id){
   const a=$(id);
   if(!a)return;
   try{
-    a.pause();a.currentTime=0;a.volume=1;
+    a.pause();a.currentTime=0;a.volume=Math.min(1,ctGetSeVolume());
     const q=a.play();
     if(q&&q.catch)q.catch(e=>console.warn("golden audio play failed",id,e));
   }catch(e){console.warn("golden audio error",id,e)}

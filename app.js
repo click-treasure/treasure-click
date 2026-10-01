@@ -1410,6 +1410,14 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
   document.addEventListener("click",start,{once:true,capture:true});
   document.addEventListener("keydown",start,{once:true,capture:true});
 
+  window.addEventListener("ct:bgm-volume",(e)=>{
+    const a=ensure();
+    const v=Math.max(0,Math.min(1,Number(e.detail)));
+    a.volume=v;
+    if(v<=0){ a.pause(); return; }
+    if(enabled()){ unlocked=true; a.play().catch(()=>{}); }
+  });
+
   document.addEventListener("visibilitychange",()=>{
     if(!bgm) return;
     if(document.hidden) bgm.pause();
@@ -1442,7 +1450,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     const bv=panel.querySelector("#ctBgmVolumeValue"),sv=panel.querySelector("#ctSeVolumeValue");
     bg.value=String(Math.round(ctGetBgmVolume()*100));bv.value=bg.value;
     se.value=String(Math.round(ctGetSeVolume()*100));sv.value=se.value;
-    bg.addEventListener("input",()=>{localStorage.setItem(CT_BGM_VOLUME_KEY,bg.value);bv.value=bg.value;if(typeof bgm!=="undefined"&&bgm)bgm.volume=ctGetBgmVolume();});
+    bg.addEventListener("input",()=>{localStorage.setItem(CT_BGM_VOLUME_KEY,bg.value);bv.value=bg.value;window.dispatchEvent(new CustomEvent("ct:bgm-volume",{detail:ctGetBgmVolume()}));});
     se.addEventListener("input",()=>{localStorage.setItem(CT_SE_VOLUME_KEY,se.value);sv.value=se.value;ctApplyMediaSeVolume();});
     return panel;
   };
@@ -1477,7 +1485,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(t && t.id==="ctBgmVolume"){
       localStorage.setItem(CT_BGM_VOLUME_KEY,t.value);
       const o=document.getElementById("ctBgmVolumeValue"); if(o)o.value=t.value;
-      try{ if(typeof bgm!=="undefined" && bgm){ bgm.volume=ctGetBgmVolume(); if(bgm.paused && ctGetBgmVolume()>0) bgm.play().catch(()=>{}); } }catch(_){}
+      window.dispatchEvent(new CustomEvent("ct:bgm-volume",{detail:ctGetBgmVolume()}));
     }
     if(t && t.id==="ctSeVolume"){
       localStorage.setItem(CT_SE_VOLUME_KEY,t.value);
