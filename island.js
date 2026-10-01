@@ -398,7 +398,7 @@ function ctStartRealtime(){
   ctStopRealtime();
 
   const projectHost=String(URL).replace(/^https?:\/\//,"").replace(/\/+$/,"");
-  const wsUrl="wss://"+projectHost+"/realtime/v1/websocket?apikey="+encodeURIComponent(KEY)+"&vsn=1.0.0";
+  const wsUrl="wss://"+projectHost+"/realtime/v1/websocket?apikey="+encodeURIComponent(SUPABASE_KEY)+"&vsn=1.0.0";
   const socket=new WebSocket(wsUrl);
   ctRealtimeSocket=socket;
   const islandId=String(island.island_id);
