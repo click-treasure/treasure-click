@@ -108,6 +108,7 @@ async function auth(){
   $("player").textContent="ゲスト "+user.id.slice(0,8);$("session").textContent="認証済み";
   await loadGoldenTickets();
   await Promise.all([status(),loadWinHistory(),loadLatest(),loadLoginBonus(),loadDailyMissions()]);
+  await refreshHeaderNicknameV8852();
  }catch(e){
    console.error("auth:",e);
    if($("error"))fail(e);
@@ -1179,39 +1180,27 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   }catch(e){console.error("golden page bootstrap",e);}
 });
 
-// V88-51: header nickname, using this app's existing REST auth/client
-function ctIsGuestV8851(u){
-  if(!u) return true;
-  if(u.is_anonymous===true) return true;
-  if(u.app_metadata?.provider==="anonymous") return true;
-  const provider=u.app_metadata?.provider || u.user_metadata?.provider;
-  if(provider==="google") return false;
-  return !u.email;
-}
-function ctGuestNameV8851(u){
+// V88-52: header nickname
+function ctGuestNameV8852(u){
   const s=String(u?.id||"0000").replace(/-/g,"").slice(-4).toUpperCase();
   return `ゲスト-${s}`;
 }
-async function refreshHeaderNicknameV8851(){
+function ctIsGuestV8852(u){
+  if(!u)return true;
+  if(u.is_anonymous===true || u.app_metadata?.provider==="anonymous")return true;
+  return !u.email && u.app_metadata?.provider!=="google";
+}
+async function refreshHeaderNicknameV8852(){
   const el=document.getElementById("headerNicknameValue");
   if(!el)return;
+  if(!user){el.textContent="ゲスト";return;}
+  if(ctIsGuestV8852(user)){el.textContent=ctGuestNameV8852(user);return;}
   try{
-    if(!user){ el.textContent="ゲスト"; return; }
-    if(ctIsGuestV8851(user)){ el.textContent=ctGuestNameV8851(user); return; }
-    const rows=await req(`/rest/v1/player_profiles?user_id=eq.${encodeURIComponent(user.id)}&select=nickname`);
-    const row=Array.isArray(rows)?rows[0]:null;
-    el.textContent=(row?.nickname||"").trim()||"未設定";
+    const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname");
+    el.textContent=(Array.isArray(rows)&&rows[0]?.nickname?.trim())||"未設定";
   }catch(e){
-    console.warn("header nickname load failed",e);
-    el.textContent=ctIsGuestV8851(user)?ctGuestNameV8851(user):"未設定";
+    console.warn("nickname:",e);
+    el.textContent="未設定";
   }
 }
-window.addEventListener("load",()=>{
-  setTimeout(refreshHeaderNicknameV8851,700);
-  setTimeout(refreshHeaderNicknameV8851,1800);
-});
-document.addEventListener("click",e=>{
-  if(e.target?.closest?.("#nicknameSaveBtn,#nicknameChangeSave,[data-nickname-save]")){
-    setTimeout(refreshHeaderNicknameV8851,700);
-  }
-});
+window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
