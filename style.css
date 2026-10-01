@@ -1631,3 +1631,104 @@ section.ad ins{
   }
   .v88-shortcuts>button{width:60px !important;min-width:60px !important;}
 }
+
+/* V88-53 FINAL DESKTOP HEADER: one row */
+@media (min-width: 901px) {
+  body main > header.v88-topbar {
+    display: grid !important;
+    grid-template-columns: minmax(245px,1fr) 128px 204px 262px 198px !important;
+    grid-template-rows: 82px !important;
+    align-items: center !important;
+    column-gap: 10px !important;
+    row-gap: 0 !important;
+    min-height: 102px !important;
+    padding: 10px 14px !important;
+    box-sizing: border-box !important;
+  }
+
+  body main > header.v88-topbar > .v88-logo {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    width: auto !important;
+    margin: 0 !important;
+  }
+
+  body main > header.v88-topbar > .header-nickname {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    width: 128px !important;
+    min-width: 128px !important;
+    max-width: 128px !important;
+    min-height: 64px !important;
+    margin: 0 !important;
+    padding: 8px 10px !important;
+    box-sizing: border-box !important;
+  }
+
+  body main > header.v88-topbar > .v88-wallet {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 204px !important;
+    min-width: 204px !important;
+    max-width: 204px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body main > header.v88-topbar > .v88-energy {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 262px !important;
+    min-width: 262px !important;
+    max-width: 262px !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  body main > header.v88-topbar > nav.v88-shortcuts {
+    grid-column: 5 !important;
+    grid-row: 1 !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, 60px) !important;
+    gap: 7px !important;
+    width: 194px !important;
+    min-width: 194px !important;
+    max-width: 194px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-self: center !important;
+  }
+
+  body main > header.v88-topbar > nav.v88-shortcuts > button {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+    height: 72px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Slightly narrower desktop windows */
+@media (min-width: 901px) and (max-width: 1120px) {
+  body main > header.v88-topbar {
+    grid-template-columns: minmax(215px,1fr) 112px 194px 232px 188px !important;
+    column-gap: 7px !important;
+  }
+  body main > header.v88-topbar > .header-nickname {
+    width:112px !important; min-width:112px !important; max-width:112px !important;
+  }
+  body main > header.v88-topbar > .v88-wallet {
+    width:194px !important; min-width:194px !important; max-width:194px !important;
+  }
+  body main > header.v88-topbar > .v88-energy {
+    width:232px !important; min-width:232px !important; max-width:232px !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts {
+    grid-template-columns:repeat(3,58px) !important;
+    width:188px !important; min-width:188px !important; max-width:188px !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts > button {
+    width:58px !important; min-width:58px !important; max-width:58px !important;
+  }
+}
