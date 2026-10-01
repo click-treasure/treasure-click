@@ -1517,59 +1517,19 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 });
 
-
-/* V88-76 — home acquisition history card (kept out of menu) */
+/* V88-78 — acquisition history card */
 (()=>{
   const card=document.getElementById("ctHistoryCard");
   if(!card)return;
-
-  function clickExistingHistory(){
-    const candidates=[
-      "#historyBtn","#openHistoryBtn","#acquisitionHistoryBtn",
-      "[data-open-history]","[data-action='history']"
-    ];
-    for(const sel of candidates){
-      const el=document.querySelector(sel);
-      if(el && el!==card){ el.click(); return true; }
-    }
-    return false;
+  function openHistory(){
+    // Prefer the app's existing history opener if present.
+    const el=document.querySelector("#historyBtn,#openHistoryBtn,#acquisitionHistoryBtn,[data-open-history],[data-action='history']");
+    if(el && el!==card){el.click();return;}
+    // Fall back to the existing history area/tab if present.
+    const tab=[...document.querySelectorAll("button,a,[role='button']")].find(x=>x!==card && /獲得履歴/.test(x.textContent||""));
+    if(tab){tab.click();tab.scrollIntoView({behavior:"smooth",block:"center"});return;}
+    alert("獲得履歴は現在準備中です。");
   }
-
-  function openFallbackHistory(){
-    let modal=document.getElementById("ctHistoryFallback");
-    if(!modal){
-      modal=document.createElement("div");
-      modal.id="ctHistoryFallback";
-      modal.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(7,13,24,.58);display:flex;align-items:center;justify-content:center;padding:18px";
-      modal.innerHTML=`<div style="width:min(520px,100%);max-height:78vh;overflow:auto;background:#fff;border-radius:22px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.28)">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><b style="font-size:20px">📜 獲得履歴</b><button id="ctHistoryClose" style="margin-left:auto;border:0;background:#f0f2f5;border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer">×</button></div>
-        <div id="ctHistoryFallbackBody" style="font-size:13px;color:#667085">履歴を読み込んでいます…</div>
-      </div>`;
-      document.body.appendChild(modal);
-      modal.querySelector("#ctHistoryClose").onclick=()=>modal.remove();
-      modal.addEventListener("click",e=>{if(e.target===modal)modal.remove()});
-    }
-    const body=modal.querySelector("#ctHistoryFallbackBody");
-    const keys=["acquisition_history","treasure_history","win_history","reward_history","history"];
-    let rows=[];
-    for(const k of keys){
-      try{
-        const v=JSON.parse(localStorage.getItem(k)||"null");
-        if(Array.isArray(v) && v.length){rows=v;break}
-      }catch(_){}
-    }
-    if(!rows.length){
-      body.innerHTML="まだ表示できる獲得履歴がありません。";
-      return;
-    }
-    body.innerHTML=rows.slice(0,50).map(x=>{
-      const amount=x.points??x.point??x.prize??x.amount??x.value??"";
-      const date=x.created_at??x.date??x.time??"";
-      return `<div style="padding:11px 4px;border-bottom:1px solid #eef0f3;display:flex;justify-content:space-between;gap:12px"><span>${date?new Date(date).toLocaleString("ja-JP"):"獲得"}</span><b>${amount!==""?amount+"P":""}</b></div>`;
-    }).join("");
-  }
-
-  function open(){ if(!clickExistingHistory()) openFallbackHistory(); }
-  card.addEventListener("click",open);
-  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}});
+  card.addEventListener("click",openHistory);
+  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openHistory();}});
 })();
