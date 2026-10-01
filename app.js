@@ -580,7 +580,7 @@ function parseOAuthSession(){
 }
 
 function hasGoogleIdentity(u){
-  if(!u) return false;
+  if(!u || u.is_anonymous === true) return false;
   if(Array.isArray(u.identities) && u.identities.some(x => x.provider === "google")) return true;
   const providers = u.app_metadata && u.app_metadata.providers;
   return Array.isArray(providers) && providers.includes("google");
@@ -589,9 +589,18 @@ function hasGoogleIdentity(u){
 function updateAccountUI(){
   const state = document.getElementById("accountState");
   const btn = document.getElementById("googleLoginBtn");
+  const nicknameBtn = document.getElementById("nicknameMenuBtn");
+  const nicknameModal = document.getElementById("nicknameSettingsModal");
   if(!state || !btn) return;
 
-  if(hasGoogleIdentity(user)){
+  const googleUser = hasGoogleIdentity(user);
+  if(nicknameBtn) nicknameBtn.hidden = !googleUser;
+  if(!googleUser && nicknameModal){
+    nicknameModal.hidden = true;
+    nicknameModal.setAttribute("aria-hidden","true");
+  }
+
+  if(googleUser){
     state.textContent = user.email ? `Google連携済み ✓：${user.email}` : "Google連携済み ✓";
     btn.textContent = "ログアウト";
     btn.disabled = false;
@@ -1187,7 +1196,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   if(!btn||!modal||!form||!input)return;
   const close=()=>{modal.hidden=true;modal.setAttribute("aria-hidden","true");};
   async function open(){
-    if(!hasGoogleIdentity(user)){alert("ゲストは自動ニックネームで参加します。好きな名前に変更するにはGoogleと連携してください。");return;}
+    if(!hasGoogleIdentity(user)){close();return;}
     err.textContent=""; input.value="";
     try{const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");input.value=String(rows?.[0]?.nickname||"");}catch(_){}
     modal.hidden=false;modal.setAttribute("aria-hidden","false");setTimeout(()=>input.focus(),50);
@@ -1196,7 +1205,7 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   modal.querySelectorAll("[data-nickname-close]").forEach(x=>x.addEventListener("click",close));
   form.addEventListener("submit",async e=>{
     e.preventDefault();
-    if(!hasGoogleIdentity(user)){err.textContent="Google連携後に変更できます";return;}
+    if(!hasGoogleIdentity(user)){close();return;}
     const clean=String(input.value||"").trim(); err.textContent="";
     if(clean.length<2||clean.length>12){err.textContent="2〜12文字で入力してください";return;}
     if(/[<>]/.test(clean)){err.textContent="< と > は使用できません";return;}

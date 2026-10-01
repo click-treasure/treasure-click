@@ -137,7 +137,7 @@ function renderBattleFeed(){
   feed.innerHTML=battleEvents.map(e=>`<span class="battle-event">⚡ ${escapeHtml(e.time)}　<b>${escapeHtml(e.nickname)}</b> が No.${Number(e.cell)} を発掘！</span>`).join("");
 }
 function hasGoogleIdentity(u){
-  if(!u)return false;
+  if(!u || u.is_anonymous === true)return false;
   if(Array.isArray(u.identities)&&u.identities.some(x=>x.provider==="google"))return true;
   const providers=u.app_metadata&&u.app_metadata.providers;
   return Array.isArray(providers)&&providers.includes("google");
