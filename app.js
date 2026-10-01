@@ -1455,3 +1455,64 @@ document.addEventListener("DOMContentLoaded",()=>{
   btn.addEventListener("click",()=>{}, {once:true});
   ctApplyMediaSeVolume();
 });
+
+
+// V88-71: one-time defaults + live preview
+document.addEventListener("DOMContentLoaded",()=>{
+  const MIGRATION_KEY="ct_sound_defaults_v8871";
+  if(localStorage.getItem(MIGRATION_KEY)!=="1"){
+    localStorage.setItem(CT_BGM_VOLUME_KEY,"15");
+    localStorage.setItem(CT_SE_VOLUME_KEY,"100");
+    localStorage.setItem(MIGRATION_KEY,"1");
+  }
+
+  const bg=document.getElementById("ctBgmVolume");
+  const se=document.getElementById("ctSeVolume");
+  const bgv=document.getElementById("ctBgmVolumeValue");
+  const sev=document.getElementById("ctSeVolumeValue");
+
+  // UI may be created only after opening the sound panel, so wire dynamically.
+  document.addEventListener("input",(e)=>{
+    const t=e.target;
+    if(t && t.id==="ctBgmVolume"){
+      localStorage.setItem(CT_BGM_VOLUME_KEY,t.value);
+      const o=document.getElementById("ctBgmVolumeValue"); if(o)o.value=t.value;
+      try{ if(typeof bgm!=="undefined" && bgm){ bgm.volume=ctGetBgmVolume(); if(bgm.paused && ctGetBgmVolume()>0) bgm.play().catch(()=>{}); } }catch(_){}
+    }
+    if(t && t.id==="ctSeVolume"){
+      localStorage.setItem(CT_SE_VOLUME_KEY,t.value);
+      const o=document.getElementById("ctSeVolumeValue"); if(o)o.value=t.value;
+      ctApplyMediaSeVolume();
+      // lightweight live preview tone while dragging (throttled)
+      const now=performance.now();
+      if(!window.__ctLastSePreview || now-window.__ctLastSePreview>90){
+        window.__ctLastSePreview=now;
+        try{
+          const C=window.AudioContext||window.webkitAudioContext;
+          window.__ctPreviewCtx=window.__ctPreviewCtx||new C();
+          const c=window.__ctPreviewCtx;
+          if(c.state==="suspended")c.resume().catch(()=>{});
+          const o=c.createOscillator(),g=c.createGain();
+          o.type="sine";o.frequency.value=660;
+          const v=ctGetSeVolume();
+          g.gain.setValueAtTime(Math.max(.0001,v*.09),c.currentTime);
+          g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.07);
+          o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.075);
+        }catch(_){}
+      }
+    }
+  },true);
+
+  // Refresh values whenever the sound-settings button is opened.
+  const b=document.getElementById("ctSoundSettingsBtn");
+  if(b)b.addEventListener("click",()=>{
+    setTimeout(()=>{
+      const x=document.getElementById("ctBgmVolume"),y=document.getElementById("ctSeVolume");
+      const xo=document.getElementById("ctBgmVolumeValue"),yo=document.getElementById("ctSeVolumeValue");
+      if(x){x.value=String(Math.round(ctGetBgmVolume()*100));if(xo)xo.value=x.value;}
+      if(y){y.value=String(Math.round(ctGetSeVolume()*100));if(yo)yo.value=y.value;}
+      try{if(typeof bgm!=="undefined"&&bgm)bgm.volume=ctGetBgmVolume();}catch(_){}
+      ctApplyMediaSeVolume();
+    },0);
+  });
+});
