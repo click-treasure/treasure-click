@@ -1771,3 +1771,13 @@ section.ad ins{
 @media(max-width:820px){
   .ct-history-card-v8878{width:calc(100% - 30px);margin:10px 15px 18px}
 }
+
+/* V88-79 — position-only fix: history beside exchange */
+@media(min-width:821px){
+  .ct-history-card-v8878{
+    width:360px !important;
+    min-height:84px !important;
+    margin:-84px 0 18px 505px !important;
+    padding:14px 18px !important;
+  }
+}
