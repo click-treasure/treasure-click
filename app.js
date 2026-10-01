@@ -1517,19 +1517,20 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 });
 
-/* V88-78 — acquisition history card */
+/* V88-80 — acquisition history opener */
 (()=>{
   const card=document.getElementById("ctHistoryCard");
   if(!card)return;
   function openHistory(){
-    // Prefer the app's existing history opener if present.
-    const el=document.querySelector("#historyBtn,#openHistoryBtn,#acquisitionHistoryBtn,[data-open-history],[data-action='history']");
-    if(el && el!==card){el.click();return;}
-    // Fall back to the existing history area/tab if present.
-    const tab=[...document.querySelectorAll("button,a,[role='button']")].find(x=>x!==card && /獲得履歴/.test(x.textContent||""));
-    if(tab){tab.click();tab.scrollIntoView({behavior:"smooth",block:"center"});return;}
+    const direct=document.querySelector("#historyBtn,#openHistoryBtn,#acquisitionHistoryBtn,[data-open-history],[data-action='history']");
+    if(direct && direct!==card){direct.click();return;}
+    const existing=[...document.querySelectorAll("button,a,[role='button']")]
+      .find(el=>el!==card && /獲得履歴/.test(el.textContent||""));
+    if(existing){existing.click();return;}
     alert("獲得履歴は現在準備中です。");
   }
   card.addEventListener("click",openHistory);
-  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();openHistory();}});
+  card.addEventListener("keydown",e=>{
+    if(e.key==="Enter"||e.key===" "){e.preventDefault();openHistory();}
+  });
 })();
