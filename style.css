@@ -1854,3 +1854,65 @@ section.ad ins{
 .island-card.easy .island-ratings strong{color:#438565}
 .island-card.normal .island-ratings strong{color:#9a7a2c}
 .island-card.hard .island-ratings strong{color:#b95757}
+
+/* V88-89 — restore compact pre-V88-53 desktop header */
+@media (min-width:901px){
+  body main > header.v88-topbar{
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    align-items:center !important;
+    gap:10px !important;
+    grid-template-columns:none !important;
+    grid-template-rows:none !important;
+    min-height:0 !important;
+    padding:10px 14px !important;
+  }
+  body main > header.v88-topbar > .v88-logo{
+    flex:1 1 250px !important;
+    min-width:245px !important;
+    width:auto !important;
+    margin:0 !important;
+  }
+  body main > header.v88-topbar > .header-nickname{
+    flex:0 0 112px !important;
+    width:112px !important;
+    min-width:112px !important;
+    max-width:112px !important;
+    min-height:64px !important;
+    padding:8px 10px !important;
+    margin:0 !important;
+  }
+  body main > header.v88-topbar > .v88-wallet{
+    flex:0 0 202px !important;
+    width:auto !important;
+    min-width:202px !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
+  body main > header.v88-topbar > .v88-energy{
+    flex:0 0 215px !important;
+    width:auto !important;
+    min-width:215px !important;
+    max-width:none !important;
+    margin:0 !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts{
+    flex:0 0 auto !important;
+    display:flex !important;
+    flex-wrap:nowrap !important;
+    grid-template-columns:none !important;
+    width:auto !important;
+    min-width:0 !important;
+    max-width:none !important;
+    gap:7px !important;
+    margin:0 !important;
+    padding:0 !important;
+  }
+  body main > header.v88-topbar > nav.v88-shortcuts > button{
+    width:60px !important;
+    min-width:60px !important;
+    max-width:60px !important;
+    height:72px !important;
+    margin:0 !important;
+  }
+}
