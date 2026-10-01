@@ -9,9 +9,9 @@
 </script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CLICK TREASURE｜宝箱を掘ってポイントを貯める無料Webゲーム</title><link rel="stylesheet" href="style.css?v=88-34">  <meta name="description" content="CLICK TREASUREは、宝箱を掘ってポイントを集める無料Webゲームです。毎日のログインやミッションを楽しみながらポイントを貯められます。現在β版テスト運用中。">
 <style id="ctSoundSettingsStyle">
-.ct-sound-settings{grid-column:1/-1;padding:12px 14px;border-top:1px solid rgba(127,127,127,.18)}
-.ct-sound-title{font-weight:800;margin-bottom:10px}
-.ct-sound-row{display:grid;grid-template-columns:58px minmax(120px,1fr) 34px;align-items:center;gap:10px;margin:8px 0;font-size:14px}
+.ct-sound-settings[hidden]{display:none!important}
+.ct-sound-settings{grid-column:1/-1;padding:10px 12px;margin-top:-2px;border:1px solid rgba(127,127,127,.18);border-radius:14px;background:rgba(255,255,255,.72)}
+.ct-sound-row{display:grid;grid-template-columns:76px minmax(130px,1fr) 34px;align-items:center;gap:8px;margin:5px 0;font-size:13px;font-weight:700}
 .ct-sound-row input[type="range"]{width:100%;accent-color:#f5b82e}
 .ct-sound-row output{text-align:right;font-variant-numeric:tabular-nums;font-weight:800}
 </style>
@@ -58,18 +58,12 @@
   <div class="v88-header-menu-grid">
     <button type="button" data-v88-target="pointOffers"><span>🪙</span><b>ポイント大量GET！</b></button>
     <button type="button" id="nicknameMenuBtn"><span>👤</span><b>ニックネーム変更</b></button>
-    <div class="ct-sound-settings" id="ctSoundSettings">
-      <div class="ct-sound-title">🎵 サウンド設定</div>
-      <label class="ct-sound-row"><span>BGM</span><input id="ctBgmVolume" type="range" min="0" max="100" step="1" value="15"><output id="ctBgmVolumeValue">15</output></label>
-      <label class="ct-sound-row"><span>効果音</span><input id="ctSeVolume" type="range" min="0" max="100" step="1" value="100"><output id="ctSeVolumeValue">100</output></label>
+    <button type="button" id="ctSoundSettingsBtn"><span>🔊</span><b>サウンド設定</b></button>
+    <div class="ct-sound-settings" id="ctSoundSettings" hidden>
+      <label class="ct-sound-row"><span>🎵 BGM</span><input id="ctBgmVolume" type="range" min="0" max="100" step="1" value="15"><output id="ctBgmVolumeValue">15</output></label>
+      <label class="ct-sound-row"><span>🔊 効果音</span><input id="ctSeVolume" type="range" min="0" max="100" step="1" value="100"><output id="ctSeVolumeValue">100</output></label>
     </div>
-    <button type="button" data-v88-target="betaNotice"><span>🔔</span><b>お知らせ</b></button>
-    <a href="howto.html"><span>📖</span><b>遊び方</b></a>
-    <a href="terms.html"><span>📄</span><b>利用規約</b></a>
-    <a href="contact.html"><span>✉️</span><b>お問い合わせ</b></a>
-    <a href="operator.html"><span>⚙️</span><b>運営者情報</b></a>
   </div>
-</div>
 
 <div class="v88-page-shell">
 <div class="v88-main-column">
@@ -109,7 +103,7 @@
 </div>
 <small id="adminRefillStatus">※上2つは管理者テスト用・実データに反映</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=88-68"></script>
+<script src="app.js?v=88-69"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");

@@ -2,8 +2,8 @@
 // V88-68 shared sound volume settings
 const CT_BGM_VOLUME_KEY="ct_bgm_volume";
 const CT_SE_VOLUME_KEY="ct_se_volume";
-function ctGetBgmVolume(){const v=Number(localStorage.getItem(CT_BGM_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
-function ctGetSeVolume(){const v=Number(localStorage.getItem(CT_SE_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctGetBgmVolume(){const raw=localStorage.getItem(CT_BGM_VOLUME_KEY);if(raw===null)return 0.15;const v=Number(raw);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
+function ctGetSeVolume(){const raw=localStorage.getItem(CT_SE_VOLUME_KEY);if(raw===null)return 1;const v=Number(raw);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
 function ctApplyMediaSeVolume(root=document){
   root.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>{a.volume=ctGetSeVolume()});
 }
