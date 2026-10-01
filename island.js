@@ -529,10 +529,19 @@ function ctInstallBgmUi(){
   btn.addEventListener("click",ctToggleBgm);
   document.body.appendChild(btn);
   ctUpdateBgmButton();
-  ctEnsureBgm();
+  const a=ctEnsureBgm();
+  if(ctBgmEnabled()){
+    a.volume=CT_BGM_VOLUME;
+    a.play().then(()=>{ ctBgmUnlocked=true; }).catch(()=>{});
+  }
 }
 document.addEventListener("DOMContentLoaded",ctInstallBgmUi);
+
+// ブラウザがページ表示直後の音声再生を止めた場合も、
+// 最初の画面操作でBGMを自動開始する（BGMボタン操作は不要）。
 document.addEventListener("pointerdown",ctTryStartBgm,{once:true,capture:true});
+document.addEventListener("touchstart",ctTryStartBgm,{once:true,capture:true,passive:true});
+document.addEventListener("click",ctTryStartBgm,{once:true,capture:true});
 document.addEventListener("keydown",ctTryStartBgm,{once:true,capture:true});
 document.addEventListener("visibilitychange",()=>{
   if(!ctBgm)return;
