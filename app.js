@@ -3,8 +3,8 @@
 const CT_BGM_VOLUME_KEY="ct_bgm_volume";
 const CT_SE_VOLUME_KEY="ct_se_volume";
 function ctGetBgmVolume(){const r=localStorage.getItem(CT_BGM_VOLUME_KEY);if(r===null)return .15;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:.15}
-function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===null)return 1;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
-function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=ctGetSeVolume())}
+function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===null)return 1;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100*1.5:1.5}
+function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=Math.min(1,ctGetSeVolume()))}
 
 
 
@@ -12,7 +12,7 @@ function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bg
 function v44Play500Sound(name,volume=1){
   try{
     const a=new Audio(`sounds/${name}?v=45soundfix`);
-    a.volume=volume*ctGetSeVolume();
+    a.volume=Math.min(1,volume*ctGetSeVolume());
     const q=a.play(); if(q&&q.catch)q.catch(()=>{});
   }catch(_){}
 }
@@ -1504,7 +1504,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           const o=c.createOscillator(),g=c.createGain();
           o.type="sine";o.frequency.value=660;
           const v=ctGetSeVolume();
-          g.gain.setValueAtTime(Math.max(.0001,v*.09),c.currentTime);
+          g.gain.setValueAtTime(Math.max(.0001,v*.075),c.currentTime);
           g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.07);
           o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.075);
         }catch(_){}
