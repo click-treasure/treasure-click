@@ -1748,3 +1748,79 @@ section.ad ins{
 /* V88-82 — acquisition history uses the native home-menu grid */
 #historyMenu.is-open{box-shadow:0 0 0 2px rgba(116,87,255,.16);border-color:#cfc6ff}
 #historyMenu.is-open .menu-arrow{transform:rotate(180deg)}
+
+/* V88-84 — iPad/tablet header alignment */
+@media (min-width: 821px) and (max-width: 1180px){
+  .main-header,
+  .header-main,
+  .app-header,
+  .hero-header,
+  header .header-inner{
+    height:auto !important;
+    min-height:0 !important;
+  }
+
+  /* The large white CLICK TREASURE header becomes a clean tablet grid. */
+  .topbar,
+  .header-bar,
+  .header-shell,
+  .header-card{
+    display:grid !important;
+    grid-template-columns:minmax(260px,1.15fr) minmax(0,.85fr) minmax(0,1.35fr) !important;
+    grid-template-areas:
+      "brand nick wallet"
+      "energy actions actions" !important;
+    gap:12px !important;
+    align-items:stretch !important;
+    height:auto !important;
+  }
+
+  .brand,
+  .brand-block,
+  .header-brand{grid-area:brand !important}
+
+  .nickname-card,
+  .nickname-pill,
+  .profile-pill,
+  .user-pill{grid-area:nick !important}
+
+  .points-card,
+  .wallet-card,
+  .wallet-pill,
+  .balance-pill{grid-area:wallet !important}
+
+  .energy-card,
+  .energy-pill{grid-area:energy !important}
+
+  .header-actions,
+  .quick-actions,
+  .nav-actions{
+    grid-area:actions !important;
+    display:grid !important;
+    grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+    gap:12px !important;
+    width:100% !important;
+  }
+
+  .topbar > *,
+  .header-bar > *,
+  .header-shell > *,
+  .header-card > *{
+    min-width:0 !important;
+  }
+}
+
+/* Exact current CLICK TREASURE header selectors — tablet fallback */
+@media (min-width: 821px) and (max-width: 1180px){
+  .game-header{
+    flex-wrap:wrap !important;
+    height:auto !important;
+    align-items:stretch !important;
+    gap:12px !important;
+  }
+  .game-header .brand{flex:1 1 310px !important}
+  .game-header .profile-card{flex:0 1 180px !important}
+  .game-header .points-card{flex:1 1 300px !important}
+  .game-header .energy-card{flex:1 1 300px !important}
+  .game-header .header-actions{flex:1 1 440px !important}
+}
