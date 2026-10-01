@@ -76,9 +76,9 @@ const POINTS_PER_YEN=10;
 function points(n){return Number(n||0)*POINTS_PER_YEN}
 function pointText(n){return points(n).toLocaleString("ja-JP")+"P"}
 const META={
- easy:{name:"EASY",emoji:"🟢",desc:"当たりやすさ ★★★★★　高額報酬期待度 ★☆☆☆☆"},
- normal:{name:"NORMAL",emoji:"🟡",desc:"当たりやすさ ★★★☆☆　高額報酬期待度 ★★★☆☆"},
- hard:{name:"HARD",emoji:"🔴",desc:"当たりやすさ ★☆☆☆☆　高額報酬期待度 ★★★★★"}
+ easy:{name:"EASY",emoji:"🟢",hit:"★★★★★",high:"★☆☆☆☆"},
+ normal:{name:"NORMAL",emoji:"🟡",hit:"★★★☆☆",high:"★★★☆☆"},
+ hard:{name:"HARD",emoji:"🔴",hit:"★☆☆☆☆",high:"★★★★★"}
 };
 let accessToken=localStorage.getItem("v261_access_token")||"";
 let refreshToken=localStorage.getItem("v261_refresh_token")||"";
@@ -314,7 +314,7 @@ function renderCards(){
   const x=latest[diff],m=META[diff];if(!x)return;
   const b=document.createElement("button");b.className="island-card "+diff;
   if(x.island_status==="finished"){b.disabled=true;b.classList.add("finished")}
-  b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><small class="island-desc">${m.desc}</small><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
+  b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><div class="island-ratings"><div><span>当たりやすさ</span><strong>${m.hit}</strong></div><div><span>高額報酬期待度</span><strong>${m.high}</strong></div></div><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
   b.onclick=()=>{
    window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}&v=88-32`;
   };box.appendChild(b);

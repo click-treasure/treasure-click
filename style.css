@@ -1845,3 +1845,12 @@ section.ad ins{
     height:82px !important;
   }
 }
+
+/* V88-88: island ratings - two-row layout */
+.island-ratings{display:flex;flex-direction:column;gap:3px;width:100%;min-height:34px;margin-top:1px}
+.island-ratings>div{display:flex;align-items:center;justify-content:space-between;gap:8px;line-height:1.15}
+.island-ratings span{font-size:10px!important;color:#7c8796!important;opacity:1!important;font-weight:700;white-space:nowrap}
+.island-ratings strong{font-size:13px;letter-spacing:.06em;color:#65758a;white-space:nowrap;line-height:1}
+.island-card.easy .island-ratings strong{color:#438565}
+.island-card.normal .island-ratings strong{color:#9a7a2c}
+.island-card.hard .island-ratings strong{color:#b95757}
