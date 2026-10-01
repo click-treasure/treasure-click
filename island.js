@@ -169,20 +169,12 @@ async function saveNickname(name){
   playerNickname=clean;closeNicknameModal();
 }
 
-function ctBattleIslandUuid(){
-  const candidates=[
-    island?.id,
-    island?.uuid,
-    island?.island_uuid,
-    island?.db_id
-  ];
-  return candidates.find(v=>typeof v==="string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v)) || null;
-}
+function ctBattleIslandKey(){ return island?.island_id ? String(island.island_id) : null; }
 
 async function loadBattleEvents(){
   if(!island)return;
   try{
-    const battleIslandId=ctBattleIslandUuid();
+    const battleIslandId=ctBattleIslandKey();
     if(!battleIslandId)return;
     const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(battleIslandId)+"&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=8");
     battleEvents=(rows||[]).map(r=>({nickname:r.nickname||"冒険者",cell:r.cell_index,time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}));
@@ -191,7 +183,7 @@ async function loadBattleEvents(){
 }
 async function postBattleEvent(cellIndex,prize){
   if(!user?.id||!playerNickname||!island)return;
-  try{await req("/rest/v1/battle_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:user.id,island_id:ctBattleIslandUuid(),nickname:playerNickname,cell_index:Number(cellIndex),prize:Number(prize||0)})});await loadBattleEvents()}catch(e){console.warn("battle event:",e)}
+  try{await req("/rest/v1/battle_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:user.id,island_id:String(island.island_id),nickname:playerNickname,cell_index:Number(cellIndex),prize:Number(prize||0)})});await loadBattleEvents()}catch(e){console.warn("battle event:",e)}
 }
 function flashRivalCells(indices){
   indices.forEach(i=>{
@@ -397,7 +389,7 @@ function ctStartRealtime(){
   if(!island?.island_id || !accessToken)return;
   ctStopRealtime();
 
-  const projectHost=String(URL).replace(/^https?:\/\//,"").replace(/\/+$/,"");
+  const projectHost=String(SUPABASE_URL).replace(/^https?:\/\//,"").replace(/\/+$/,"");
   const wsUrl="wss://"+projectHost+"/realtime/v1/websocket?apikey="+encodeURIComponent(SUPABASE_KEY)+"&vsn=1.0.0";
   const socket=new WebSocket(wsUrl);
   ctRealtimeSocket=socket;
@@ -415,7 +407,7 @@ function ctStartRealtime(){
           presence:{enabled:false},
           postgres_changes:[
             {event:"UPDATE",schema:"public",table:"treasure_cells",filter:"island_id=eq."+islandId},
-            ...(ctBattleIslandUuid()?[{event:"INSERT",schema:"public",table:"battle_events",filter:"island_id=eq."+ctBattleIslandUuid()}]:[])
+            ...(ctBattleIslandKey()?[{event:"INSERT",schema:"public",table:"battle_events",filter:"island_id=eq."+ctBattleIslandKey()}]:[])
           ],
           private:false
         },
