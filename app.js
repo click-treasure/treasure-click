@@ -1205,60 +1205,123 @@ async function refreshHeaderNicknameV8852(){
 }
 window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
 
-// V88-54: nickname change from home menu
+// V88-55: reliable nickname change + header sync
 (function(){
-  const menuBtn=document.getElementById("nicknameMenuBtn");
-  const modal=document.getElementById("homeNicknameModal");
-  const input=document.getElementById("homeNicknameInput");
-  const save=document.getElementById("homeNicknameSave");
-  const err=document.getElementById("homeNicknameError");
-  if(!menuBtn||!modal||!input||!save)return;
+  function el(id){ return document.getElementById(id); }
 
-  function isGuest(){
-    if(!user)return true;
-    if(user.is_anonymous===true||user.app_metadata?.provider==="anonymous")return true;
-    return !user.email && user.app_metadata?.provider!=="google";
-  }
-  function syncVisibility(){ menuBtn.hidden=isGuest(); }
-  function close(){ modal.hidden=true; if(err)err.textContent=""; }
-  async function open(){
-    if(isGuest()){ menuBtn.hidden=true; return; }
-    if(typeof refreshHeaderNicknameV8852==="function") await refreshHeaderNicknameV8852();
-    const current=document.getElementById("headerNicknameValue")?.textContent||"";
-    input.value=(current==="未設定"||current==="---")?"":current;
-    modal.hidden=false;
-    setTimeout(()=>input.focus(),0);
+  function isGuestUser(){
+    if(!user) return true;
+    if(user.is_anonymous === true) return true;
+    const provider = user.app_metadata && user.app_metadata.provider;
+    if(provider === "anonymous") return true;
+    return !user.email && provider !== "google";
   }
 
-  menuBtn.addEventListener("click",open);
-  modal.querySelectorAll("[data-close-nickname]").forEach(x=>x.addEventListener("click",close));
-  save.addEventListener("click",async()=>{
-    const nickname=input.value.trim();
-    if(nickname.length<2||nickname.length>12){
-      err.textContent="ニックネームは2〜12文字で入力してください。"; return;
+  async function loadNicknameToHeader(){
+    const header=el("headerNicknameValue");
+    if(!header || !user) return;
+    if(isGuestUser()){
+      if(typeof ctGuestNameV8852 === "function") header.textContent=ctGuestNameV8852(user);
+      return;
     }
-    save.disabled=true; err.textContent="";
     try{
-      const existing=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=user_id");
-      if(Array.isArray(existing)&&existing.length){
+      const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname");
+      const name=Array.isArray(rows) && rows[0] && rows[0].nickname ? String(rows[0].nickname).trim() : "";
+      header.textContent=name || "未設定";
+    }catch(e){ console.warn("nickname load",e); }
+  }
+
+  function syncNicknameMenu(){
+    const b=el("nicknameMenuBtn");
+    if(b) b.hidden=isGuestUser();
+  }
+
+  function closeNicknameModal(){
+    const m=el("homeNicknameModal");
+    if(m) m.hidden=true;
+    const e=el("homeNicknameError");
+    if(e) e.textContent="";
+  }
+
+  async function openNicknameModal(){
+    if(isGuestUser()){ syncNicknameMenu(); return; }
+    await loadNicknameToHeader();
+    const m=el("homeNicknameModal"), input=el("homeNicknameInput");
+    if(!m || !input) return;
+    const now=(el("headerNicknameValue")?.textContent || "").trim();
+    input.value=(now==="未設定" || now==="---") ? "" : now;
+    m.hidden=false;
+    requestAnimationFrame(()=>input.focus());
+  }
+
+  async function saveNickname(){
+    const input=el("homeNicknameInput"), error=el("homeNicknameError"), save=el("homeNicknameSave");
+    if(!input || !user) return;
+    const nickname=input.value.trim();
+    if(nickname.length < 2 || nickname.length > 12){
+      if(error) error.textContent="ニックネームは2〜12文字で入力してください。";
+      return;
+    }
+    if(save) save.disabled=true;
+    if(error) error.textContent="";
+    try{
+      const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=user_id");
+      if(Array.isArray(rows) && rows.length){
         await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id),{
           method:"PATCH",
           headers:{"Prefer":"return=minimal"},
-          body:JSON.stringify({nickname:nickname,updated_at:new Date().toISOString()})
+          body:JSON.stringify({nickname,updated_at:new Date().toISOString()})
         });
       }else{
         await req("/rest/v1/player_profiles",{
           method:"POST",
           headers:{"Prefer":"return=minimal"},
-          body:JSON.stringify({user_id:user.id,nickname:nickname})
+          body:JSON.stringify({user_id:user.id,nickname})
         });
       }
-      document.getElementById("headerNicknameValue").textContent=nickname;
-      close();
+      // Immediate UI sync; then verify from DB.
+      const header=el("headerNicknameValue");
+      if(header) header.textContent=nickname;
+      closeNicknameModal();
+      await loadNicknameToHeader();
     }catch(e){
-      console.error(e); err.textContent="変更できませんでした。もう一度お試しください。";
-    }finally{ save.disabled=false; }
+      console.error("nickname save",e);
+      if(error) error.textContent="変更できませんでした。もう一度お試しください。";
+    }finally{
+      if(save) save.disabled=false;
+    }
+  }
+
+  // Delegation works even if elements are created/initialized after this script runs.
+  document.addEventListener("click",function(ev){
+    const nick=ev.target.closest && ev.target.closest("#nicknameMenuBtn");
+    if(nick){
+      ev.preventDefault();
+      ev.stopPropagation();
+      openNicknameModal();
+      return;
+    }
+    if(ev.target.closest && ev.target.closest("[data-close-nickname]")){
+      closeNicknameModal();
+      return;
+    }
+    if(ev.target.closest && ev.target.closest("#homeNicknameSave")){
+      ev.preventDefault();
+      saveNickname();
+    }
   });
-  setTimeout(syncVisibility,1200);
-  setTimeout(syncVisibility,2500);
+
+  document.addEventListener("keydown",function(ev){
+    if(ev.key==="Escape") closeNicknameModal();
+    if(ev.key==="Enter" && document.activeElement===el("homeNicknameInput")){
+      ev.preventDefault(); saveNickname();
+    }
+  });
+
+  window.addEventListener("load",function(){
+    syncNicknameMenu();
+    loadNicknameToHeader();
+    setTimeout(syncNicknameMenu,800);
+    setTimeout(loadNicknameToHeader,900);
+  });
 })();
