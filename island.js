@@ -10,6 +10,7 @@ let user=JSON.parse(localStorage.getItem("v261_user")||"null");
 let island=null,cells=[],serverEnergy=0,bonusTaps=0,nextSeconds=0;
 let loading=false,digBusy=false,pollTimer=null,countTimer=null;
 let knownOpened=new Set(),ownDigCell=null;
+let battleEvents=[];
 
 const params=new URLSearchParams(location.search);
 const wantedGeneration=Number(params.get("generation")||0);
@@ -111,14 +112,37 @@ async function loadCells(silent=false){
     const d=await req("/rest/v1/treasure_cells?island_id=eq."+encodeURIComponent(island.island_id)+"&select=id,cell_index,opened,opened_at&order=cell_index.asc");
     const next=d||[];
     const openedNow=new Set(next.filter(c=>c.opened).map(c=>Number(c.cell_index)));
+    let other=[];
     if(silent){
-      const other=[...openedNow].filter(i=>!knownOpened.has(i)&&i!==ownDigCell);
-      if(other.length)setMessage(`👥 ほかのプレイヤーが ${other.length}箱開けた！`);
+      other=[...openedNow].filter(i=>!knownOpened.has(i)&&i!==ownDigCell);
+      if(other.length){
+        setMessage(`⚔️ ほかのプレイヤーが ${other.length}箱発掘！`);
+        const now=new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+        other.forEach(i=>battleEvents.unshift({cell:i,time:now}));
+        battleEvents=battleEvents.slice(0,4);
+      }
     }
     cells=next;knownOpened=openedNow;ownDigCell=null;
     renderBoard();
+    renderBattleFeed();
+    if(other.length)flashRivalCells(other);
     if(!silent)setMessage("宝箱をタップして発掘！");
   }finally{loading=false}
+}
+
+function renderBattleFeed(){
+  const feed=$("battleFeed");if(!feed)return;
+  if(!battleEvents.length){feed.innerHTML="<span>👀 他プレイヤーの発掘を監視中…</span>";return}
+  feed.innerHTML=battleEvents.map(e=>`<span class="battle-event">⚡ ${e.time}　誰かが No.${e.cell} を発掘！</span>`).join("");
+}
+function flashRivalCells(indices){
+  indices.forEach(i=>{
+    const b=document.querySelector(`.demo-chest[data-cell="${i}"]`);if(!b)return;
+    b.classList.add("rival-opened");
+    const tag=document.createElement("span");tag.className="rival-tag";tag.textContent="先に掘られた!";b.appendChild(tag);
+    setTimeout(()=>b.classList.remove("rival-opened"),1500);
+    setTimeout(()=>tag.remove(),1500);
+  });
 }
 
 function renderBoard(){

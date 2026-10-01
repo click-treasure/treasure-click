@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>宝島｜CLICK TREASURE</title>
-<link rel="stylesheet" href="island.css?v=88-45">
+<link rel="stylesheet" href="island.css?v=88-47">
 </head>
 <body>
 <main class="island-page">
@@ -38,6 +38,10 @@
         <h2>🗺️ 宝箱マップ <small id="message">島データを読み込み中…</small></h2>
       </div>
       <div class="map-count">🧰 残り <strong id="remaining">--</strong> / 100マス</div>
+    </div>
+    <div class="battle-live" aria-live="polite">
+      <div class="battle-live-title"><span class="live-dot"></span><b>ONLINE 争奪戦</b><small>同じ島の宝箱は全プレイヤー共通</small></div>
+      <div id="battleFeed" class="battle-feed"><span>👀 他プレイヤーの発掘を監視中…</span></div>
     </div>
     <div class="chest-board loading" id="chestBoard" aria-label="100マス宝箱マップ"></div>
     <div class="map-foot">
@@ -89,7 +93,7 @@
 <div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
 <div id="errorToast" class="error-toast" hidden></div>
 
-<script src="island.js?v=88-45"></script>
+<script src="island.js?v=88-47"></script>
 
 <!-- admax interstitial -->
 
