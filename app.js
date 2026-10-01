@@ -1204,3 +1204,61 @@ async function refreshHeaderNicknameV8852(){
   }
 }
 window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
+
+// V88-54: nickname change from home menu
+(function(){
+  const menuBtn=document.getElementById("nicknameMenuBtn");
+  const modal=document.getElementById("homeNicknameModal");
+  const input=document.getElementById("homeNicknameInput");
+  const save=document.getElementById("homeNicknameSave");
+  const err=document.getElementById("homeNicknameError");
+  if(!menuBtn||!modal||!input||!save)return;
+
+  function isGuest(){
+    if(!user)return true;
+    if(user.is_anonymous===true||user.app_metadata?.provider==="anonymous")return true;
+    return !user.email && user.app_metadata?.provider!=="google";
+  }
+  function syncVisibility(){ menuBtn.hidden=isGuest(); }
+  function close(){ modal.hidden=true; if(err)err.textContent=""; }
+  async function open(){
+    if(isGuest()){ menuBtn.hidden=true; return; }
+    if(typeof refreshHeaderNicknameV8852==="function") await refreshHeaderNicknameV8852();
+    const current=document.getElementById("headerNicknameValue")?.textContent||"";
+    input.value=(current==="未設定"||current==="---")?"":current;
+    modal.hidden=false;
+    setTimeout(()=>input.focus(),0);
+  }
+
+  menuBtn.addEventListener("click",open);
+  modal.querySelectorAll("[data-close-nickname]").forEach(x=>x.addEventListener("click",close));
+  save.addEventListener("click",async()=>{
+    const nickname=input.value.trim();
+    if(nickname.length<2||nickname.length>12){
+      err.textContent="ニックネームは2〜12文字で入力してください。"; return;
+    }
+    save.disabled=true; err.textContent="";
+    try{
+      const existing=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=user_id");
+      if(Array.isArray(existing)&&existing.length){
+        await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id),{
+          method:"PATCH",
+          headers:{"Prefer":"return=minimal"},
+          body:JSON.stringify({nickname:nickname,updated_at:new Date().toISOString()})
+        });
+      }else{
+        await req("/rest/v1/player_profiles",{
+          method:"POST",
+          headers:{"Prefer":"return=minimal"},
+          body:JSON.stringify({user_id:user.id,nickname:nickname})
+        });
+      }
+      document.getElementById("headerNicknameValue").textContent=nickname;
+      close();
+    }catch(e){
+      console.error(e); err.textContent="変更できませんでした。もう一度お試しください。";
+    }finally{ save.disabled=false; }
+  });
+  setTimeout(syncVisibility,1200);
+  setTimeout(syncVisibility,2500);
+})();

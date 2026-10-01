@@ -50,7 +50,7 @@
 <div id="v88HeaderMenu" class="v88-header-menu" hidden>
   <div class="v88-header-menu-grid">
     <button type="button" data-v88-target="pointOffers"><span>🪙</span><b>ポイント大量GET！</b></button>
-    <button type="button" data-v88-click="redeemMenu"><span>↻</span><b>交換</b></button>
+    <button type="button" id="nicknameMenuBtn"><span>👤</span><b>ニックネーム変更</b></button>
     <button type="button" data-v88-target="betaNotice"><span>🔔</span><b>お知らせ</b></button>
     <a href="howto.html"><span>📖</span><b>遊び方</b></a>
     <a href="terms.html"><span>📄</span><b>利用規約</b></a>
@@ -172,5 +172,19 @@ document.addEventListener("DOMContentLoaded", () => {
 <!-- admax interstitial -->
 
 <!-- /admax interstitial -->
+
+
+<div id="homeNicknameModal" class="ct-nickname-modal" hidden>
+  <div class="ct-nickname-backdrop" data-close-nickname></div>
+  <section class="ct-nickname-dialog" role="dialog" aria-modal="true" aria-labelledby="homeNicknameTitle">
+    <button type="button" class="ct-nickname-close" data-close-nickname aria-label="閉じる">×</button>
+    <div class="ct-nickname-icon">👤</div>
+    <h2 id="homeNicknameTitle">ニックネーム変更</h2>
+    <p>2〜12文字で入力してください</p>
+    <input id="homeNicknameInput" type="text" minlength="2" maxlength="12" autocomplete="off">
+    <div id="homeNicknameError" class="ct-nickname-error" aria-live="polite"></div>
+    <button id="homeNicknameSave" type="button" class="ct-nickname-save">変更する</button>
+  </section>
+</div>
 
 </body></html>

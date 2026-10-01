@@ -1732,3 +1732,14 @@ section.ad ins{
     width:58px !important; min-width:58px !important; max-width:58px !important;
   }
 }
+
+/* V88-54 nickname editor */
+.ct-nickname-modal[hidden]{display:none !important}
+.ct-nickname-modal{position:fixed;inset:0;z-index:10050;display:grid;place-items:center;padding:20px}
+.ct-nickname-backdrop{position:absolute;inset:0;background:rgba(4,18,34,.5)}
+.ct-nickname-dialog{position:relative;width:min(420px,calc(100% - 24px));background:#fff;border-radius:24px;padding:26px;text-align:center;box-shadow:0 24px 70px rgba(0,0,0,.22)}
+.ct-nickname-close{position:absolute;right:14px;top:12px;border:0;background:transparent;font-size:28px;cursor:pointer}
+.ct-nickname-icon{font-size:42px}.ct-nickname-dialog h2{margin:4px 0 6px}.ct-nickname-dialog p{margin:0 0 16px;color:#667085}
+#homeNicknameInput{width:100%;box-sizing:border-box;border:1px solid #ccd5df;border-radius:12px;padding:12px 14px;font-size:16px;text-align:center}
+.ct-nickname-error{min-height:22px;margin-top:7px;color:#c62828;font-size:13px}
+.ct-nickname-save{width:100%;border:0;border-radius:12px;padding:12px 16px;background:#10243b;color:#fff;font-weight:800;cursor:pointer}
