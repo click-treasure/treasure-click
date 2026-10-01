@@ -1596,3 +1596,16 @@ section.ad ins{
 /* V88-50 */
 .header-nickname{flex:0 0 auto;min-width:128px;max-width:150px;min-height:64px;}
 @media(max-width:900px){.header-nickname{min-width:105px;max-width:120px;}}
+
+/* V88-51: nickname is an independent topbar card */
+.v88-topbar > .header-nickname{
+  flex:0 0 128px;
+  min-width:128px;
+  max-width:128px;
+  min-height:64px;
+  margin-left:auto;
+}
+.v88-topbar > .v88-wallet{margin-left:0;}
+@media(max-width:900px){
+  .v88-topbar > .header-nickname{flex-basis:108px;min-width:108px;max-width:108px;}
+}
