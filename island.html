@@ -58,6 +58,21 @@
 
 
 
+<div id="nicknameModal" class="nickname-modal" hidden aria-hidden="true">
+  <div class="nickname-backdrop"></div>
+  <section class="nickname-card" role="dialog" aria-modal="true" aria-labelledby="nicknameTitle">
+    <div class="nickname-icon">🏴‍☠️</div>
+    <small>PLAYER NAME</small>
+    <h2 id="nicknameTitle">争奪戦で使う名前を決めよう</h2>
+    <p>他のプレイヤーにはこのニックネームだけが表示されます。</p>
+    <form id="nicknameForm">
+      <input id="nicknameInput" type="text" minlength="2" maxlength="12" autocomplete="off" placeholder="2〜12文字" aria-label="ニックネーム">
+      <div id="nicknameError" class="nickname-error" aria-live="polite"></div>
+      <button type="submit">この名前で参加する</button>
+    </form>
+  </section>
+</div>
+
 <div id="energyEmptyModal" class="energy-empty-modal" hidden aria-hidden="true">
   <div class="energy-empty-backdrop"></div>
   <section class="energy-empty-card" role="dialog" aria-modal="true" aria-labelledby="energyEmptyTitle">
@@ -93,7 +108,7 @@
 <div id="ticketToast" class="ticket-toast" hidden>🎫 GOLDEN TICKET GET!</div>
 <div id="errorToast" class="error-toast" hidden></div>
 
-<script src="island.js?v=88-47"></script>
+<script src="island.js?v=88-48"></script>
 
 <!-- admax interstitial -->
 

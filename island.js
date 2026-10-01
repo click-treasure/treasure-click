@@ -11,6 +11,7 @@ let island=null,cells=[],serverEnergy=0,bonusTaps=0,nextSeconds=0;
 let loading=false,digBusy=false,pollTimer=null,countTimer=null;
 let knownOpened=new Set(),ownDigCell=null;
 let battleEvents=[];
+let playerNickname="";
 
 const params=new URLSearchParams(location.search);
 const wantedGeneration=Number(params.get("generation")||0);
@@ -130,10 +131,38 @@ async function loadCells(silent=false){
   }finally{loading=false}
 }
 
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function renderBattleFeed(){
   const feed=$("battleFeed");if(!feed)return;
   if(!battleEvents.length){feed.innerHTML="<span>👀 他プレイヤーの発掘を監視中…</span>";return}
-  feed.innerHTML=battleEvents.map(e=>`<span class="battle-event">⚡ ${e.time}　誰かが No.${e.cell} を発掘！</span>`).join("");
+  feed.innerHTML=battleEvents.map(e=>`<span class="battle-event">⚡ ${escapeHtml(e.time)}　<b>${escapeHtml(e.nickname)}</b> が No.${Number(e.cell)} を発掘！</span>`).join("");
+}
+async function loadNickname(){
+  if(!user?.id)return;
+  const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");
+  playerNickname=String(rows?.[0]?.nickname||"").trim();
+  if(!playerNickname)showNicknameModal();
+}
+function showNicknameModal(){const m=$("nicknameModal");if(!m)return;m.hidden=false;m.setAttribute("aria-hidden","false");setTimeout(()=>$("nicknameInput")?.focus(),80)}
+function closeNicknameModal(){const m=$("nicknameModal");if(!m)return;m.hidden=true;m.setAttribute("aria-hidden","true")}
+async function saveNickname(name){
+  const clean=String(name||"").trim();
+  if(clean.length<2||clean.length>12)throw new Error("ニックネームは2〜12文字で入力してください");
+  if(/[<>]/.test(clean))throw new Error("< と > は使用できません");
+  await req("/rest/v1/player_profiles",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
+  playerNickname=clean;closeNicknameModal();
+}
+async function loadBattleEvents(){
+  if(!island)return;
+  try{
+    const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(island.island_id)+"&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=4");
+    battleEvents=(rows||[]).map(r=>({nickname:r.nickname||"冒険者",cell:r.cell_index,time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}));
+    renderBattleFeed();
+  }catch(e){console.warn("battle feed:",e)}
+}
+async function postBattleEvent(cellIndex,prize){
+  if(!user?.id||!playerNickname||!island)return;
+  try{await req("/rest/v1/battle_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:user.id,island_id:island.island_id,nickname:playerNickname,cell_index:Number(cellIndex),prize:Number(prize||0)})});await loadBattleEvents()}catch(e){console.warn("battle event:",e)}
 }
 function flashRivalCells(indices){
   indices.forEach(i=>{
@@ -238,6 +267,12 @@ function showEnergyEmptyModal(){
 function closeEnergyEmptyModal(){const modal=$("energyEmptyModal");if(!modal)return;modal.hidden=true;modal.setAttribute("aria-hidden","true")}
 document.addEventListener("click",e=>{if(e.target?.id==="energyEmptyClose"||e.target?.classList?.contains("energy-empty-backdrop"))closeEnergyEmptyModal()});
 
+document.addEventListener("submit",async e=>{
+  if(e.target?.id!=="nicknameForm")return;e.preventDefault();
+  const err=$("nicknameError"),btn=e.target.querySelector("button");if(err)err.textContent="";if(btn)btn.disabled=true;
+  try{await saveNickname($("nicknameInput")?.value);setMessage(`🏴‍☠️ ${playerNickname} として争奪戦に参加！`)}catch(ex){if(err)err.textContent=ex?.message||String(ex)}finally{if(btn)btn.disabled=false}
+});
+
 async function dig(cellIndex,button){
   if(digBusy||!island)return;
   if(serverEnergy<=0&&bonusTaps<=0){setMessage("⚡ タップ回数切れ。回復を待とう");return}
@@ -269,6 +304,7 @@ async function dig(cellIndex,button){
     playOpenTransition(button);
     const prize=Number(x.prize||0);
     legacyPrizeEffect(button,prize);
+    postBattleEvent(cellIndex,prize);
     const gotTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
 
     if(x.new_balance!=null)$("wallet").textContent=pointText(x.new_balance);
@@ -297,9 +333,10 @@ async function boot(){
     await ensureAuth();
     await Promise.all([resolveIsland(),loadStatus()]);
     await loadCells();
+    await Promise.all([loadNickname(),loadBattleEvents()]);
     startCountdown();
     clearInterval(pollTimer);
-    pollTimer=setInterval(()=>loadCells(true).catch(console.error),1000);
+    pollTimer=setInterval(()=>Promise.all([loadCells(true),loadBattleEvents()]).catch(console.error),1000);
   }catch(e){showError(e);setMessage("島を読み込めませんでした")}
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)Promise.all([loadStatus(),loadCells(true)]).catch(console.error)});
