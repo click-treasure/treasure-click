@@ -168,59 +168,17 @@ async function saveNickname(name){
   await req("/rest/v1/player_profiles?on_conflict=user_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
   playerNickname=clean;closeNicknameModal();
 }
-let battleFeedErrorShown=false;
 async function loadBattleEvents(){
-  if(!island?.island_id)return;
+  if(!island)return;
   try{
-    const path="/rest/v1/battle_events?island_id=eq."+encodeURIComponent(String(island.island_id))+
-      "&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=4";
-    const rows=await req(path);
-    battleEvents=(Array.isArray(rows)?rows:[]).map(r=>({
-      nickname:String(r.nickname||"冒険者"),
-      cell:Number(r.cell_index),
-      time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
-    }));
-    battleFeedErrorShown=false;
+    const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(island.island_id)+"&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=4");
+    battleEvents=(rows||[]).map(r=>({nickname:r.nickname||"冒険者",cell:r.cell_index,time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}));
     renderBattleFeed();
-  }catch(e){
-    console.error("battle feed load failed:",e);
-    if(!battleFeedErrorShown){
-      battleFeedErrorShown=true;
-      const feed=$("battleFeed");
-      if(feed)feed.innerHTML='<span>⚠️ 争奪戦ログを再接続中…</span>';
-    }
-    throw e;
-  }
+  }catch(e){console.warn("battle feed:",e)}
 }
 async function postBattleEvent(cellIndex,prize){
-  if(!user?.id||!island?.island_id)return false;
-  const nickname=String(playerNickname||guestNickname()||"冒険者").trim();
-  const localEvent={
-    nickname,
-    cell:Number(cellIndex),
-    time:new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
-  };
-  // 成功した発掘は即座に画面へ出す。DB同期後にサーバー順へ置き換える。
-  battleEvents=[localEvent,...battleEvents.filter(e=>!(e.cell===localEvent.cell&&e.nickname===localEvent.nickname))].slice(0,4);
-  renderBattleFeed();
-  try{
-    await req("/rest/v1/battle_events",{
-      method:"POST",
-      headers:{Prefer:"return=minimal"},
-      body:JSON.stringify({
-        user_id:user.id,
-        island_id:island.island_id,
-        nickname,
-        cell_index:Number(cellIndex),
-        prize:Number(prize||0)
-      })
-    });
-    await loadBattleEvents();
-    return true;
-  }catch(e){
-    console.error("battle event post failed:",e);
-    return false;
-  }
+  if(!user?.id||!playerNickname||!island)return;
+  try{await req("/rest/v1/battle_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:user.id,island_id:island.island_id,nickname:playerNickname,cell_index:Number(cellIndex),prize:Number(prize||0)})});await loadBattleEvents()}catch(e){console.warn("battle event:",e)}
 }
 function flashRivalCells(indices){
   indices.forEach(i=>{
@@ -362,7 +320,7 @@ async function dig(cellIndex,button){
     playOpenTransition(button);
     const prize=Number(x.prize||0);
     legacyPrizeEffect(button,prize);
-    await postBattleEvent(cellIndex,prize);
+    postBattleEvent(cellIndex,prize);
     const gotTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
 
     if(x.new_balance!=null)$("wallet").textContent=pointText(x.new_balance);
@@ -394,11 +352,93 @@ async function boot(){
     await Promise.all([loadNickname(),loadBattleEvents()]);
     startCountdown();
     clearInterval(pollTimer);
-    pollTimer=setInterval(()=>{
-      loadCells(true).catch(console.error);
-      loadBattleEvents().catch(()=>{});
-    },1000);
+    pollTimer=setInterval(()=>Promise.all([loadCells(true),loadBattleEvents()]).catch(console.error),1000);
+    ctStartRealtime();
   }catch(e){showError(e);setMessage("島を読み込めませんでした")}
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)Promise.all([loadStatus(),loadCells(true)]).catch(console.error)});
 boot();
+
+
+// V88-59: Supabase Realtime (treasure cells + battle events)
+// Polling remains as fallback.
+let ctRealtimeSocket=null;
+let ctRealtimeHeartbeat=null;
+let ctRealtimeRef=1;
+let ctRealtimeTopic=null;
+
+function ctRealtimeSend(event,payload={},topic=ctRealtimeTopic){
+  if(!ctRealtimeSocket || ctRealtimeSocket.readyState!==WebSocket.OPEN || !topic)return;
+  ctRealtimeSocket.send(JSON.stringify({
+    topic,event,payload,
+    ref:String(ctRealtimeRef++),
+    join_ref:"1"
+  }));
+}
+function ctStopRealtime(){
+  if(ctRealtimeHeartbeat){clearInterval(ctRealtimeHeartbeat);ctRealtimeHeartbeat=null;}
+  if(ctRealtimeSocket){try{ctRealtimeSocket.close()}catch{} ctRealtimeSocket=null;}
+  ctRealtimeTopic=null;
+}
+function ctStartRealtime(){
+  if(!island?.island_id || !accessToken)return;
+  ctStopRealtime();
+
+  const projectHost=URL.replace(/^https?:\/\//,"").replace(/\/+$/,"");
+  const wsUrl="wss://"+projectHost+"/realtime/v1/websocket?apikey="+encodeURIComponent(KEY)+"&vsn=1.0.0";
+  const socket=new WebSocket(wsUrl);
+  ctRealtimeSocket=socket;
+  const islandId=String(island.island_id);
+  const topic="realtime:click-treasure-"+islandId;
+  ctRealtimeTopic=topic;
+
+  socket.onopen=()=>{
+    socket.send(JSON.stringify({
+      topic,
+      event:"phx_join",
+      payload:{
+        config:{
+          broadcast:{self:false},
+          presence:{enabled:false},
+          postgres_changes:[
+            {event:"UPDATE",schema:"public",table:"treasure_cells",filter:"island_id=eq."+islandId},
+            {event:"INSERT",schema:"public",table:"battle_events",filter:"island_id=eq."+islandId}
+          ],
+          private:false
+        },
+        access_token:accessToken
+      },
+      ref:"1",
+      join_ref:"1"
+    }));
+    ctRealtimeHeartbeat=setInterval(()=>{
+      if(socket.readyState===WebSocket.OPEN){
+        socket.send(JSON.stringify({topic:"phoenix",event:"heartbeat",payload:{},ref:String(ctRealtimeRef++)}));
+      }
+    },25000);
+  };
+
+  socket.onmessage=async(ev)=>{
+    let msg; try{msg=JSON.parse(ev.data)}catch{return}
+    if(msg.event==="postgres_changes"){
+      const data=msg.payload?.data || msg.payload;
+      const table=data?.table || data?.relation?.table || data?.schema && data?.table;
+      // Supabase protocol can omit table in some payload variants;
+      // inspect record shape as a safe fallback.
+      const rec=data?.record || data?.new || {};
+      if(table==="battle_events" || ("nickname" in rec && "cell_index" in rec)){
+        await loadBattleEvents().catch(console.error);
+      }else{
+        await loadCells(true).catch(console.error);
+      }
+    }
+  };
+  socket.onerror=(e)=>console.warn("Realtime socket error",e);
+  socket.onclose=()=>{
+    if(ctRealtimeHeartbeat){clearInterval(ctRealtimeHeartbeat);ctRealtimeHeartbeat=null;}
+    // automatic reconnect while still on an island
+    if(island?.island_id) setTimeout(()=>ctStartRealtime(),1800);
+  };
+}
+
+window.addEventListener("load",()=>setTimeout(()=>{if(island?.island_id)ctStartRealtime()},1800));
