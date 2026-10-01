@@ -29,7 +29,11 @@
   </div>
   <div class="v88-wallet">
     <div class="v88-coin" aria-hidden="true">P</div>
-    <div class="v88-statcopy"><small>保有ポイント</small><b id="wallet">—P</b></div>
+    <div class="header-nickname" id="headerNickname" title="現在のニックネーム">
+          <span class="header-nickname-label">👤 ニックネーム</span>
+          <strong class="header-nickname-value" id="headerNicknameValue">---</strong>
+        </div>
+  <div class="v88-statcopy"><small>保有ポイント</small><b id="wallet">—P</b></div>
     <button id="redeemBtn" type="button" class="v88-exchange" disabled>交換</button>
     <div class="v88-hidden-progress" aria-hidden="true"><i id="redeemFill"></i><span id="redeemText">交換まで計算中…</span></div>
   </div>
@@ -40,18 +44,11 @@
   <nav class="v88-shortcuts" aria-label="ホームメニュー">
     <button type="button" data-v88-target="loginBonus"><i class="v88-gift"></i><span>ログボ</span></button>
     <button type="button" data-v88-target="dailyMissions"><i class="v88-check"></i><span>ミッション</span></button>
-    <button type="button" data-v88-click="winHistoryMenu"><i class="v88-book"></i><span>獲得履歴</span></button>
-    
-        <div class="header-nickname" id="headerNickname" title="現在のニックネーム">
-          <span class="header-nickname-label">👤 ニックネーム</span>
-          <strong class="header-nickname-value" id="headerNicknameValue">---</strong>
-        </div>
 <button id="v88MenuToggle" type="button" aria-expanded="false" aria-controls="v88HeaderMenu"><i class="v88-menuicon"></i><span>メニュー</span></button>
   </nav>
 </header>
 <div id="v88HeaderMenu" class="v88-header-menu" hidden>
   <div class="v88-header-menu-grid">
-    <button type="button" data-v88-target="islandSelect"><span>🏝️</span><b>島を選ぶ</b></button>
     <button type="button" data-v88-target="pointOffers"><span>🪙</span><b>ポイント大量GET！</b></button>
     <button type="button" data-v88-click="redeemMenu"><span>↻</span><b>交換</b></button>
     <button type="button" data-v88-target="betaNotice"><span>🔔</span><b>お知らせ</b></button>

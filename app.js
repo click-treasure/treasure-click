@@ -1179,43 +1179,31 @@ window.addEventListener("DOMContentLoaded", async ()=>{
   }catch(e){console.error("golden page bootstrap",e);}
 });
 
-
-// V88-49: header nickname display
-async function refreshHeaderNicknameV8849() {
-  const el = document.getElementById("headerNicknameValue");
-  if (!el || typeof supabase === "undefined") return;
-  try {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) { el.textContent = "ゲスト"; return; }
-
-    const isAnonymous =
-      user.is_anonymous === true ||
-      user.app_metadata?.provider === "anonymous" ||
-      (Array.isArray(user.identities) && user.identities.length === 0);
-
-    if (isAnonymous) {
-      const suffix = String(user.id || "0000").replace(/-/g, "").slice(-4).toUpperCase();
-      el.textContent = `ゲスト-${suffix}`;
+// V88-50 header nickname
+function ctClientV8850(){
+  try{ if(typeof sb!=="undefined"&&sb) return sb; }catch(e){}
+  try{ if(typeof supabaseClient!=="undefined"&&supabaseClient) return supabaseClient; }catch(e){}
+  return null;
+}
+async function refreshHeaderNicknameV8850(){
+  const el=document.getElementById("headerNicknameValue");
+  const client=ctClientV8850();
+  if(!el||!client)return;
+  try{
+    const {data:{user}}=await client.auth.getUser();
+    const guest=!user||user.is_anonymous===true||user.app_metadata?.provider==="anonymous"||
+      (Array.isArray(user.identities)&&user.identities.length===0);
+    if(guest){
+      const s=String(user?.id||"0000").replace(/-/g,"").slice(-4).toUpperCase();
+      el.textContent=`ゲスト-${s}`;
       return;
     }
-
-    const { data } = await supabase
-      .from("player_profiles")
-      .select("nickname")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
-    el.textContent = data?.nickname?.trim() || "未設定";
-  } catch (e) {
-    console.warn("header nickname:", e);
-    el.textContent = "---";
-  }
+    const {data}=await client.from("player_profiles").select("nickname").eq("user_id",user.id).maybeSingle();
+    el.textContent=(data?.nickname||"").trim()||"未設定";
+  }catch(e){console.warn(e);el.textContent="---";}
 }
-
-window.addEventListener("load", refreshHeaderNicknameV8849);
-document.addEventListener("click", (e) => {
-  if (e.target && (e.target.id === "nicknameSaveBtn" || e.target.closest?.("#nicknameSaveBtn"))) {
-    setTimeout(refreshHeaderNicknameV8849, 400);
-  }
+window.addEventListener("load",()=>{setTimeout(refreshHeaderNicknameV8850,300);setTimeout(refreshHeaderNicknameV8850,1200);});
+document.addEventListener("click",e=>{
+  if(e.target?.closest?.("#nicknameSaveBtn,#nicknameChangeSave,[data-nickname-save]"))
+    setTimeout(refreshHeaderNicknameV8850,500);
 });
-

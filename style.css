@@ -1592,3 +1592,7 @@ section.ad ins{
   .header-nickname-label{font-size:10px}
   .header-nickname-value{max-width:100px;font-size:13px}
 }
+
+/* V88-50 */
+.header-nickname{flex:0 0 auto;min-width:128px;max-width:150px;min-height:64px;}
+@media(max-width:900px){.header-nickname{min-width:105px;max-width:120px;}}
