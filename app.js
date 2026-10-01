@@ -76,9 +76,9 @@ const POINTS_PER_YEN=10;
 function points(n){return Number(n||0)*POINTS_PER_YEN}
 function pointText(n){return points(n).toLocaleString("ja-JP")+"P"}
 const META={
- easy:{name:"EASY",emoji:"🟢",desc:"宝30個・当たりやすい"},
- normal:{name:"NORMAL",emoji:"🟡",desc:"宝26個・バランス型"},
- hard:{name:"HARD",emoji:"🔴",desc:"宝7個・最大5,000P"}
+ easy:{name:"EASY",emoji:"🟢",desc:"当たりやすさ ★★★★★　高額報酬期待度 ★☆☆☆☆"},
+ normal:{name:"NORMAL",emoji:"🟡",desc:"当たりやすさ ★★★☆☆　高額報酬期待度 ★★★☆☆"},
+ hard:{name:"HARD",emoji:"🔴",desc:"当たりやすさ ★☆☆☆☆　高額報酬期待度 ★★★★★"}
 };
 let accessToken=localStorage.getItem("v261_access_token")||"";
 let refreshToken=localStorage.getItem("v261_refresh_token")||"";
@@ -320,7 +320,7 @@ function renderCards(){
   };box.appendChild(b);
  });
  const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
- g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">50個から1つ選択。最低100P確定。</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
+ g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">100P以上確定・高額報酬のチャンス</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
  g.onclick=()=>{if(goldenTickets>0)location.href="./golden-island.html";};box.appendChild(g);
 }
 async function loadWinHistory(){
