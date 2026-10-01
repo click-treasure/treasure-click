@@ -1744,35 +1744,7 @@ section.ad ins{
 .ct-nickname-error{min-height:22px;margin-top:7px;color:#c62828;font-size:13px}
 .ct-nickname-save{width:100%;border:0;border-radius:12px;padding:12px 16px;background:#10243b;color:#fff;font-weight:800;cursor:pointer}
 
-/* V88-81 — independent history sibling; exchange markup untouched */
-.ct-history-card-v8881{
-  float:right;
-  width:calc(50% - 22px);
-  min-height:70px;
-  margin-top:-70px;
-  margin-right:15px;
-  margin-bottom:18px;
-  padding:14px 18px;
-  box-sizing:border-box;
-  display:flex;
-  align-items:center;
-  gap:13px;
-  background:rgba(255,255,255,.97);
-  border:1px solid rgba(18,33,54,.08);
-  border-radius:18px;
-  box-shadow:0 8px 24px rgba(18,33,54,.08);
-  cursor:pointer;
-  position:relative;
-  z-index:2;
-}
-.ct-history-card-v8881::after{content:"";display:block;clear:both}
-.ct-history-icon-v8881{font-size:24px;flex:none}
-.ct-history-text-v8881{display:flex;flex-direction:column;gap:3px;min-width:0}
-.ct-history-text-v8881 strong{font-size:16px;color:#111;white-space:nowrap}
-.ct-history-text-v8881 small{font-size:11px;color:#7d8794;white-space:nowrap}
-.ct-history-arrow-v8881{margin-left:auto;font-size:28px;color:#8090a0}
-@media(max-width:820px){
- .ct-history-card-v8881{
-   float:none;width:calc(100% - 30px);margin:10px 15px 18px;
- }
-}
+
+/* V88-82 — acquisition history uses the native home-menu grid */
+#historyMenu.is-open{box-shadow:0 0 0 2px rgba(116,87,255,.16);border-color:#cfc6ff}
+#historyMenu.is-open .menu-arrow{transform:rotate(180deg)}

@@ -1517,15 +1517,26 @@ document.addEventListener("DOMContentLoaded",()=>{
   });
 });
 
-/* V88-81 — acquisition history button */
+
+/* V88-82 — acquisition history beside exchange */
 (()=>{
- const card=document.getElementById("ctHistoryCard"); if(!card)return;
- const open=()=>{
-   const existing=[...document.querySelectorAll("button,a,[role='button']")]
-     .find(el=>el!==card && /獲得履歴/.test(el.textContent||""));
-   if(existing){existing.click();return;}
-   alert("獲得履歴は現在準備中です。");
- };
- card.onclick=open;
- card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}};
+  const btn=document.getElementById("historyMenu");
+  const panel=document.getElementById("winHistoryPanel");
+  const redeemBtn=document.getElementById("redeemMenu");
+  const redeemPanel=document.getElementById("redeemPanel");
+  if(!btn||!panel)return;
+
+  btn.addEventListener("click",()=>{
+    const willOpen=panel.hidden;
+    panel.hidden=!willOpen;
+    btn.classList.toggle("is-open",willOpen);
+
+    if(willOpen){
+      if(redeemPanel) redeemPanel.hidden=true;
+      if(redeemBtn) redeemBtn.classList.remove("is-open");
+      const refresh=document.getElementById("refresh");
+      if(refresh) refresh.click();
+      panel.scrollIntoView({behavior:"smooth",block:"nearest"});
+    }
+  });
 })();
