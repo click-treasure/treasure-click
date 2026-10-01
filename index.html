@@ -69,17 +69,13 @@
 <section id="loginBonus" class="login-bonus-card"><div class="login-bonus-copy"><span>DAILY BONUS</span><b>🎁 ログインボーナス</b><small id="loginBonusText">今日のボーナスを確認中…</small></div><div class="login-bonus-side"><strong id="loginBonusReward">+—回</strong><button id="loginBonusClaim" type="button" disabled>受け取る</button></div><div class="login-streak" id="loginStreak"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div></section>
 <section id="dailyMissions" class="daily-missions-card"><div class="daily-missions-head"><div><span>DAILY MISSIONS</span><b>🎯 デイリーミッション</b><small>毎日0:00にリセット</small></div><strong id="dailyMissionSummary">0 / 3</strong></div><div id="dailyMissionList" class="daily-mission-list"><small>ミッションを読み込み中…</small></div><div class="daily-all-clear"><div><b>⭐ 全達成ボーナス</b><small>3つクリアで +5回</small></div><button id="dailyAllClaim" type="button" disabled>未達成</button></div></section>
 <section id="pointOffers" class="point-offers"><div class="section-title"><div><span>EARN</span><h2>ポイント案件</h2></div><p>条件達成でポイントGET</p></div><div class="offer-tabs" role="tablist" aria-label="ポイント案件カテゴリ"><button type="button" class="offer-tab active" data-offer-filter="all">おすすめ</button><button type="button" class="offer-tab" data-offer-filter="game">🎮 ゲーム</button><button type="button" class="offer-tab" data-offer-filter="register">✍️ 無料登録</button><button type="button" class="offer-tab" data-offer-filter="service">📱 サービス</button></div><div class="offer-list"><article class="offer-card" data-offer-category="game"><div class="offer-icon">🎮</div><div class="offer-copy"><div class="offer-meta"><span>ゲーム</span><em>準備中</em></div><b>ゲームを遊んでポイント</b><small>インストール後の条件達成などでポイントを獲得</small></div><strong>COMING<br>SOON</strong></article><article class="offer-card" data-offer-category="register"><div class="offer-icon">✍️</div><div class="offer-copy"><div class="offer-meta"><span>無料登録</span><em>準備中</em></div><b>無料登録でポイント</b><small>会員登録・無料体験などの案件を掲載予定</small></div><strong>COMING<br>SOON</strong></article><article class="offer-card" data-offer-category="service"><div class="offer-icon">📱</div><div class="offer-copy"><div class="offer-meta"><span>サービス</span><em>準備中</em></div><b>サービス利用でポイント</b><small>条件と獲得ポイントを確認して参加できます</small></div><strong>COMING<br>SOON</strong></article></div><div class="offer-note"><span>ℹ️</span><p><b>ポイント案件は現在準備中です</b><small>提携サービスの準備ができ次第、順次公開します。</small></p></div></section>
-<section class="home-menu"><button id="redeemMenu" class="menu-card menu-card-button" type="button"><span>💴</span><div class="ct-exchange-history-row-v8880">
-<div><b>交換</b><small>1,000P → PayPay 100円分</small></div>
-<div class="ct-history-card-v8880" id="ctHistoryCard" role="button" tabindex="0" aria-label="獲得履歴を開く">
-  <span class="ct-history-icon-v8880">📜</span>
-  <span class="ct-history-text-v8880">
-    <strong>獲得履歴</strong>
-    <small>これまで獲得したポイントを確認</small>
-  </span>
-  <span class="ct-history-arrow-v8880">›</span>
+<section class="home-menu"><button id="redeemMenu" class="menu-card menu-card-button" type="button"><span>💴</span><div><b>交換</b><small>1,000P → PayPay 100円分</small></div>
+<div class="ct-history-card-v8881" id="ctHistoryCard" role="button" tabindex="0" aria-label="獲得履歴を開く">
+  <span class="ct-history-icon-v8881">📜</span>
+  <span class="ct-history-text-v8881"><strong>獲得履歴</strong><small>これまで獲得したポイントを確認</small></span>
+  <span class="ct-history-arrow-v8881">›</span>
 </div>
-</div><i id="redeemMenuState">1,000P〜</i><i class="menu-arrow">▼</i></button></section>
+<i id="redeemMenuState">1,000P〜</i><i class="menu-arrow">▼</i></button></section>
 <section id="winHistoryPanel" class="compact-history-panel" hidden><div class="historyHead"><b>🎁 当選履歴</b><button id="refresh" type="button">更新</button></div><div id="history">まだ当選履歴はありません</div></section>
 <section id="redeemPanel" class="compact-history-panel" hidden><div class="compact-redeem-top"><div><b>💴 交換</b><small>1,000PでPayPay 100円分に交換できます</small></div><button id="compactRedeemBtn" type="button" class="compact-redeem-btn">交換申請する</button></div><div class="historyHead redeem-history-title"><b>交換履歴</b><button id="redeemHistoryRefresh" type="button">更新</button></div><div id="redeemHistory" class="redeem-history redeem-history-home"><small>履歴を読み込み中…</small></div></section>
 </section>
@@ -108,7 +104,7 @@
 </div>
 <small id="adminRefillStatus">※上2つは管理者テスト用・実データに反映</small></div></div>
 <div id="redeemModal" class="redeem-modal" hidden><div class="redeem-dialog"><button id="redeemModalClose" class="redeem-x" type="button">×</button><span class="redeem-eyebrow">REDEEM</span><h2>1,000Pを交換</h2><p>1,000PをPayPay 100円分に交換します。受け取り先を入力してください。申請すると1,000Pが確保されます。</p><label>PayPay ID<input id="redeemDestination" type="text" maxlength="120" autocomplete="off" placeholder="例：あなたのPayPay ID"></label><small id="redeemNote">⚠ 入力したPayPay IDに100円分を送金します。IDに間違いがないか必ず確認してください。申請後は「処理待ち」になります。</small><button id="redeemSubmit" class="redeem-submit" type="button">1,000Pを交換する</button></div></div>
-<script src="app.js?v=88-80"></script>
+<script src="app.js?v=88-81"></script>
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   const input = document.getElementById("redeemDestination");
