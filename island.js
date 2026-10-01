@@ -1,3 +1,13 @@
+
+// V88-68 shared sound volume settings
+const CT_BGM_VOLUME_KEY="ct_bgm_volume";
+const CT_SE_VOLUME_KEY="ct_se_volume";
+function ctGetBgmVolume(){const v=Number(localStorage.getItem(CT_BGM_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
+function ctGetSeVolume(){const v=Number(localStorage.getItem(CT_SE_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctApplyMediaSeVolume(root=document){
+  root.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>{a.volume=ctGetSeVolume()});
+}
+
 // V88-32 HARD island complete
 const SUPABASE_URL="https://osawhwcddovhddrxgfju.supabase.co";
 const SUPABASE_KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
@@ -250,8 +260,8 @@ function unlockGameAudio(){const c=legacyCtx();if(c&&c.state==="suspended")c.res
 function legacyTone(freq,duration,type="sine",gain=.09,delay=0){const c=legacyCtx();if(!c)return;if(c.state==="suspended")c.resume().catch(()=>{});const o=c.createOscillator(),g=c.createGain(),t=c.currentTime+delay;o.type=type;o.frequency.value=freq;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(gain,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+duration+.03)}
 function soundDig(){const c=legacyCtx();if(!c)return;const n=Math.floor(c.sampleRate*.11),buf=c.createBuffer(1,n,c.sampleRate),d=buf.getChannelData(0);for(let i=0;i<n;i++)d[i]=(Math.random()*2-1)*(1-i/n);const s=c.createBufferSource(),f=c.createBiquadFilter(),g=c.createGain();f.type="lowpass";f.frequency.value=900;g.gain.value=.16;s.buffer=buf;s.connect(f);f.connect(g);g.connect(c.destination);s.start();legacyTone(135,.10,"triangle",.08,.01)}
 function soundMiss(){legacyTone(170,.12,"triangle",.07);legacyTone(120,.16,"triangle",.05,.08)}
-function playAudio(id,fallback){const a=$(id);if(!a)return fallback?.();try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>fallback?.())}catch(_){fallback?.()}}
-function v44Play500Sound(name,volume=1){try{const a=new Audio(`sounds/${name}?v=88-26`);a.volume=volume;const q=a.play();if(q&&q.catch)q.catch(()=>{})}catch(_){}}
+function playAudio(id,fallback){const a=$(id);if(!a)return fallback?.();try{a.pause();a.currentTime=0;a.volume=ctGetSeVolume();const q=a.play();if(q&&q.catch)q.catch(()=>fallback?.())}catch(_){fallback?.()}}
+function v44Play500Sound(name,volume=1){try{const a=new Audio(`sounds/${name}?v=88-26`);a.volume=volume*ctGetSeVolume();const q=a.play();if(q&&q.catch)q.catch(()=>{})}catch(_){}}
 function originalCelebrate10(){const fx=$("fx");if(!fx)return;for(let i=0;i<35;i++){const s=document.createElement("span");s.className="old-confetti";s.textContent=["✨","🎉","⭐"][i%3];s.style.left=Math.random()*100+"vw";s.style.animationDelay=Math.random()*.5+"s";s.style.fontSize=(16+Math.random()*25)+"px";fx.appendChild(s);setTimeout(()=>s.remove(),2500)}}
 function originalJackpot10(prize){const o=$("jackpotOverlay");if(!o)return;$("jackpotAmount").textContent=points(prize).toLocaleString("ja-JP");$("jackpotLabel").textContent=prize>=100?"💎 超大当たり！！ 💎":"🔥 大当たり！！ 🔥";$("jackpotBang").textContent=prize>=100?"！！！ JACKPOT ！！！":"！！！";o.classList.remove("show");void o.offsetWidth;o.classList.add("show");o.setAttribute("aria-hidden","false");if(prize>=100)playAudio("audio100old");else playAudio("audio10old");originalCelebrate10();setTimeout(()=>{o.classList.remove("show");o.setAttribute("aria-hidden","true")},2150)}
 function v41Jackpot500(){const root=$("v41Jackpot"),coins=$("v41Coins");if(!root)return;root.hidden=false;root.classList.remove("v42-cut","v42-dot","reveal","finish");void root.offsetWidth;setTimeout(()=>{v44Play500Sound("win_500_puchun.wav",.95);root.classList.add("v42-cut")},120);setTimeout(()=>root.classList.add("v42-dot"),1820);setTimeout(()=>{v44Play500Sound("win_500_jackpot.wav",1);root.classList.add("reveal");if(coins){coins.innerHTML="";for(let i=0;i<42;i++){const s=document.createElement("i");s.textContent=i%6===0?"◆":"●";s.style.setProperty("--x",(Math.random()*190-95)+"vw");s.style.setProperty("--d",(Math.random()*.65)+"s");s.style.setProperty("--r",(Math.random()*900-450)+"deg");coins.appendChild(s)}}},2420);setTimeout(()=>root.classList.add("finish"),5200);setTimeout(()=>{root.hidden=true;root.classList.remove("v42-cut","v42-dot","reveal","finish")},5750)}
@@ -487,14 +497,14 @@ function ctEnsureBgm(){
   ctBgm=new Audio(src);
   ctBgm.loop=true;
   ctBgm.preload="auto";
-  ctBgm.volume=CT_BGM_VOLUME;
+  ctBgm.volume=ctGetBgmVolume();
   return ctBgm;
 }
 function ctTryStartBgm(){
   ctBgmUnlocked=true;
   if(!ctBgmEnabled())return;
   const a=ctEnsureBgm();
-  a.volume=CT_BGM_VOLUME;
+  a.volume=ctGetBgmVolume();
   a.play().catch(()=>{});
 }
 function ctToggleBgm(e){
@@ -505,7 +515,7 @@ function ctToggleBgm(e){
   const a=ctEnsureBgm();
   if(next){
     ctBgmUnlocked=true;
-    a.volume=CT_BGM_VOLUME;
+    a.volume=ctGetBgmVolume();
     a.play().catch(()=>{});
   }else{
     a.pause();
@@ -531,7 +541,7 @@ function ctInstallBgmUi(){
   ctUpdateBgmButton();
   const a=ctEnsureBgm();
   if(ctBgmEnabled()){
-    a.volume=CT_BGM_VOLUME;
+    a.volume=ctGetBgmVolume();
     a.play().then(()=>{ ctBgmUnlocked=true; }).catch(()=>{});
   }
 }
@@ -549,3 +559,5 @@ document.addEventListener("visibilitychange",()=>{
   else if(ctBgmUnlocked&&ctBgmEnabled())ctBgm.play().catch(()=>{});
 });
 
+
+document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("ctBgmToggle");if(b)b.remove();ctApplyMediaSeVolume();});

@@ -1,3 +1,13 @@
+
+// V88-68 shared sound volume settings
+const CT_BGM_VOLUME_KEY="ct_bgm_volume";
+const CT_SE_VOLUME_KEY="ct_se_volume";
+function ctGetBgmVolume(){const v=Number(localStorage.getItem(CT_BGM_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
+function ctGetSeVolume(){const v=Number(localStorage.getItem(CT_SE_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctApplyMediaSeVolume(root=document){
+  root.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>{a.volume=ctGetSeVolume()});
+}
+
 // V88-40 Golden Island standalone runtime
 const URL='https://osawhwcddovhddrxgfju.supabase.co', KEY='sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f';
 let accessToken="", currentUser=null, goldenTickets=0, opening=false;
@@ -18,7 +28,7 @@ function playAudio(id){
   const a=$(id);
   if(!a)return;
   try{
-    a.pause();a.currentTime=0;a.volume=1;
+    a.pause();a.currentTime=0;a.volume=ctGetSeVolume();
     const q=a.play();
     if(q&&q.catch)q.catch(e=>console.warn("golden audio play failed",id,e));
   }catch(e){console.warn("golden audio error",id,e)}
@@ -191,14 +201,14 @@ function ctEnsureBgm(){
   ctBgm=new Audio("./assets/bgm/golden.mp3");
   ctBgm.loop=true;
   ctBgm.preload="auto";
-  ctBgm.volume=CT_BGM_VOLUME;
+  ctBgm.volume=ctGetBgmVolume();
   return ctBgm;
 }
 function ctTryStartBgm(){
   ctBgmUnlocked=true;
   if(!ctBgmEnabled())return;
   const a=ctEnsureBgm();
-  a.volume=CT_BGM_VOLUME;
+  a.volume=ctGetBgmVolume();
   a.play().catch(()=>{});
 }
 function ctToggleBgm(e){
@@ -209,7 +219,7 @@ function ctToggleBgm(e){
   const a=ctEnsureBgm();
   if(next){
     ctBgmUnlocked=true;
-    a.volume=CT_BGM_VOLUME;
+    a.volume=ctGetBgmVolume();
     a.play().catch(()=>{});
   }else a.pause();
 }
@@ -233,7 +243,7 @@ function ctInstallBgmUi(){
   ctUpdateBgmButton();
   const a=ctEnsureBgm();
   if(ctBgmEnabled()){
-    a.volume=CT_BGM_VOLUME;
+    a.volume=ctGetBgmVolume();
     a.play().then(()=>{ ctBgmUnlocked=true; }).catch(()=>{});
   }
 }
@@ -251,3 +261,5 @@ document.addEventListener("visibilitychange",()=>{
   else if(ctBgmUnlocked&&ctBgmEnabled())ctBgm.play().catch(()=>{});
 });
 
+
+document.addEventListener("DOMContentLoaded",()=>{const b=document.getElementById("ctBgmToggle");if(b)b.remove();ctApplyMediaSeVolume();});

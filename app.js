@@ -1,10 +1,20 @@
 
+// V88-68 shared sound volume settings
+const CT_BGM_VOLUME_KEY="ct_bgm_volume";
+const CT_SE_VOLUME_KEY="ct_se_volume";
+function ctGetBgmVolume(){const v=Number(localStorage.getItem(CT_BGM_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
+function ctGetSeVolume(){const v=Number(localStorage.getItem(CT_SE_VOLUME_KEY));return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctApplyMediaSeVolume(root=document){
+  root.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>{a.volume=ctGetSeVolume()});
+}
+
+
 
 // V44: dedicated 500-yen sound files.
 function v44Play500Sound(name,volume=1){
   try{
     const a=new Audio(`sounds/${name}?v=45soundfix`);
-    a.volume=volume;
+    a.volume=volume*ctGetSeVolume();
     const q=a.play(); if(q&&q.catch)q.catch(()=>{});
   }catch(_){}
 }
@@ -429,12 +439,12 @@ function soundMegaHit(){v36tone(330,.14,"square",.09,0);v36tone(523,.18,"triangl
 function playOriginal10Sound(){
  const a=document.getElementById("audio10old");
  if(!a)return;
- try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>soundBigHit())}catch(e){soundBigHit()}
+ try{a.pause();a.currentTime=0;a.volume=ctGetSeVolume();const q=a.play();if(q&&q.catch)q.catch(()=>soundBigHit())}catch(e){soundBigHit()}
 }
 function playOriginal100Sound(){
  const a=document.getElementById("audio100old");
  if(!a)return;
- try{a.pause();a.currentTime=0;a.volume=1;const q=a.play();if(q&&q.catch)q.catch(()=>soundMegaHit())}catch(e){soundMegaHit()}
+ try{a.pause();a.currentTime=0;a.volume=ctGetSeVolume();const q=a.play();if(q&&q.catch)q.catch(()=>soundMegaHit())}catch(e){soundMegaHit()}
 }
 function originalCelebrate10(){
  const fx=document.getElementById("fx");if(!fx)return;
@@ -1330,7 +1340,7 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
 // V88-66: Home BGM - 港町
 (() => {
   const CT_BGM_ENABLED_KEY="ct_bgm_enabled";
-  const CT_HOME_BGM_VOLUME=0.12;
+  const CT_HOME_BGM_VOLUME=0.12; // fallback only
   let bgm=null;
   let unlocked=false;
 
@@ -1342,7 +1352,7 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
     bgm=new Audio("./assets/bgm/home.mp3");
     bgm.loop=true;
     bgm.preload="auto";
-    bgm.volume=CT_HOME_BGM_VOLUME;
+    bgm.volume=ctGetBgmVolume();
     return bgm;
   }
   function updateButton(){
@@ -1353,7 +1363,7 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
     unlocked=true;
     if(!enabled()) return;
     const a=ensure();
-    a.volume=CT_HOME_BGM_VOLUME;
+    a.volume=ctGetBgmVolume();
     a.play().catch(()=>{});
   }
   function toggle(e){
@@ -1364,7 +1374,7 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
     const a=ensure();
     if(next){
       unlocked=true;
-      a.volume=CT_HOME_BGM_VOLUME;
+      a.volume=ctGetBgmVolume();
       a.play().catch(()=>{});
     }else{
       a.pause();
@@ -1389,7 +1399,7 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
     updateButton();
     const a=ensure();
     if(enabled()){
-      a.volume=CT_HOME_BGM_VOLUME;
+      a.volume=ctGetBgmVolume();
       a.play().then(()=>{unlocked=true;}).catch(()=>{});
     }
   }
@@ -1409,3 +1419,19 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
   });
 })();
 
+
+// V88-68 menu sound controls
+document.addEventListener("DOMContentLoaded",()=>{
+  const old=document.getElementById("ctBgmToggle"); if(old) old.remove();
+  const bg=document.getElementById("ctBgmVolume"), se=document.getElementById("ctSeVolume");
+  const bgv=document.getElementById("ctBgmVolumeValue"), sev=document.getElementById("ctSeVolumeValue");
+  if(bg){
+    bg.value=String(Math.round(ctGetBgmVolume()*100)); if(bgv)bgv.value=bg.value;
+    bg.addEventListener("input",()=>{localStorage.setItem(CT_BGM_VOLUME_KEY,bg.value);if(bgv)bgv.value=bg.value;if(typeof bgm!=="undefined"&&bgm)bgm.volume=ctGetBgmVolume();});
+  }
+  if(se){
+    se.value=String(Math.round(ctGetSeVolume()*100)); if(sev)sev.value=se.value;
+    se.addEventListener("input",()=>{localStorage.setItem(CT_SE_VOLUME_KEY,se.value);if(sev)sev.value=se.value;ctApplyMediaSeVolume();});
+  }
+  ctApplyMediaSeVolume();
+});
