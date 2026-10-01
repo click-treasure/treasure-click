@@ -1,12 +1,10 @@
 
-// V88-68 shared sound volume settings
+// V88-70 shared sound settings
 const CT_BGM_VOLUME_KEY="ct_bgm_volume";
 const CT_SE_VOLUME_KEY="ct_se_volume";
-function ctGetBgmVolume(){const raw=localStorage.getItem(CT_BGM_VOLUME_KEY);if(raw===null)return 0.15;const v=Number(raw);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:0.15}
-function ctGetSeVolume(){const raw=localStorage.getItem(CT_SE_VOLUME_KEY);if(raw===null)return 1;const v=Number(raw);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
-function ctApplyMediaSeVolume(root=document){
-  root.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>{a.volume=ctGetSeVolume()});
-}
+function ctGetBgmVolume(){const r=localStorage.getItem(CT_BGM_VOLUME_KEY);if(r===null)return .15;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:.15}
+function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===null)return 1;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=ctGetSeVolume())}
 
 // V88-40 Golden Island standalone runtime
 const URL='https://osawhwcddovhddrxgfju.supabase.co', KEY='sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f';
@@ -28,7 +26,7 @@ function playAudio(id){
   const a=$(id);
   if(!a)return;
   try{
-    a.pause();a.currentTime=0;a.volume=ctGetSeVolume();
+    a.pause();a.currentTime=0;a.volume=1;
     const q=a.play();
     if(q&&q.catch)q.catch(e=>console.warn("golden audio play failed",id,e));
   }catch(e){console.warn("golden audio error",id,e)}
