@@ -41,7 +41,12 @@
     <button type="button" data-v88-target="loginBonus"><i class="v88-gift"></i><span>ログボ</span></button>
     <button type="button" data-v88-target="dailyMissions"><i class="v88-check"></i><span>ミッション</span></button>
     <button type="button" data-v88-click="winHistoryMenu"><i class="v88-book"></i><span>獲得履歴</span></button>
-    <button id="v88MenuToggle" type="button" aria-expanded="false" aria-controls="v88HeaderMenu"><i class="v88-menuicon"></i><span>メニュー</span></button>
+    
+        <div class="header-nickname" id="headerNickname" title="現在のニックネーム">
+          <span class="header-nickname-label">👤 ニックネーム</span>
+          <strong class="header-nickname-value" id="headerNicknameValue">---</strong>
+        </div>
+<button id="v88MenuToggle" type="button" aria-expanded="false" aria-controls="v88HeaderMenu"><i class="v88-menuicon"></i><span>メニュー</span></button>
   </nav>
 </header>
 <div id="v88HeaderMenu" class="v88-header-menu" hidden>
@@ -49,28 +54,12 @@
     <button type="button" data-v88-target="islandSelect"><span>🏝️</span><b>島を選ぶ</b></button>
     <button type="button" data-v88-target="pointOffers"><span>🪙</span><b>ポイント大量GET！</b></button>
     <button type="button" data-v88-click="redeemMenu"><span>↻</span><b>交換</b></button>
-    <button id="nicknameMenuBtn" type="button"><span>🏴‍☠️</span><b>ニックネーム変更</b></button>
     <button type="button" data-v88-target="betaNotice"><span>🔔</span><b>お知らせ</b></button>
     <a href="howto.html"><span>📖</span><b>遊び方</b></a>
     <a href="terms.html"><span>📄</span><b>利用規約</b></a>
     <a href="contact.html"><span>✉️</span><b>お問い合わせ</b></a>
     <a href="operator.html"><span>⚙️</span><b>運営者情報</b></a>
   </div>
-</div>
-
-
-<div id="nicknameSettingsModal" class="nickname-settings-modal" hidden aria-hidden="true">
-  <div class="nickname-settings-backdrop" data-nickname-close></div>
-  <section class="nickname-settings-card" role="dialog" aria-modal="true" aria-labelledby="nicknameSettingsTitle">
-    <small>PLAYER NAME</small>
-    <h2 id="nicknameSettingsTitle">ニックネーム変更</h2>
-    <p>オンライン争奪戦で他のプレイヤーに表示される名前です。</p>
-    <form id="nicknameSettingsForm">
-      <input id="nicknameSettingsInput" type="text" minlength="2" maxlength="12" autocomplete="off" placeholder="2〜12文字">
-      <div id="nicknameSettingsError" class="nickname-settings-error" aria-live="polite"></div>
-      <div class="nickname-settings-actions"><button type="button" data-nickname-close>キャンセル</button><button type="submit">変更する</button></div>
-    </form>
-  </section>
 </div>
 
 <div class="v88-page-shell">
@@ -82,7 +71,7 @@
 <section id="loginBonus" class="login-bonus-card"><div class="login-bonus-copy"><span>DAILY BONUS</span><b>🎁 ログインボーナス</b><small id="loginBonusText">今日のボーナスを確認中…</small></div><div class="login-bonus-side"><strong id="loginBonusReward">+—回</strong><button id="loginBonusClaim" type="button" disabled>受け取る</button></div><div class="login-streak" id="loginStreak"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i><i>6</i><i>7</i></div></section>
 <section id="dailyMissions" class="daily-missions-card"><div class="daily-missions-head"><div><span>DAILY MISSIONS</span><b>🎯 デイリーミッション</b><small>毎日0:00にリセット</small></div><strong id="dailyMissionSummary">0 / 3</strong></div><div id="dailyMissionList" class="daily-mission-list"><small>ミッションを読み込み中…</small></div><div class="daily-all-clear"><div><b>⭐ 全達成ボーナス</b><small>3つクリアで +5回</small></div><button id="dailyAllClaim" type="button" disabled>未達成</button></div></section>
 <section id="pointOffers" class="point-offers"><div class="section-title"><div><span>EARN</span><h2>ポイント案件</h2></div><p>条件達成でポイントGET</p></div><div class="offer-tabs" role="tablist" aria-label="ポイント案件カテゴリ"><button type="button" class="offer-tab active" data-offer-filter="all">おすすめ</button><button type="button" class="offer-tab" data-offer-filter="game">🎮 ゲーム</button><button type="button" class="offer-tab" data-offer-filter="register">✍️ 無料登録</button><button type="button" class="offer-tab" data-offer-filter="service">📱 サービス</button></div><div class="offer-list"><article class="offer-card" data-offer-category="game"><div class="offer-icon">🎮</div><div class="offer-copy"><div class="offer-meta"><span>ゲーム</span><em>準備中</em></div><b>ゲームを遊んでポイント</b><small>インストール後の条件達成などでポイントを獲得</small></div><strong>COMING<br>SOON</strong></article><article class="offer-card" data-offer-category="register"><div class="offer-icon">✍️</div><div class="offer-copy"><div class="offer-meta"><span>無料登録</span><em>準備中</em></div><b>無料登録でポイント</b><small>会員登録・無料体験などの案件を掲載予定</small></div><strong>COMING<br>SOON</strong></article><article class="offer-card" data-offer-category="service"><div class="offer-icon">📱</div><div class="offer-copy"><div class="offer-meta"><span>サービス</span><em>準備中</em></div><b>サービス利用でポイント</b><small>条件と獲得ポイントを確認して参加できます</small></div><strong>COMING<br>SOON</strong></article></div><div class="offer-note"><span>ℹ️</span><p><b>ポイント案件は現在準備中です</b><small>提携サービスの準備ができ次第、順次公開します。</small></p></div></section>
-<section class="home-menu"><button id="winHistoryMenu" class="menu-card menu-card-button" type="button"><span>🎁</span><div><b>獲得履歴</b><small>これまでに見つけたポイント</small></div><i class="menu-arrow">▼</i></button><button id="redeemMenu" class="menu-card menu-card-button" type="button"><span>💴</span><div><b>交換</b><small>1,000P → PayPay 100円分</small></div><i id="redeemMenuState">1,000P〜</i><i class="menu-arrow">▼</i></button></section>
+<section class="home-menu"><button id="redeemMenu" class="menu-card menu-card-button" type="button"><span>💴</span><div><b>交換</b><small>1,000P → PayPay 100円分</small></div><i id="redeemMenuState">1,000P〜</i><i class="menu-arrow">▼</i></button></section>
 <section id="winHistoryPanel" class="compact-history-panel" hidden><div class="historyHead"><b>🎁 当選履歴</b><button id="refresh" type="button">更新</button></div><div id="history">まだ当選履歴はありません</div></section>
 <section id="redeemPanel" class="compact-history-panel" hidden><div class="compact-redeem-top"><div><b>💴 交換</b><small>1,000PでPayPay 100円分に交換できます</small></div><button id="compactRedeemBtn" type="button" class="compact-redeem-btn">交換申請する</button></div><div class="historyHead redeem-history-title"><b>交換履歴</b><button id="redeemHistoryRefresh" type="button">更新</button></div><div id="redeemHistory" class="redeem-history redeem-history-home"><small>履歴を読み込み中…</small></div></section>
 </section>

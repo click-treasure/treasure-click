@@ -580,7 +580,7 @@ function parseOAuthSession(){
 }
 
 function hasGoogleIdentity(u){
-  if(!u || u.is_anonymous === true) return false;
+  if(!u) return false;
   if(Array.isArray(u.identities) && u.identities.some(x => x.provider === "google")) return true;
   const providers = u.app_metadata && u.app_metadata.providers;
   return Array.isArray(providers) && providers.includes("google");
@@ -589,18 +589,9 @@ function hasGoogleIdentity(u){
 function updateAccountUI(){
   const state = document.getElementById("accountState");
   const btn = document.getElementById("googleLoginBtn");
-  const nicknameBtn = document.getElementById("nicknameMenuBtn");
-  const nicknameModal = document.getElementById("nicknameSettingsModal");
   if(!state || !btn) return;
 
-  const googleUser = hasGoogleIdentity(user);
-  if(nicknameBtn) nicknameBtn.hidden = !googleUser;
-  if(!googleUser && nicknameModal){
-    nicknameModal.hidden = true;
-    nicknameModal.setAttribute("aria-hidden","true");
-  }
-
-  if(googleUser){
+  if(hasGoogleIdentity(user)){
     state.textContent = user.email ? `Google連携済み ✓：${user.email}` : "Google連携済み ✓";
     btn.textContent = "ログアウト";
     btn.disabled = false;
@@ -1189,31 +1180,42 @@ window.addEventListener("DOMContentLoaded", async ()=>{
 });
 
 
-// V88-48c — nickname settings from the home menu
-(function(){
-  const btn=document.getElementById("nicknameMenuBtn"), modal=document.getElementById("nicknameSettingsModal");
-  const form=document.getElementById("nicknameSettingsForm"), input=document.getElementById("nicknameSettingsInput"), err=document.getElementById("nicknameSettingsError");
-  if(!btn||!modal||!form||!input)return;
-  const close=()=>{modal.hidden=true;modal.setAttribute("aria-hidden","true");};
-  async function open(){
-    if(!hasGoogleIdentity(user)){close();return;}
-    err.textContent=""; input.value="";
-    try{const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");input.value=String(rows?.[0]?.nickname||"");}catch(_){}
-    modal.hidden=false;modal.setAttribute("aria-hidden","false");setTimeout(()=>input.focus(),50);
+// V88-49: header nickname display
+async function refreshHeaderNicknameV8849() {
+  const el = document.getElementById("headerNicknameValue");
+  if (!el || typeof supabase === "undefined") return;
+  try {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) { el.textContent = "ゲスト"; return; }
+
+    const isAnonymous =
+      user.is_anonymous === true ||
+      user.app_metadata?.provider === "anonymous" ||
+      (Array.isArray(user.identities) && user.identities.length === 0);
+
+    if (isAnonymous) {
+      const suffix = String(user.id || "0000").replace(/-/g, "").slice(-4).toUpperCase();
+      el.textContent = `ゲスト-${suffix}`;
+      return;
+    }
+
+    const { data } = await supabase
+      .from("player_profiles")
+      .select("nickname")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    el.textContent = data?.nickname?.trim() || "未設定";
+  } catch (e) {
+    console.warn("header nickname:", e);
+    el.textContent = "---";
   }
-  btn.addEventListener("click",open);
-  modal.querySelectorAll("[data-nickname-close]").forEach(x=>x.addEventListener("click",close));
-  form.addEventListener("submit",async e=>{
-    e.preventDefault();
-    if(!hasGoogleIdentity(user)){close();return;}
-    const clean=String(input.value||"").trim(); err.textContent="";
-    if(clean.length<2||clean.length>12){err.textContent="2〜12文字で入力してください";return;}
-    if(/[<>]/.test(clean)){err.textContent="< と > は使用できません";return;}
-    const submit=form.querySelector('button[type="submit"]'); submit.disabled=true;
-    try{
-      await req("/rest/v1/player_profiles?on_conflict=user_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
-      close(); alert("ニックネームを「"+clean+"」に変更しました");
-    }catch(ex){err.textContent=ex?.message||String(ex);}
-    finally{submit.disabled=false;}
-  });
-})();
+}
+
+window.addEventListener("load", refreshHeaderNicknameV8849);
+document.addEventListener("click", (e) => {
+  if (e.target && (e.target.id === "nicknameSaveBtn" || e.target.closest?.("#nicknameSaveBtn"))) {
+    setTimeout(refreshHeaderNicknameV8849, 400);
+  }
+});
+

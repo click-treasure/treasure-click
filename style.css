@@ -1558,10 +1558,37 @@ section.ad ins{
   100%{transform:scale(1);filter:brightness(1) drop-shadow(0 4px 4px rgba(45,76,115,.28))}
 }
 
-
-/* V88-48b nickname settings */
-.nickname-settings-modal[hidden]{display:none!important}.nickname-settings-modal{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;padding:20px}.nickname-settings-backdrop{position:absolute;inset:0;background:rgba(8,20,34,.62);backdrop-filter:blur(4px)}.nickname-settings-card{position:relative;width:min(440px,100%);background:#fff;border-radius:24px;padding:26px;box-shadow:0 24px 70px rgba(0,0,0,.25)}.nickname-settings-card small{font-weight:900;letter-spacing:.14em;color:#0a9b78}.nickname-settings-card h2{margin:6px 0 8px}.nickname-settings-card p{margin:0 0 16px;color:#667085}.nickname-settings-card input{box-sizing:border-box;width:100%;min-height:48px;border:1px solid #ccd5df;border-radius:12px;padding:0 14px;font-size:16px}.nickname-settings-error{min-height:22px;padding-top:6px;color:#d92d20;font-size:13px}.nickname-settings-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:8px}.nickname-settings-actions button{min-height:44px;border:0;border-radius:12px;padding:0 18px;font-weight:800;cursor:pointer}.nickname-settings-actions button[type=submit]{background:#0a9b78;color:#fff}.nickname-settings-actions button[type=button]{background:#eef2f6;color:#344054}
-
-/* V88-48e guest nickname visibility hardening */
-.nickname-settings-modal[hidden]{display:none!important;}
-#nicknameMenuBtn[hidden]{display:none!important;}
+/* V88-49 header nickname */
+.header-nickname{
+  min-width:118px;
+  min-height:64px;
+  padding:10px 14px;
+  border:1px solid rgba(25,82,120,.12);
+  border-radius:18px;
+  background:rgba(255,255,255,.92);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+  box-sizing:border-box;
+}
+.header-nickname-label{
+  font-size:11px;
+  font-weight:700;
+  color:#65758b;
+  white-space:nowrap;
+}
+.header-nickname-value{
+  max-width:140px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:15px;
+  color:#10233d;
+}
+@media (max-width:700px){
+  .header-nickname{min-width:92px;padding:8px 10px}
+  .header-nickname-label{font-size:10px}
+  .header-nickname-value{max-width:100px;font-size:13px}
+}
