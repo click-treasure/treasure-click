@@ -150,6 +150,7 @@ async function dig(button){
     const x=Array.isArray(d)?d[0]:d;
     if(!x) throw new Error("empty result");
     const pp=Number(x.prize_points||0);
+    ctAnalytics?.event("golden_island_play",{prize_points:pp});
     button.classList.add("opened-gold");
     button.innerHTML=`<img src="./assets/golden-chest-open-v88.webp" alt=""><strong>${pp.toLocaleString("ja-JP")}P</strong>`;
     $("goldenMessage").textContent=`🎉 ${pp.toLocaleString("ja-JP")}P GET！`;
@@ -169,6 +170,7 @@ async function boot(){
     $("goldenMessage").textContent="ログイン情報を確認中…";
     await restoreAuth();
     await loadTickets();
+    ctAnalytics?.event("golden_island_enter",{tickets:goldenTickets});
     renderMap(); message();
   }catch(e){
     console.error("golden boot",e);

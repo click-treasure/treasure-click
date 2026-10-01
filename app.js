@@ -167,7 +167,7 @@ async function claimLoginBonus(){
  try{
   const d=await req("/rest/v1/rpc/claim_daily_login_bonus",{method:"POST",body:"{}"});
   const x=Array.isArray(d)?d[0]:d;if(!x)return;
-  if(x.success){soundLoginBonus();}
+  if(x.success){soundLoginBonus();ctAnalytics?.event("login_bonus_claim",{reward_taps:Number(x.reward||0)});}
   await loadLoginBonus();
   if(x.success){animateLoginBonusGain(Number(x.reward||0));}
   $("message").textContent=x.success?`🎁 ログインボーナス +${x.reward}回GET！`:"今日のログインボーナスは受け取り済み";
@@ -206,7 +206,7 @@ function paintDailyMissions(){
 async function claimDailyMission(id){
  try{
   const d=await req("/rest/v1/rpc/claim_daily_mission",{method:"POST",body:JSON.stringify({p_mission:id})});const x=Array.isArray(d)?d[0]:d;
-  if(x?.success){soundLoginBonus();animateLoginBonusGain(Number(x.reward||0));await Promise.all([status(),loadLoginBonus(),loadDailyMissions()]);$("message").textContent=`🎯 ミッション報酬 +${x.reward}回GET！`;}
+  if(x?.success){soundLoginBonus();ctAnalytics?.event("mission_claim",{mission_id:id,reward_taps:Number(x.reward||0)});animateLoginBonusGain(Number(x.reward||0));await Promise.all([status(),loadLoginBonus(),loadDailyMissions()]);$("message").textContent=`🎯 ミッション報酬 +${x.reward}回GET！`;}
   else await loadDailyMissions();
  }catch(e){fail(e);await loadDailyMissions()}
 }
@@ -316,12 +316,12 @@ function renderCards(){
   if(x.island_status==="finished"){b.disabled=true;b.classList.add("finished")}
   b.innerHTML=`<div class="island-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${m.name} <small>#${x.generation}</small></span><b>${x.total_cells}<small>マス</small></b><div class="island-ratings"><div><span>当たりやすさ</span><strong>${m.hit}</strong></div><div><span>高額報酬期待度</span><strong>${m.high}</strong></div></div><em class="status-badge">${x.island_status==="finished"?"探索終了":"残り "+x.remaining_cells+"マス"}</em><i class="island-cta">この島で遊ぶ <strong>›</strong></i>`;
   b.onclick=()=>{
-   window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}&v=88-32`;
+   ctAnalytics?.event("island_select",{difficulty:diff,generation:Number(x.generation||0)});window.location.href=`island.html?difficulty=${encodeURIComponent(diff)}&generation=${encodeURIComponent(x.generation)}&v=88-32`;
   };box.appendChild(b);
  });
  const g=document.createElement("button");g.id="goldenIslandCard";g.type="button";g.className="island-card golden "+(goldenTickets>0?"unlocked golden-unlocked":"locked golden-locked");
  g.innerHTML=`<div class="island-art golden-art" aria-hidden="true"><i></i><i></i><i></i></div><span class="island-level">${goldenTickets>0?"SECRET OPEN":"SECRET"} <small>${goldenTickets>0?"UNLOCKED":"LOCKED"}</small></span><b>黄金島</b><small class="island-desc">100P以上確定・高額報酬のチャンス</small><em id="goldenTicketBadge" class="status-badge">GOLDEN TICKET　${goldenTickets}枚</em><i class="island-cta">${goldenTickets>0?"黄金島へ行く":"チケットが必要です"} <strong>›</strong></i>`;
- g.onclick=()=>{if(goldenTickets>0)location.href="./golden-island.html";};box.appendChild(g);
+ g.onclick=()=>{if(goldenTickets>0){ctAnalytics?.event("golden_island_select",{tickets:goldenTickets});location.href="./golden-island.html";}};box.appendChild(g);
 }
 async function loadWinHistory(){
  const uid=encodeURIComponent(user.id);
@@ -1548,3 +1548,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     }
   });
 })();
+
+// Analytics v1 UI interactions
+document.getElementById("redeemBtn")?.addEventListener("click",()=>ctAnalytics?.event("exchange_open",{}));
+document.getElementById("menuToggle")?.addEventListener("click",()=>ctAnalytics?.event("menu_open",{}));

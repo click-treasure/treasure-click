@@ -30,6 +30,7 @@ const THEMES={
   hard:{label:"HARD島",subtitle:"灼熱の溶岩に囲まれた魔城",hit:"🎯 当たりやすさ ★☆☆",reward:"💎 当たり報酬 ★★★",chest:"./assets/hard-chest-closed-v88.webp",open:"./assets/hard-chest-open-v88.webp",rewards:"🪙 10P　🪙 100P　🌟 1,000P　🔥 5,000P"}
 };
 const theme=THEMES[difficulty]||THEMES.easy;
+ctAnalytics?.event("island_enter",{difficulty,generation:wantedGeneration});
 
 function points(n){return Number(n||0)*POINTS_PER_YEN}
 function pointText(n){return points(n).toLocaleString("ja-JP")+"P"}
@@ -338,6 +339,9 @@ async function dig(cellIndex,button){
     legacyPrizeEffect(button,prize);
     postBattleEvent(cellIndex,prize);
     const gotTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
+    ctAnalytics?.event("treasure_open",{difficulty,generation:Number(island?.generation||wantedGeneration||0),result:String(x.result||"unknown"),hit:prize>0?"yes":"no",prize_points:points(prize),golden_ticket:gotTicket?"yes":"no"});
+    if(prize>0)ctAnalytics?.event("treasure_win",{difficulty,prize_points:points(prize)});
+    if(gotTicket)ctAnalytics?.event("golden_ticket_get",{difficulty});
 
     if(x.new_balance!=null)$("wallet").textContent=pointText(x.new_balance);
     if(gotTicket){setMessage("🎫 黄金島の採掘権を発見！");showTicket()}
