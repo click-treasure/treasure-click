@@ -168,17 +168,59 @@ async function saveNickname(name){
   await req("/rest/v1/player_profiles?on_conflict=user_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
   playerNickname=clean;closeNicknameModal();
 }
+let battleFeedErrorShown=false;
 async function loadBattleEvents(){
-  if(!island)return;
+  if(!island?.island_id)return;
   try{
-    const rows=await req("/rest/v1/battle_events?island_id=eq."+encodeURIComponent(island.island_id)+"&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=4");
-    battleEvents=(rows||[]).map(r=>({nickname:r.nickname||"冒険者",cell:r.cell_index,time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})}));
+    const path="/rest/v1/battle_events?island_id=eq."+encodeURIComponent(String(island.island_id))+
+      "&select=user_id,nickname,cell_index,created_at&order=created_at.desc&limit=4";
+    const rows=await req(path);
+    battleEvents=(Array.isArray(rows)?rows:[]).map(r=>({
+      nickname:String(r.nickname||"冒険者"),
+      cell:Number(r.cell_index),
+      time:new Date(r.created_at).toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+    }));
+    battleFeedErrorShown=false;
     renderBattleFeed();
-  }catch(e){console.warn("battle feed:",e)}
+  }catch(e){
+    console.error("battle feed load failed:",e);
+    if(!battleFeedErrorShown){
+      battleFeedErrorShown=true;
+      const feed=$("battleFeed");
+      if(feed)feed.innerHTML='<span>⚠️ 争奪戦ログを再接続中…</span>';
+    }
+    throw e;
+  }
 }
 async function postBattleEvent(cellIndex,prize){
-  if(!user?.id||!playerNickname||!island)return;
-  try{await req("/rest/v1/battle_events",{method:"POST",headers:{Prefer:"return=minimal"},body:JSON.stringify({user_id:user.id,island_id:island.island_id,nickname:playerNickname,cell_index:Number(cellIndex),prize:Number(prize||0)})});await loadBattleEvents()}catch(e){console.warn("battle event:",e)}
+  if(!user?.id||!island?.island_id)return false;
+  const nickname=String(playerNickname||guestNickname()||"冒険者").trim();
+  const localEvent={
+    nickname,
+    cell:Number(cellIndex),
+    time:new Date().toLocaleTimeString("ja-JP",{hour:"2-digit",minute:"2-digit",second:"2-digit"})
+  };
+  // 成功した発掘は即座に画面へ出す。DB同期後にサーバー順へ置き換える。
+  battleEvents=[localEvent,...battleEvents.filter(e=>!(e.cell===localEvent.cell&&e.nickname===localEvent.nickname))].slice(0,4);
+  renderBattleFeed();
+  try{
+    await req("/rest/v1/battle_events",{
+      method:"POST",
+      headers:{Prefer:"return=minimal"},
+      body:JSON.stringify({
+        user_id:user.id,
+        island_id:island.island_id,
+        nickname,
+        cell_index:Number(cellIndex),
+        prize:Number(prize||0)
+      })
+    });
+    await loadBattleEvents();
+    return true;
+  }catch(e){
+    console.error("battle event post failed:",e);
+    return false;
+  }
 }
 function flashRivalCells(indices){
   indices.forEach(i=>{
@@ -320,7 +362,7 @@ async function dig(cellIndex,button){
     playOpenTransition(button);
     const prize=Number(x.prize||0);
     legacyPrizeEffect(button,prize);
-    postBattleEvent(cellIndex,prize);
+    await postBattleEvent(cellIndex,prize);
     const gotTicket=x.result==="golden_ticket"||x.result==="island_finished_ticket";
 
     if(x.new_balance!=null)$("wallet").textContent=pointText(x.new_balance);
@@ -352,7 +394,10 @@ async function boot(){
     await Promise.all([loadNickname(),loadBattleEvents()]);
     startCountdown();
     clearInterval(pollTimer);
-    pollTimer=setInterval(()=>Promise.all([loadCells(true),loadBattleEvents()]).catch(console.error),1000);
+    pollTimer=setInterval(()=>{
+      loadCells(true).catch(console.error);
+      loadBattleEvents().catch(()=>{});
+    },1000);
   }catch(e){showError(e);setMessage("島を読み込めませんでした")}
 }
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)Promise.all([loadStatus(),loadCells(true)]).catch(console.error)});
