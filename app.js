@@ -3,8 +3,8 @@
 const CT_BGM_VOLUME_KEY="ct_bgm_volume";
 const CT_SE_VOLUME_KEY="ct_se_volume";
 function ctGetBgmVolume(){const r=localStorage.getItem(CT_BGM_VOLUME_KEY);if(r===null)return .15;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:.15}
-function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===null)return 1;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100*1.5:1.5}
-function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=Math.min(1,ctGetSeVolume()))}
+function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===null)return 1;const v=Number(r);return Number.isFinite(v)?Math.max(0,Math.min(100,v))/100:1}
+function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=ctGetSeVolume())}
 
 
 
@@ -12,7 +12,7 @@ function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bg
 function v44Play500Sound(name,volume=1){
   try{
     const a=new Audio(`sounds/${name}?v=45soundfix`);
-    a.volume=Math.min(1,volume*ctGetSeVolume());
+    a.volume=volume*ctGetSeVolume();
     const q=a.play(); if(q&&q.catch)q.catch(()=>{});
   }catch(_){}
 }
@@ -1410,15 +1410,6 @@ window.addEventListener("load",()=>setTimeout(refreshHeaderNicknameV8852,1500));
   document.addEventListener("click",start,{once:true,capture:true});
   document.addEventListener("keydown",start,{once:true,capture:true});
 
-  window.addEventListener("ct:bgm-volume",(e)=>{
-    const a=ensure();
-    const v=Math.max(0,Math.min(1,Number(e.detail)));
-    a.volume=v;
-    if(v<=0){ a.pause(); return; }
-    unlocked=true;
-    a.play().catch(()=>{});
-  });
-
   document.addEventListener("visibilitychange",()=>{
     if(!bgm) return;
     if(document.hidden) bgm.pause();
@@ -1451,7 +1442,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     const bv=panel.querySelector("#ctBgmVolumeValue"),sv=panel.querySelector("#ctSeVolumeValue");
     bg.value=String(Math.round(ctGetBgmVolume()*100));bv.value=bg.value;
     se.value=String(Math.round(ctGetSeVolume()*100));sv.value=se.value;
-    bg.addEventListener("input",()=>{localStorage.setItem(CT_BGM_VOLUME_KEY,bg.value);bv.value=bg.value;window.dispatchEvent(new CustomEvent("ct:bgm-volume",{detail:ctGetBgmVolume()}));});
+    bg.addEventListener("input",()=>{localStorage.setItem(CT_BGM_VOLUME_KEY,bg.value);bv.value=bg.value;if(typeof bgm!=="undefined"&&bgm)bgm.volume=ctGetBgmVolume();});
     se.addEventListener("input",()=>{localStorage.setItem(CT_SE_VOLUME_KEY,se.value);sv.value=se.value;ctApplyMediaSeVolume();});
     return panel;
   };
@@ -1468,7 +1459,7 @@ document.addEventListener("DOMContentLoaded",()=>{
 
 // V88-71: one-time defaults + live preview
 document.addEventListener("DOMContentLoaded",()=>{
-  const MIGRATION_KEY="ct_sound_defaults_v8872";
+  const MIGRATION_KEY="ct_sound_defaults_v8871";
   if(localStorage.getItem(MIGRATION_KEY)!=="1"){
     localStorage.setItem(CT_BGM_VOLUME_KEY,"15");
     localStorage.setItem(CT_SE_VOLUME_KEY,"100");
@@ -1486,7 +1477,7 @@ document.addEventListener("DOMContentLoaded",()=>{
     if(t && t.id==="ctBgmVolume"){
       localStorage.setItem(CT_BGM_VOLUME_KEY,t.value);
       const o=document.getElementById("ctBgmVolumeValue"); if(o)o.value=t.value;
-      window.dispatchEvent(new CustomEvent("ct:bgm-volume",{detail:ctGetBgmVolume()}));
+      try{ if(typeof bgm!=="undefined" && bgm){ bgm.volume=ctGetBgmVolume(); if(bgm.paused && ctGetBgmVolume()>0) bgm.play().catch(()=>{}); } }catch(_){}
     }
     if(t && t.id==="ctSeVolume"){
       localStorage.setItem(CT_SE_VOLUME_KEY,t.value);
@@ -1504,7 +1495,7 @@ document.addEventListener("DOMContentLoaded",()=>{
           const o=c.createOscillator(),g=c.createGain();
           o.type="sine";o.frequency.value=660;
           const v=ctGetSeVolume();
-          g.gain.setValueAtTime(Math.max(.0001,v*.075),c.currentTime);
+          g.gain.setValueAtTime(Math.max(.0001,v*.09),c.currentTime);
           g.gain.exponentialRampToValueAtTime(.0001,c.currentTime+.07);
           o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.075);
         }catch(_){}
@@ -1525,3 +1516,60 @@ document.addEventListener("DOMContentLoaded",()=>{
     },0);
   });
 });
+
+
+/* V88-76 — home acquisition history card (kept out of menu) */
+(()=>{
+  const card=document.getElementById("ctHistoryCard");
+  if(!card)return;
+
+  function clickExistingHistory(){
+    const candidates=[
+      "#historyBtn","#openHistoryBtn","#acquisitionHistoryBtn",
+      "[data-open-history]","[data-action='history']"
+    ];
+    for(const sel of candidates){
+      const el=document.querySelector(sel);
+      if(el && el!==card){ el.click(); return true; }
+    }
+    return false;
+  }
+
+  function openFallbackHistory(){
+    let modal=document.getElementById("ctHistoryFallback");
+    if(!modal){
+      modal=document.createElement("div");
+      modal.id="ctHistoryFallback";
+      modal.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(7,13,24,.58);display:flex;align-items:center;justify-content:center;padding:18px";
+      modal.innerHTML=`<div style="width:min(520px,100%);max-height:78vh;overflow:auto;background:#fff;border-radius:22px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.28)">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px"><b style="font-size:20px">📜 獲得履歴</b><button id="ctHistoryClose" style="margin-left:auto;border:0;background:#f0f2f5;border-radius:999px;width:36px;height:36px;font-size:20px;cursor:pointer">×</button></div>
+        <div id="ctHistoryFallbackBody" style="font-size:13px;color:#667085">履歴を読み込んでいます…</div>
+      </div>`;
+      document.body.appendChild(modal);
+      modal.querySelector("#ctHistoryClose").onclick=()=>modal.remove();
+      modal.addEventListener("click",e=>{if(e.target===modal)modal.remove()});
+    }
+    const body=modal.querySelector("#ctHistoryFallbackBody");
+    const keys=["acquisition_history","treasure_history","win_history","reward_history","history"];
+    let rows=[];
+    for(const k of keys){
+      try{
+        const v=JSON.parse(localStorage.getItem(k)||"null");
+        if(Array.isArray(v) && v.length){rows=v;break}
+      }catch(_){}
+    }
+    if(!rows.length){
+      body.innerHTML="まだ表示できる獲得履歴がありません。";
+      return;
+    }
+    body.innerHTML=rows.slice(0,50).map(x=>{
+      const amount=x.points??x.point??x.prize??x.amount??x.value??"";
+      const date=x.created_at??x.date??x.time??"";
+      return `<div style="padding:11px 4px;border-bottom:1px solid #eef0f3;display:flex;justify-content:space-between;gap:12px"><span>${date?new Date(date).toLocaleString("ja-JP"):"獲得"}</span><b>${amount!==""?amount+"P":""}</b></div>`;
+    }).join("");
+  }
+
+  function open(){ if(!clickExistingHistory()) openFallbackHistory(); }
+  card.addEventListener("click",open);
+  card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}});
+})();
