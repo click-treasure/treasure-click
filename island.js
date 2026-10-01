@@ -136,11 +136,27 @@ function renderBattleFeed(){
   if(!battleEvents.length){feed.innerHTML="<span>👀 他プレイヤーの発掘を監視中…</span>";return}
   feed.innerHTML=battleEvents.map(e=>`<span class="battle-event">⚡ ${escapeHtml(e.time)}　<b>${escapeHtml(e.nickname)}</b> が No.${Number(e.cell)} を発掘！</span>`).join("");
 }
+function hasGoogleIdentity(u){
+  if(!u)return false;
+  if(Array.isArray(u.identities)&&u.identities.some(x=>x.provider==="google"))return true;
+  const providers=u.app_metadata&&u.app_metadata.providers;
+  return Array.isArray(providers)&&providers.includes("google");
+}
+function guestNickname(){
+  const raw=String(user?.id||"guest").replace(/-/g,"");
+  return "ゲスト-"+raw.slice(-4).toUpperCase();
+}
 async function loadNickname(){
   if(!user?.id)return;
+  if(!hasGoogleIdentity(user)){
+    playerNickname=guestNickname();
+    closeNicknameModal();
+    return;
+  }
   const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");
   playerNickname=String(rows?.[0]?.nickname||"").trim();
   if(!playerNickname)showNicknameModal();
+  else closeNicknameModal();
 }
 function showNicknameModal(){const m=$("nicknameModal");if(!m)return;m.hidden=false;m.setAttribute("aria-hidden","false");setTimeout(()=>$("nicknameInput")?.focus(),80)}
 function closeNicknameModal(){const m=$("nicknameModal");if(!m)return;m.hidden=true;m.setAttribute("aria-hidden","true")}
@@ -148,7 +164,8 @@ async function saveNickname(name){
   const clean=String(name||"").trim();
   if(clean.length<2||clean.length>12)throw new Error("ニックネームは2〜12文字で入力してください");
   if(/[<>]/.test(clean))throw new Error("< と > は使用できません");
-  await req("/rest/v1/player_profiles",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
+  if(!hasGoogleIdentity(user))throw new Error("ゲストはニックネーム変更できません。Googleと連携してください");
+  await req("/rest/v1/player_profiles?on_conflict=user_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
   playerNickname=clean;closeNicknameModal();
 }
 async function loadBattleEvents(){

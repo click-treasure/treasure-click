@@ -1178,4 +1178,33 @@ window.addEventListener("DOMContentLoaded", async ()=>{
       :"🎫 黄金島チケットがありません";
   }catch(e){console.error("golden page bootstrap",e);}
 });
-\n\n// V88-48b — nickname settings from the home menu\n(function(){\n  const btn=document.getElementById("nicknameMenuBtn"), modal=document.getElementById("nicknameSettingsModal");\n  const form=document.getElementById("nicknameSettingsForm"), input=document.getElementById("nicknameSettingsInput"), err=document.getElementById("nicknameSettingsError");\n  if(!btn||!modal||!form||!input)return;\n  const close=()=>{modal.hidden=true;modal.setAttribute("aria-hidden","true");};\n  async function open(){\n    if(!user?.id){alert("Googleログイン後に設定できます");return;}\n    err.textContent=""; input.value="";\n    try{const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");input.value=String(rows?.[0]?.nickname||"");}catch(_){}\n    modal.hidden=false;modal.setAttribute("aria-hidden","false");setTimeout(()=>input.focus(),50);\n  }\n  btn.addEventListener("click",open);\n  modal.querySelectorAll("[data-nickname-close]").forEach(x=>x.addEventListener("click",close));\n  form.addEventListener("submit",async e=>{\n    e.preventDefault(); const clean=String(input.value||"").trim(); err.textContent="";\n    if(clean.length<2||clean.length>12){err.textContent="2〜12文字で入力してください";return;}\n    if(/[<>]/.test(clean)){err.textContent="< と > は使用できません";return;}\n    const submit=form.querySelector('button[type="submit"]'); submit.disabled=true;\n    try{await req("/rest/v1/player_profiles",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});close();alert("ニックネームを「"+clean+"」に変更しました");}\n    catch(ex){err.textContent=ex?.message||String(ex);}\n    finally{submit.disabled=false;}\n  });\n})();\n
+
+
+// V88-48c — nickname settings from the home menu
+(function(){
+  const btn=document.getElementById("nicknameMenuBtn"), modal=document.getElementById("nicknameSettingsModal");
+  const form=document.getElementById("nicknameSettingsForm"), input=document.getElementById("nicknameSettingsInput"), err=document.getElementById("nicknameSettingsError");
+  if(!btn||!modal||!form||!input)return;
+  const close=()=>{modal.hidden=true;modal.setAttribute("aria-hidden","true");};
+  async function open(){
+    if(!hasGoogleIdentity(user)){alert("ゲストは自動ニックネームで参加します。好きな名前に変更するにはGoogleと連携してください。");return;}
+    err.textContent=""; input.value="";
+    try{const rows=await req("/rest/v1/player_profiles?user_id=eq."+encodeURIComponent(user.id)+"&select=nickname&limit=1");input.value=String(rows?.[0]?.nickname||"");}catch(_){}
+    modal.hidden=false;modal.setAttribute("aria-hidden","false");setTimeout(()=>input.focus(),50);
+  }
+  btn.addEventListener("click",open);
+  modal.querySelectorAll("[data-nickname-close]").forEach(x=>x.addEventListener("click",close));
+  form.addEventListener("submit",async e=>{
+    e.preventDefault();
+    if(!hasGoogleIdentity(user)){err.textContent="Google連携後に変更できます";return;}
+    const clean=String(input.value||"").trim(); err.textContent="";
+    if(clean.length<2||clean.length>12){err.textContent="2〜12文字で入力してください";return;}
+    if(/[<>]/.test(clean)){err.textContent="< と > は使用できません";return;}
+    const submit=form.querySelector('button[type="submit"]'); submit.disabled=true;
+    try{
+      await req("/rest/v1/player_profiles?on_conflict=user_id",{method:"POST",headers:{Prefer:"resolution=merge-duplicates,return=representation"},body:JSON.stringify({user_id:user.id,nickname:clean})});
+      close(); alert("ニックネームを「"+clean+"」に変更しました");
+    }catch(ex){err.textContent=ex?.message||String(ex);}
+    finally{submit.disabled=false;}
+  });
+})();
