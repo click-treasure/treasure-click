@@ -93,7 +93,25 @@ const DUNGEON_ENEMIES = {
   dungeon_slime: {
     name: "ダンジョンスライム",
     maxHp: 50,
-    attack: 10
+    attack: 10,
+    type: "normal",
+    image: "assets/enemies/dungeon-slime.png"
+  },
+
+  dungeon_golem: {
+    name: "ダンジョンゴーレム",
+    maxHp: 250,
+    attack: 25,
+    type: "midboss",
+    image: "assets/enemies/dungeon-golem.png"
+  },
+
+  dungeon_dragon: {
+    name: "ダンジョンドラゴン",
+    maxHp: 600,
+    attack: 40,
+    type: "boss",
+    image: "assets/enemies/dungeon-dragon.png"
   }
 };
 
@@ -119,7 +137,13 @@ function renderEnemy(){
   enemyBox.innerHTML = `
     <div class="enemy-name">${enemy.name}</div>
 
-    <div class="enemy-icon">👾</div>
+    <div class="enemy-icon">
+      <img
+        src="${DUNGEON_ENEMIES[enemy.id]?.image || ""}"
+        alt="${enemy.name}"
+        class="dungeon-enemy-image enemy-${enemy.type}"
+      >
+    </div>
 
     <div class="enemy-hp-bar">
       <div
@@ -177,7 +201,7 @@ const marchState = {
   playerX: 100,
   speed: 1.5,
   cameraX: 0,
-  enemyX: 900,
+  enemyX: 750,
   kills: 0,
   battleStarted: false,
   running: true
@@ -232,7 +256,7 @@ function updateMarch(){
     marchState.playerX - viewportWidth * 0.4;
 
   const maxCamera =
-    Math.max(0, 3000 - viewportWidth);
+    Math.max(0, 5300 - viewportWidth);
 
   marchState.cameraX = Math.max(
     0,
@@ -269,26 +293,52 @@ function startAutoBattle(){
     // ===== Auto Skill =====
     autoSkillCounter += 1;
 
+    const characterId = dungeonState.player.id;
+    const skill = CHARACTER_SKILLS[characterId];
+
     if(
-      autoSkillCounter >= 5 &&
-      dungeonState.player.id === "slime"
+      skill &&
+      autoSkillCounter >= skill.cooldown
     ){
-      const skillDamage = 30;
-
-      enemy.hp = Math.max(
-        0,
-        enemy.hp - skillDamage
-      );
-
       autoSkillCounter = 0;
 
-      addBattleLog(
-        `💧 スライムがスキル「みずのちから」を発動！ ${skillDamage}ダメージ！`
-      );
+      if(skill.type === "damage"){
+        enemy.hp = Math.max(
+          0,
+          enemy.hp - skill.value
+        );
 
+        addBattleLog(
+          `✨ ${dungeonState.player.name}がスキル「${skill.name}」を発動！ ${skill.value}ダメージ！`
+        );
 
+        renderEnemy();
+      }
 
-      renderEnemy();
+      if(skill.type === "guard"){
+        dungeonState.player.guardReduction = skill.value;
+
+        addBattleLog(
+          `🪨 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 次のダメージを${skill.value}%軽減！`
+        );
+      }
+
+      if(skill.type === "heal"){
+        const oldHp = player.hp;
+
+        player.hp = Math.min(
+          player.maxHp,
+          player.hp + skill.value
+        );
+
+        const healed = player.hp - oldHp;
+
+        addBattleLog(
+          `🌿 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ HPが${healed}回復！`
+        );
+
+        renderDungeon();
+      }
     }
 
     enemy.hp = Math.max(
@@ -309,13 +359,35 @@ function startAutoBattle(){
       // 撃破数を加算
       marchState.kills += 1;
 
-      // 次の敵を600px先に出現
-      marchState.enemyX += 600;
+      // 次の敵を100m先へ
+      marchState.enemyX += 500;
 
-      // 次の敵を少し強くする
-      enemy.maxHp += 10;
-      enemy.attack += 2;
-      enemy.hp = enemy.maxHp;
+      // 次の敵の距離
+      const nextDistance =
+        Math.floor((marchState.enemyX - 250) / 5);
+
+      // 距離によって敵を決定
+      let nextEnemyId = "dungeon_slime";
+
+      if(nextDistance === 500){
+        nextEnemyId = "dungeon_golem";
+      }
+
+      if(nextDistance === 1000){
+        nextEnemyId = "dungeon_dragon";
+      }
+
+      const nextEnemy =
+        DUNGEON_ENEMIES[nextEnemyId];
+
+      dungeonState.enemy = {
+        id: nextEnemyId,
+        name: nextEnemy.name,
+        hp: nextEnemy.maxHp,
+        maxHp: nextEnemy.maxHp,
+        attack: nextEnemy.attack,
+        type: nextEnemy.type
+      };
 
       const enemyEl =
         document.getElementById("dungeonEnemy");
@@ -333,7 +405,20 @@ function startAutoBattle(){
       return;
     }
 
-    const enemyDamage = enemy.attack;
+    let enemyDamage = enemy.attack;
+
+    // ゴーレムのストーンガード
+    if(player.guardReduction > 0){
+      enemyDamage = Math.floor(
+        enemyDamage * (1 - player.guardReduction / 100)
+      );
+
+      addBattleLog(
+        `🪨 ストーンガード！ ダメージを${player.guardReduction}%軽減！`
+      );
+
+      player.guardReduction = 0;
+    }
 
     player.hp = Math.max(
       0,
@@ -434,3 +519,62 @@ function addBattleLog(text){
     .map(line => `<div class="battle-log-line">${line}</div>`)
     .join("");
 }
+// ===== Character Skills =====
+
+const CHARACTER_SKILLS = {
+  slime: {
+    name: "みずのちから",
+    cooldown: 5,
+    type: "damage",
+    value: 30
+  },
+
+  golem: {
+    name: "ストーンガード",
+    cooldown: 5,
+    type: "guard",
+    value: 50
+  },
+
+  fire_lizard: {
+    name: "フレイムブレス",
+    cooldown: 5,
+    type: "damage",
+    value: 50
+  },
+
+  forest_spirit: {
+    name: "いやしのかぜ",
+    cooldown: 5,
+    type: "heal",
+    value: 20
+  },
+
+  mimic: {
+    name: "デッドリーバイト",
+    cooldown: 5,
+    type: "damage",
+    value: 70
+  }
+};
+// ===== DEV Skill Tester =====
+
+document.querySelectorAll("[data-dev-skill]").forEach(button => {
+  button.addEventListener("click", () => {
+    const characterId = button.dataset.devSkill;
+    const character = DUNGEON_CHARACTERS[characterId];
+
+    if(!character){
+      return;
+    }
+
+    dungeonState.player.id = characterId;
+    dungeonState.player.name = character.name;
+
+    addBattleLog(
+      `🧪 DEV TEST：${character.name}のスキルをテストします`
+    );
+
+    renderDungeon();
+  });
+});

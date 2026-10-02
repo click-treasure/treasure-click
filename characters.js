@@ -34,7 +34,7 @@ async function loadCharacters(){
 
     document.querySelectorAll("[data-character]").forEach(card => {
       const id = card.dataset.character;
-      const copies = ownedMap.get(id);
+      const copies = ownedMap.get(id.replaceAll("-", "_"));
 
       if(copies){
         card.classList.add("owned");
