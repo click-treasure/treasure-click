@@ -114,11 +114,50 @@
 <div id="errorToast" class="error-toast" hidden></div>
 
 <script src="./ct-analytics.js?v=1"></script>
-<script src="island.js?v=88-48"></script>
+<script src="island.js?v=88-51"></script>
 
 <!-- admax interstitial -->
 
 <!-- /admax interstitial -->
 
+
+
+<!-- DEV: Character Effect Tester -->
+<div id="characterEffectTester" style="
+  position:fixed;
+  right:10px;
+  bottom:10px;
+  z-index:99998;
+  display:flex;
+  gap:6px;
+">
+  <button type="button" onclick="testCharacterEffect(1)">★1</button>
+  <button type="button" onclick="testCharacterEffect(2)">★2</button>
+  <button type="button" onclick="testCharacterEffect(3)">★3</button>
+</div>
+<!-- Character Get Modal -->
+<div id="characterGetModal" class="character-get-modal" hidden>
+  <div class="character-get-backdrop"></div>
+
+  <div class="character-get-card">
+    <div id="characterGetNew" class="character-get-new">NEW!</div>
+
+    <div id="characterGetStars" class="character-get-stars">★</div>
+
+    <img
+      id="characterGetImage"
+      class="character-get-image"
+      src=""
+      alt=""
+    >
+
+    <div id="characterGetName" class="character-get-name"></div>
+    <div id="characterGetCopies" class="character-get-copies"></div>
+
+    <button id="characterGetClose" class="character-get-close">
+      OK
+    </button>
+  </div>
+</div>
 </body>
 </html>

@@ -306,6 +306,113 @@ document.addEventListener("submit",async e=>{
   try{await saveNickname($("nicknameInput")?.value);setMessage(`🏴‍☠️ ${playerNickname} として争奪戦に参加！`)}catch(ex){if(err)err.textContent=ex?.message||String(ex)}finally{if(btn)btn.disabled=false}
 });
 
+
+// =========================================================
+// CHARACTER GET MODAL
+// =========================================================
+
+const CHARACTER_DATA = {
+  slime: {
+    name: "スライム",
+    image: "assets/characters/slime.png"
+  },
+  golem: {
+    name: "ゴーレム",
+    image: "assets/characters/golem.png"
+  },
+  fire_lizard: {
+    name: "ファイアリザード",
+    image: "assets/characters/fire-lizard.png"
+  },
+  forest_spirit: {
+    name: "森の精霊",
+    image: "assets/characters/forest-spirit.png"
+  },
+  mimic: {
+    name: "ミミック",
+    image: "assets/characters/mimic.png"
+  }
+};
+
+function showCharacterGetModal(result){
+  if(!result?.won) return;
+
+  const data = CHARACTER_DATA[result.character_id];
+  if(!data) return;
+
+  const modal = document.getElementById("characterGetModal");
+  const image = document.getElementById("characterGetImage");
+  const name = document.getElementById("characterGetName");
+  const stars = document.getElementById("characterGetStars");
+  const newBadge = document.getElementById("characterGetNew");
+  const copies = document.getElementById("characterGetCopies");
+
+  if(!modal || !image || !name || !stars || !newBadge || !copies) return;
+
+  image.src = data.image;
+  image.alt = data.name;
+
+  name.textContent = data.name;
+  stars.textContent = "★".repeat(Number(result.rarity || 1));
+
+  const isNew = Number(result.copies || 1) === 1;
+
+  newBadge.hidden = !isNew;
+
+  copies.textContent = isNew
+    ? "新しいキャラクターを発見！"
+    : `所持数 ×${result.copies}`;
+
+  modal.classList.remove("rarity-1", "rarity-2", "rarity-3");
+  modal.classList.add(`rarity-${Number(result.rarity || 1)}`);
+
+  modal.hidden = false;
+}
+
+
+// DEV ONLY: Character effect tester
+window.testCharacterEffect = function(rarity){
+  const testData = {
+    1: {
+      won: true,
+      character_id: "slime",
+      rarity: 1,
+      copies: 1
+    },
+    2: {
+      won: true,
+      character_id: "fire_lizard",
+      rarity: 2,
+      copies: 1
+    },
+    3: {
+      won: true,
+      character_id: "mimic",
+      rarity: 3,
+      copies: 1
+    }
+  };
+
+  const result = testData[Number(rarity)];
+  if(result){
+    showCharacterGetModal(result);
+  }
+};
+
+function closeCharacterGetModal(){
+  const modal = document.getElementById("characterGetModal");
+  if(modal) modal.hidden = true;
+}
+
+document.addEventListener("click", (event) => {
+  if(
+    event.target?.id === "characterGetClose" ||
+    event.target?.classList?.contains("character-get-backdrop")
+  ){
+    closeCharacterGetModal();
+  }
+});
+
 async function dig(cellIndex,button){
   if(digBusy||!island)return;
   if(serverEnergy<=0&&bonusTaps<=0){setMessage("⚡ タップ回数切れ。回復を待とう");return}
@@ -332,6 +439,28 @@ async function dig(cellIndex,button){
     if(x.result==="island_finished"&&!x.success){
       setMessage("🏁 この島は探索終了！");
       await Promise.all([resolveIsland(),loadStatus()]);await loadCells();return;
+    }
+
+    // Character draw: separate from treasure prize.
+    let characterDrop = null;
+    try{
+      const cd = await req(
+        "/rest/v1/rpc/draw_character",
+        {
+          method:"POST",
+          body:JSON.stringify({p_difficulty:difficulty})
+        }
+      );
+
+      const cr = Array.isArray(cd) ? cd[0] : cd;
+
+      if(cr?.won){
+        characterDrop = cr;
+        console.log("[CHARACTER GET]", cr); showCharacterGetModal(cr);
+      }
+    }catch(characterError){
+      // Character draw must never break the normal treasure flow.
+      console.error("[CHARACTER DRAW ERROR]", characterError);
     }
 
     playOpenTransition(button);
