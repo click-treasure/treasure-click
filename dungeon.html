@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ダンジョン | CLICK TREASURE</title>
+  <link rel="stylesheet" href="dungeon.css?v=1">
+</head>
+
+<body>
+
+  <main class="dungeon-page">
+
+    <header class="dungeon-header">
+      <button
+        class="back-button"
+        type="button"
+        onclick="location.href='characters.html'"
+      >
+        ← 戻る
+      </button>
+
+      <div>
+        <div class="dungeon-label">CLICK TREASURE</div>
+        <h1>ダンジョン</h1>
+      </div>
+    </header>
+
+    <section class="dungeon-status">
+      <div>
+        <span>FLOOR</span>
+        <strong id="floorNumber">1</strong>
+      </div>
+
+      <div>
+        <span>ROOM</span>
+        <strong id="roomNumber">1</strong>
+      </div>
+    </section>
+
+    <section class="dungeon-screen">
+
+      <div class="dungeon-room">
+
+        <div class="enemy-area">
+          <div class="placeholder enemy-placeholder">
+            ENEMY
+          </div>
+        </div>
+
+        <div class="player-area">
+          <div class="placeholder player-placeholder">
+            PLAYER
+          </div>
+
+          <div class="player-info">
+            <strong id="playerName">冒険者</strong>
+
+            <div class="hp-bar">
+              <div id="playerHpBar" class="hp-bar-fill"></div>
+            </div>
+
+            <span id="playerHpText">HP 100 / 100</span>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="dungeon-actions">
+      <button id="attackButton" type="button">
+        ⚔️ 攻撃
+      </button>
+
+      <button id="skillButton" type="button">
+        ✨ スキル
+      </button>
+    </section>
+
+    <button id="nextRoomButton" class="next-room-button" type="button" hidden>次の部屋へ →</button>
+
+    <div id="battleMessage" class="battle-message">
+      ダンジョン探索開始！
+    </div>
+
+  </main>
+
+  <script src="dungeon.js?v=1"></script>
+</body>
+</html>

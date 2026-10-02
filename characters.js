@@ -153,3 +153,60 @@ document.querySelectorAll("[data-character-test]").forEach(button => {
     testCharacterDraw(button.dataset.characterTest);
   });
 });
+
+// ===== Dungeon Character Select =====
+
+let selectedDungeonCharacter = null;
+
+function normalizeCharacterId(id){
+  return id.replaceAll("-", "_");
+}
+
+document.querySelectorAll("[data-character]").forEach(card => {
+  card.addEventListener("click", () => {
+
+    if(!card.classList.contains("owned")){
+      return;
+    }
+
+    document.querySelectorAll("[data-character]").forEach(x => {
+      x.classList.remove("dungeon-selected");
+    });
+
+    card.classList.add("dungeon-selected");
+
+    selectedDungeonCharacter =
+      normalizeCharacterId(card.dataset.character);
+
+    localStorage.setItem(
+      "ct_dungeon_character",
+      selectedDungeonCharacter
+    );
+
+    console.log(
+      "[DUNGEON CHARACTER SELECTED]",
+      selectedDungeonCharacter
+    );
+  });
+});
+// ===== Dungeon Start =====
+
+const dungeonStartButton =
+  document.getElementById("dungeonStartButton");
+
+if(dungeonStartButton){
+  dungeonStartButton.addEventListener("click", () => {
+
+    if(!selectedDungeonCharacter){
+      alert("ダンジョンに連れていくキャラクターを選んでください！");
+      return;
+    }
+
+    localStorage.setItem(
+      "ct_dungeon_character",
+      selectedDungeonCharacter
+    );
+
+    location.href = "dungeon.html";
+  });
+}
