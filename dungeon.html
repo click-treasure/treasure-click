@@ -33,59 +33,86 @@
       </div>
 
       <div>
-        <span>ROOM</span>
-        <strong id="roomNumber">1</strong>
+        <span>DISTANCE</span>
+        <strong id="distanceNumber">0m</strong>
       </div>
     </section>
 
     <section class="dungeon-screen">
 
-      <div class="dungeon-room">
+      <div id="dungeonViewport" class="dungeon-viewport">
 
-        <div class="enemy-area">
-          <div class="placeholder enemy-placeholder">
-            ENEMY
-          </div>
-        </div>
+        <div id="dungeonWorld" class="dungeon-world">
 
-        <div class="player-area">
-          <div class="placeholder player-placeholder">
-            PLAYER
-          </div>
+          <div class="dungeon-ground"></div>
 
-          <div class="player-info">
-            <strong id="playerName">冒険者</strong>
-
-            <div class="hp-bar">
-              <div id="playerHpBar" class="hp-bar-fill"></div>
+          <div id="dungeonPlayer" class="dungeon-player">
+            <div class="placeholder player-placeholder">
+              PLAYER
             </div>
 
-            <span id="playerHpText">HP 100 / 100</span>
+            <div class="player-info">
+              <strong id="playerName">冒険者</strong>
+
+              <div class="hp-bar">
+                <div id="playerHpBar" class="hp-bar-fill"></div>
+              </div>
+
+              <span id="playerHpText">HP 100 / 100</span>
+            </div>
           </div>
+
+          <div id="dungeonEnemy" class="dungeon-enemy">
+            <div class="placeholder enemy-placeholder">
+              ENEMY
+            </div>
+          </div>
+
         </div>
 
       </div>
 
     </section>
 
-    <section class="dungeon-actions">
-      <button id="attackButton" type="button">
-        ⚔️ 攻撃
-      </button>
-
-      <button id="skillButton" type="button">
-        ✨ スキル
-      </button>
-    </section>
+    
 
     <button id="nextRoomButton" class="next-room-button" type="button" hidden>次の部屋へ →</button>
 
-    <div id="battleMessage" class="battle-message">
-      ダンジョン探索開始！
-    </div>
+    <div id="battleLog" class="battle-log">
+  <div id="battleMessage" class="battle-message">
+    ダンジョン探索開始！
+  </div>
+</div>
 
   </main>
 
   <script src="dungeon.js?v=1"></script>
+
+<!-- Dungeon Result -->
+<div id="dungeonResult" class="dungeon-result" hidden>
+  <div class="dungeon-result-backdrop"></div>
+
+  <div class="dungeon-result-card">
+    <span class="result-label">EXPEDITION RESULT</span>
+
+    <h2>💀 冒険終了</h2>
+
+    <div class="result-stats">
+      <div>
+        <span>到達距離</span>
+        <strong id="resultDistance">0m</strong>
+      </div>
+
+      <div>
+        <span>撃破数</span>
+        <strong id="resultKills">0体</strong>
+      </div>
+    </div>
+
+    <button id="returnButton" type="button">
+      🏠 帰還する
+    </button>
+  </div>
+</div>
 </body>
 </html>

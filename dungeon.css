@@ -265,3 +265,273 @@ button {
   font-size: 11px;
   opacity: .75;
 }
+
+/* ===== Auto Scroll Dungeon ===== */
+
+.dungeon-viewport {
+  position: relative;
+  width: 100%;
+  height: 440px;
+  overflow: hidden;
+  background:
+    linear-gradient(
+      180deg,
+      #202737 0%,
+      #171c27 65%,
+      #0c1017 100%
+    );
+}
+
+.dungeon-world {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3000px;
+  height: 100%;
+  transform: translateX(0);
+  will-change: transform;
+}
+
+.dungeon-ground {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 3000px;
+  height: 95px;
+  border-top: 2px solid rgba(255,255,255,.12);
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #171b22 0,
+      #171b22 62px,
+      #1d222b 62px,
+      #1d222b 64px
+    );
+}
+
+.dungeon-player {
+  position: absolute;
+  left: 100px;
+  bottom: 80px;
+  width: 150px;
+  transition: none;
+  will-change: left;
+}
+
+.dungeon-player .player-info {
+  width: 150px;
+  margin-top: 5px;
+}
+
+.dungeon-player .dungeon-character-image {
+  width: 100px;
+  height: 100px;
+}
+
+.dungeon-enemy {
+  position: absolute;
+  left: 900px;
+  bottom: 80px;
+  width: 180px;
+}
+
+.dungeon-enemy .enemy-placeholder {
+  width: 180px;
+}
+
+
+/* ===== Dungeon Result ===== */
+
+.dungeon-result[hidden] {
+  display: none !important;
+}
+
+.dungeon-result {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.dungeon-result-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,.82);
+  animation: resultFade .4s ease;
+}
+
+.dungeon-result-card {
+  position: relative;
+  width: min(100%, 420px);
+  padding: 30px 24px;
+  text-align: center;
+  border: 2px solid rgba(255,255,255,.16);
+  border-radius: 22px;
+  background: #151b26;
+  box-shadow: 0 25px 80px rgba(0,0,0,.7);
+  animation: resultPop .45s ease;
+}
+
+.result-label {
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  opacity: .55;
+}
+
+.dungeon-result-card h2 {
+  margin: 8px 0 24px;
+  font-size: 28px;
+}
+
+.result-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.result-stats > div {
+  padding: 16px 10px;
+  border-radius: 14px;
+  background: rgba(0,0,0,.3);
+  border: 1px solid rgba(255,255,255,.08);
+}
+
+.result-stats span {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 11px;
+  opacity: .6;
+}
+
+.result-stats strong {
+  font-size: 24px;
+}
+
+#returnButton {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 14px;
+  font-weight: 900;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+@keyframes resultFade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes resultPop {
+  from {
+    opacity: 0;
+    transform: scale(.85) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Result click fix */
+.dungeon-result-backdrop {
+  z-index: 0;
+}
+
+.dungeon-result-card {
+  z-index: 1;
+}
+
+#returnButton {
+  position: relative;
+  z-index: 2;
+  pointer-events: auto;
+}
+
+/* ===== Auto Skill Effect ===== */
+
+.skill-effect {
+  position: fixed;
+  left: 50%;
+  top: 42%;
+  transform: translate(-50%, -50%) scale(.7);
+  z-index: 10000;
+  pointer-events: none;
+  font-size: 32px;
+  font-weight: 1000;
+  text-align: center;
+  text-shadow:
+    0 3px 10px rgba(0,0,0,.8),
+    0 0 20px rgba(80,180,255,.8);
+  opacity: 0;
+}
+
+.skill-effect.show {
+  animation: skillEffectPop .9s ease forwards;
+}
+
+@keyframes skillEffectPop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(.5);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.15);
+  }
+
+  70% {
+    opacity: 1;
+    transform: translate(-50%, -55%) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -65%) scale(.9);
+  }
+}
+
+/* ===== Battle Log ===== */
+
+.battle-log {
+  width: min(100%, 620px);
+  height: 130px;
+  margin: 14px auto;
+  padding: 10px 14px;
+  overflow: hidden;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: rgba(0,0,0,.28);
+  border: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.battle-message {
+  font-size: 13px;
+  line-height: 1.65;
+  opacity: .9;
+}
+
+.battle-log-line {
+  animation: battleLogIn .2s ease;
+}
+
+@keyframes battleLogIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

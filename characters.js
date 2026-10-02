@@ -178,6 +178,14 @@ document.querySelectorAll("[data-character]").forEach(card => {
     selectedDungeonCharacter =
       normalizeCharacterId(card.dataset.character);
 
+    const startButton =
+      document.getElementById("dungeonStartButton");
+
+    if(startButton){
+      startButton.classList.add("ready");
+      startButton.textContent = "⚔️ このキャラで出発！";
+    }
+
     localStorage.setItem(
       "ct_dungeon_character",
       selectedDungeonCharacter

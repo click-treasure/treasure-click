@@ -453,3 +453,25 @@ main{
   font-weight: 900;
   letter-spacing: 1px;
 }
+
+/* ===== Dungeon Start Button ===== */
+
+#dungeonStartButton {
+  opacity: .4;
+  filter: grayscale(1);
+  cursor: not-allowed;
+  transition: all .25s ease;
+}
+
+#dungeonStartButton.ready {
+  opacity: 1;
+  filter: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffd54a, #ffad32);
+  color: #17120a;
+  border-color: #ffe382;
+  box-shadow:
+    0 0 0 2px rgba(255,213,74,.15),
+    0 8px 25px rgba(255,174,50,.3);
+  transform: translateY(-2px);
+}

@@ -18,9 +18,6 @@ function renderDungeon() {
   document.getElementById("floorNumber").textContent =
     dungeonState.floor;
 
-  document.getElementById("roomNumber").textContent =
-    dungeonState.room;
-
   document.getElementById("playerName").textContent =
     dungeonState.player.name;
 
@@ -34,46 +31,7 @@ function renderDungeon() {
     `${hpPercent}%`;
 }
 
-document.getElementById("attackButton").addEventListener("click", () => {
-  const enemy = dungeonState.enemy;
-  const player = dungeonState.player;
-  const message = document.getElementById("battleMessage");
 
-  if(!enemy || enemy.hp <= 0 || player.hp <= 0){
-    return;
-  }
-
-  const playerDamage = 20;
-  enemy.hp = Math.max(0, enemy.hp - playerDamage);
-
-  renderEnemy();
-
-  if(enemy.hp <= 0){
-    message.textContent =
-      `⚔️ ${enemy.name}に${playerDamage}ダメージ！ 撃破した！`;
-    showNextRoomButton();
-    return;
-  }
-
-  const enemyDamage = enemy.attack;
-  player.hp = Math.max(0, player.hp - enemyDamage);
-
-  renderDungeon();
-
-  if(player.hp <= 0){
-    message.textContent =
-      `⚔️ ${enemy.name}に${playerDamage}ダメージ！ 反撃で${enemyDamage}ダメージ。倒れてしまった…`;
-    return;
-  }
-
-  message.textContent =
-    `⚔️ ${enemy.name}に${playerDamage}ダメージ！ 反撃で${enemyDamage}ダメージ！`;
-});
-
-document.getElementById("skillButton").addEventListener("click", () => {
-  document.getElementById("battleMessage").textContent =
-    "✨ スキル！ ※戦闘システムは次に実装";
-});
 
 renderDungeon();
 
@@ -114,6 +72,7 @@ function loadSelectedCharacter(){
     return;
   }
 
+  dungeonState.player.id = characterId;
   dungeonState.player.name = character.name;
 
   const playerBox =
@@ -212,3 +171,266 @@ function startNextRoom(){
 
 document.getElementById("nextRoomButton")
   ?.addEventListener("click", startNextRoom);
+// ===== Auto March Prototype =====
+
+const marchState = {
+  playerX: 100,
+  speed: 1.5,
+  cameraX: 0,
+  enemyX: 900,
+  kills: 0,
+  battleStarted: false,
+  running: true
+};
+
+function updateMarch(){
+  const playerEl = document.getElementById("dungeonPlayer");
+  const worldEl = document.getElementById("dungeonWorld");
+  const viewportEl = document.getElementById("dungeonViewport");
+
+  if(!playerEl || !worldEl || !viewportEl){
+    requestAnimationFrame(updateMarch);
+    return;
+  }
+
+  if(marchState.running){
+
+    const enemyX = marchState.enemyX;
+    const battleDistance = 150;
+
+    if(marchState.playerX < enemyX - battleDistance){
+      marchState.playerX += marchState.speed;
+    }else{
+      marchState.playerX = enemyX - battleDistance;
+      marchState.running = false;
+
+      if(!marchState.battleStarted){
+        marchState.battleStarted = true;
+        addBattleLog("⚔️ 敵と遭遇！ 自動戦闘開始！");
+        startAutoBattle();
+      }
+    }
+  }
+
+  playerEl.style.left = `${marchState.playerX}px`;
+
+  // 進行距離表示
+  const distance =
+    Math.max(0, Math.floor((marchState.playerX - 100) / 5));
+
+  const distanceEl =
+    document.getElementById("distanceNumber");
+
+  if(distanceEl){
+    distanceEl.textContent = `${distance}m`;
+  }
+
+  const viewportWidth = viewportEl.clientWidth;
+
+  // キャラが画面の約40%地点まで来たらカメラ追従
+  const cameraTarget =
+    marchState.playerX - viewportWidth * 0.4;
+
+  const maxCamera =
+    Math.max(0, 3000 - viewportWidth);
+
+  marchState.cameraX = Math.max(
+    0,
+    Math.min(cameraTarget, maxCamera)
+  );
+
+  worldEl.style.transform =
+    `translateX(${-marchState.cameraX}px)`;
+
+  requestAnimationFrame(updateMarch);
+}
+
+requestAnimationFrame(updateMarch);
+// ===== Auto Battle =====
+
+let autoBattleTimer = null;
+let autoSkillCounter = 0;
+
+function startAutoBattle(){
+  if(autoBattleTimer) return;
+
+  autoBattleTimer = setInterval(() => {
+    const enemy = dungeonState.enemy;
+    const player = dungeonState.player;
+
+    if(!enemy || enemy.hp <= 0 || player.hp <= 0){
+      clearInterval(autoBattleTimer);
+      autoBattleTimer = null;
+      return;
+    }
+
+    const playerDamage = 20;
+
+    // ===== Auto Skill =====
+    autoSkillCounter += 1;
+
+    if(
+      autoSkillCounter >= 5 &&
+      dungeonState.player.id === "slime"
+    ){
+      const skillDamage = 30;
+
+      enemy.hp = Math.max(
+        0,
+        enemy.hp - skillDamage
+      );
+
+      autoSkillCounter = 0;
+
+      addBattleLog(
+        `💧 スライムがスキル「みずのちから」を発動！ ${skillDamage}ダメージ！`
+      );
+
+
+
+      renderEnemy();
+    }
+
+    enemy.hp = Math.max(
+      0,
+      enemy.hp - playerDamage
+    );
+
+    renderEnemy();
+
+    if(enemy.hp <= 0){
+      addBattleLog(
+        `⚔️ ${enemy.name}を撃破！進軍再開！`
+      );
+
+      clearInterval(autoBattleTimer);
+      autoBattleTimer = null;
+
+      // 撃破数を加算
+      marchState.kills += 1;
+
+      // 次の敵を600px先に出現
+      marchState.enemyX += 600;
+
+      // 次の敵を少し強くする
+      enemy.maxHp += 10;
+      enemy.attack += 2;
+      enemy.hp = enemy.maxHp;
+
+      const enemyEl =
+        document.getElementById("dungeonEnemy");
+
+      if(enemyEl){
+        enemyEl.style.left =
+          `${marchState.enemyX}px`;
+      }
+
+      // 次の接敵を許可
+      marchState.battleStarted = false;
+      marchState.running = true;
+
+      renderEnemy();
+      return;
+    }
+
+    const enemyDamage = enemy.attack;
+
+    player.hp = Math.max(
+      0,
+      player.hp - enemyDamage
+    );
+
+    renderDungeon();
+
+    if(player.hp <= 0){
+      addBattleLog("💀 全滅…");
+
+      showDungeonResult();
+
+      clearInterval(autoBattleTimer);
+      autoBattleTimer = null;
+
+      marchState.running = false;
+      return;
+    }
+
+    addBattleLog(
+      `⚔️ ${playerDamage}ダメージ！ 敵の反撃 ${enemyDamage}ダメージ！`
+    );
+
+  }, 1000);
+}
+// ===== Dungeon Result =====
+
+function showDungeonResult(){
+  const result = document.getElementById("dungeonResult");
+  const distanceEl = document.getElementById("resultDistance");
+  const killsEl = document.getElementById("resultKills");
+
+  const distance =
+    Math.max(0, Math.floor((marchState.playerX - 100) / 5));
+
+  if(distanceEl){
+    distanceEl.textContent = `${distance}m`;
+  }
+
+  if(killsEl){
+    killsEl.textContent = `${marchState.kills}体`;
+  }
+
+  if(result){
+    result.hidden = false;
+  }
+}
+
+document.getElementById("returnButton")
+  ?.addEventListener("click", () => {
+    location.href = "characters.html";
+  });
+// Result return button - delegated click
+document.addEventListener("click", (event) => {
+  if(event.target?.id === "returnButton"){
+    location.href = "characters.html";
+  }
+});
+// ===== Skill Effect =====
+
+function showSkillEffect(text){
+  let effect = document.getElementById("skillEffect");
+
+  if(!effect){
+    effect = document.createElement("div");
+    effect.id = "skillEffect";
+    effect.className = "skill-effect";
+    document.body.appendChild(effect);
+  }
+
+  effect.textContent = text;
+
+  effect.classList.remove("show");
+
+  void effect.offsetWidth;
+
+  effect.classList.add("show");
+}
+// ===== Battle Log =====
+
+const battleLogs = [];
+
+function addBattleLog(text){
+  battleLogs.push(text);
+
+  while(battleLogs.length > 8){
+    battleLogs.shift();
+  }
+
+  const log = document.getElementById("battleLog");
+
+  if(!log){
+    return;
+  }
+
+  log.innerHTML = battleLogs
+    .map(line => `<div class="battle-log-line">${line}</div>`)
+    .join("");
+}
