@@ -558,6 +558,118 @@ button {
 }
 
 .enemy-boss {
-  width: 200px;
-  height: 200px;
+  width: 160px;
+  height: 160px;
+}
+/* ===== Fantasy Dungeon Background ===== */
+
+.dungeon-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  will-change: transform;
+}
+
+/* 遠景：山・月・霧 */
+.dungeon-bg-far {
+  z-index: 0;
+  width: 9000px;
+  height: 100%;
+  background-image: url("assets/dungeon/dungeon-background.png");
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: left center;
+}
+
+/* 中景：巨大な木々 */
+.dungeon-bg-mid {
+  z-index: 1;
+  width: 6000px;
+  opacity: .85;
+  background:
+    radial-gradient(
+      ellipse 45px 190px at 8% 45%,
+      #10191b 0 55%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 55px 210px at 23% 42%,
+      #0d1618 0 55%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 48px 180px at 41% 47%,
+      #111b1d 0 55%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 60px 220px at 62% 42%,
+      #0c1518 0 55%,
+      transparent 56%
+    ),
+    radial-gradient(
+      ellipse 50px 200px at 82% 45%,
+      #10191b 0 55%,
+      transparent 56%
+    );
+  background-size: 700px 100%;
+  background-repeat: repeat-x;
+}
+
+/* 前景：草・霧・地面 */
+.dungeon-bg-near {
+  z-index: 2;
+  width: 6000px;
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      transparent 67%,
+      rgba(10,18,16,.15) 68%,
+      rgba(7,13,12,.75) 100%
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 80px,
+      rgba(20,40,30,.35) 81px,
+      transparent 83px,
+      transparent 150px
+    );
+  background-size: 100% 100%, 300px 100%;
+  background-repeat: repeat-x;
+}
+
+/* 背景がキャラクターより後ろになるように */
+.dungeon-world {
+  z-index: 5;
+}
+/* ===== Real Dungeon Background ===== */
+
+/* 仮の中景・近景は一旦使用しない */
+.dungeon-bg-mid,
+.dungeon-bg-near {
+  display: none !important;
+}
+
+/* 実画像だけを背景として使用 */
+.dungeon-bg-far {
+  z-index: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 9000px;
+  height: 100%;
+  background-image: url("assets/dungeon/dungeon-background.png");
+  background-repeat: repeat-x;
+  background-size: auto 100%;
+  background-position: left center;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* キャラクター・敵を背景より前へ */
+.dungeon-world {
+  z-index: 5;
 }

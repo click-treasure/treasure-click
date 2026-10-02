@@ -8,9 +8,11 @@ const dungeonState = {
   floor: 1,
   room: 1,
   player: {
-    name: "冒険者",
+    id: "slime",
+    name: "スライム",
     hp: 100,
-    maxHp: 100
+    maxHp: 100,
+    guardReduction: 0
   }
 };
 
@@ -34,6 +36,29 @@ function renderDungeon() {
 
 
 renderDungeon();
+
+
+// ===== Character Stats Apply =====
+
+function applySelectedCharacterStats(){
+
+  const player = dungeonState.player;
+
+  if(!player){
+    return;
+  }
+
+  const stats =
+    CHARACTER_STATS[player.id];
+
+  if(!stats){
+    return;
+  }
+
+  player.maxHp = stats.hp;
+  player.hp = stats.hp;
+  player.guardReduction = 0;
+}
 
 // ===== Selected Character =====
 
@@ -74,6 +99,20 @@ function loadSelectedCharacter(){
 
   dungeonState.player.id = characterId;
   dungeonState.player.name = character.name;
+
+  // キャラクターごとのHP
+  const characterHp = {
+    slime: 100,
+    golem: 180,
+    fire_lizard: 150,
+    forest_spirit: 150,
+    mimic: 100
+  };
+
+  if(characterHp[characterId] !== undefined){
+    dungeonState.player.maxHp = characterHp[characterId];
+    dungeonState.player.hp = characterHp[characterId];
+  }
 
   const playerBox =
     document.querySelector(".player-placeholder");
@@ -220,7 +259,18 @@ function updateMarch(){
   if(marchState.running){
 
     const enemyX = marchState.enemyX;
-    const battleDistance = 150;
+
+    const isBossEnemy =
+      dungeonState.enemy &&
+      (
+        dungeonState.enemy.id === "dungeon_golem" ||
+        dungeonState.enemy.id === "dungeon_dragon"
+      );
+
+    // プレイヤーの表示幅＋余白を考慮して接敵位置を決定
+    // 敵の表示ボックス180px + 余白20px
+    const battleDistance =
+      isBossEnemy ? 200 : 150;
 
     if(marchState.playerX < enemyX - battleDistance){
       marchState.playerX += marchState.speed;
@@ -230,6 +280,20 @@ function updateMarch(){
 
       if(!marchState.battleStarted){
         marchState.battleStarted = true;
+
+        const isBoss =
+          dungeonState.enemy &&
+          (
+            dungeonState.enemy.id === "dungeon_golem" ||
+            dungeonState.enemy.id === "dungeon_dragon"
+          );
+
+        playDungeonBgm(isBoss);
+
+        if(isBoss){
+          addBattleLog("🔥 ボス戦BGM開始！");
+        }
+
         addBattleLog("⚔️ 敵と遭遇！ 自動戦闘開始！");
         startAutoBattle();
       }
@@ -252,8 +316,35 @@ function updateMarch(){
   const viewportWidth = viewportEl.clientWidth;
 
   // キャラが画面の約40%地点まで来たらカメラ追従
-  const cameraTarget =
+  // ===== Camera Target =====
+  // 通常はプレイヤーを基準にカメラを追従
+  let cameraTarget =
     marchState.playerX - viewportWidth * 0.4;
+
+  // ボス戦では敵も画面内に収める
+  if(
+    dungeonState.enemy &&
+    (
+      dungeonState.enemy.id === "dungeon_golem" ||
+      dungeonState.enemy.id === "dungeon_dragon"
+    ) &&
+    !marchState.running
+  ){
+
+    const enemyScreenX =
+      marchState.enemyX - marchState.cameraX;
+
+    // 敵が画面右端に近すぎる場合、
+    // 敵が画面内に入るようカメラを右へ寄せる
+    const desiredEnemyScreenX =
+      viewportWidth * 0.72;
+
+    const enemyCameraTarget =
+      marchState.enemyX - desiredEnemyScreenX;
+
+    cameraTarget =
+      Math.max(cameraTarget, enemyCameraTarget);
+  }
 
   const maxCamera =
     Math.max(0, 5300 - viewportWidth);
@@ -266,10 +357,199 @@ function updateMarch(){
   worldEl.style.transform =
     `translateX(${-marchState.cameraX}px)`;
 
+  // ===== Dungeon Background Scroll =====
+  const dungeonBg =
+    document.querySelector(".dungeon-bg-far");
+
+  if(dungeonBg){
+    dungeonBg.style.transform =
+      `translateX(${-marchState.cameraX * 0.35}px)`;
+  }
+
   requestAnimationFrame(updateMarch);
 }
 
 requestAnimationFrame(updateMarch);
+
+
+// ===== Shared Sound Settings =====
+
+const CT_BGM_VOLUME_KEY = "ct_bgm_volume";
+
+function ctGetBgmVolume(){
+
+  const r = localStorage.getItem(CT_BGM_VOLUME_KEY);
+
+  if(r === null){
+    return 0.15;
+  }
+
+  const v = Number(r);
+
+  return Number.isFinite(v)
+    ? Math.max(0, Math.min(100, v)) / 100
+    : 0.15;
+}
+
+// ===== Dungeon Attack Sound =====
+
+// ===== Dungeon Enemy Attack Sound =====
+
+const dungeonEnemyAttackSound =
+  new Audio("assets/audio/enemy-attack.mp3");
+
+dungeonEnemyAttackSound.preload = "auto";
+
+function playDungeonEnemyAttackSound(){
+
+  dungeonEnemyAttackSound.currentTime = 0;
+
+  if(typeof ctGetSeVolume === "function"){
+
+    dungeonEnemyAttackSound.volume =
+      ctGetSeVolume();
+
+  }else{
+
+    dungeonEnemyAttackSound.volume = 0.5;
+
+  }
+
+  const p =
+    dungeonEnemyAttackSound.play();
+
+  if(p && p.catch){
+
+    p.catch(() => {});
+
+  }
+}
+
+
+const dungeonAttackSound =
+  new Audio("assets/audio/attack-swing.mp3");
+
+dungeonAttackSound.preload = "auto";
+
+function playDungeonAttackSound(){
+
+  dungeonAttackSound.currentTime = 0;
+
+  if(typeof ctGetSeVolume === "function"){
+    dungeonAttackSound.volume = ctGetSeVolume();
+  }else{
+    dungeonAttackSound.volume = 0.5;
+  }
+
+  const p = dungeonAttackSound.play();
+
+  if(p && p.catch){
+    p.catch(() => {});
+  }
+}
+
+// ===== Dungeon BGM =====
+
+const dungeonBgm =
+  new Audio("assets/audio/dungeon-bgm.mp3");
+
+const bossBgm =
+  new Audio("assets/audio/boss-bgm.mp3");
+
+// BGMを先読みして切り替え時の遅延を減らす
+dungeonBgm.preload = "auto";
+bossBgm.preload = "auto";
+
+dungeonBgm.load();
+bossBgm.load();
+
+dungeonBgm.loop = true;
+bossBgm.loop = true;
+
+dungeonBgm.volume = ctGetBgmVolume();
+bossBgm.volume = ctGetBgmVolume();
+
+// ホームのBGM音量設定と連動
+window.addEventListener("ct:bgm-volume", (e) => {
+  const v = Math.max(0, Math.min(1, Number(e.detail)));
+
+  dungeonBgm.volume = v;
+  bossBgm.volume = v;
+
+  if(v <= 0){
+    if(currentDungeonBgm){
+      currentDungeonBgm.pause();
+    }
+  }
+});
+
+let currentDungeonBgm = null;
+
+function playDungeonBgm(isBoss = false){
+
+  const nextBgm =
+    isBoss ? bossBgm : dungeonBgm;
+
+  if(currentDungeonBgm === nextBgm){
+
+    if(currentDungeonBgm.paused){
+
+      currentDungeonBgm
+        .play()
+        .catch(() => {});
+
+    }
+
+    return;
+  }
+
+  if(currentDungeonBgm){
+
+    currentDungeonBgm.pause();
+    currentDungeonBgm.currentTime = 0;
+
+  }
+
+  currentDungeonBgm = nextBgm;
+
+  currentDungeonBgm.currentTime = 0;
+
+  currentDungeonBgm
+    .play()
+    .catch(() => {});
+}
+
+
+function stopDungeonBgm(){
+
+  if(currentDungeonBgm){
+
+    currentDungeonBgm.pause();
+
+    currentDungeonBgm.currentTime = 0;
+
+    currentDungeonBgm = null;
+
+  }
+
+}
+
+
+// ブラウザの自動再生制限対策
+document.addEventListener(
+  "click",
+  () => {
+
+    if(!currentDungeonBgm){
+
+      playDungeonBgm(false);
+
+    }
+
+  },
+  { once: true }
+);
+
 // ===== Auto Battle =====
 
 let autoBattleTimer = null;
@@ -288,7 +568,13 @@ function startAutoBattle(){
       return;
     }
 
-    const playerDamage = 20;
+    const characterStats =
+      CHARACTER_STATS[dungeonState.player.id];
+
+    const playerDamage =
+      characterStats
+        ? characterStats.attack
+        : 20;
 
     // ===== Auto Skill =====
     autoSkillCounter += 1;
@@ -302,7 +588,12 @@ function startAutoBattle(){
     ){
       autoSkillCounter = 0;
 
+      // ==========================================
+      // 単体ダメージ
+      // ==========================================
+
       if(skill.type === "damage"){
+
         enemy.hp = Math.max(
           0,
           enemy.hp - skill.value
@@ -315,15 +606,47 @@ function startAutoBattle(){
         renderEnemy();
       }
 
+
+      // ==========================================
+      // ゴーレム：次の敵攻撃を50%軽減
+      // ==========================================
+
       if(skill.type === "guard"){
-        dungeonState.player.guardReduction = skill.value;
+
+        dungeonState.player.guardReduction =
+          skill.value;
 
         addBattleLog(
           `🪨 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 次のダメージを${skill.value}%軽減！`
         );
       }
 
-      if(skill.type === "heal"){
+
+      // ==========================================
+      // ファイアリザード：敵全体50ダメージ
+      // ==========================================
+
+      if(skill.type === "damage_all"){
+
+        enemy.hp = Math.max(
+          0,
+          enemy.hp - skill.value
+        );
+
+        addBattleLog(
+          `🔥 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 敵全体に${skill.value}ダメージ！`
+        );
+
+        renderEnemy();
+      }
+
+
+      // ==========================================
+      // 森の精霊：味方全体50回復
+      // ==========================================
+
+      if(skill.type === "heal_all"){
+
         const oldHp = player.hp;
 
         player.hp = Math.min(
@@ -331,15 +654,19 @@ function startAutoBattle(){
           player.hp + skill.value
         );
 
-        const healed = player.hp - oldHp;
+        const healed =
+          player.hp - oldHp;
 
         addBattleLog(
-          `🌿 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ HPが${healed}回復！`
+          `🌿 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 味方全体を${skill.value}回復！`
         );
 
         renderDungeon();
       }
     }
+
+    // 通常攻撃音
+    playDungeonAttackSound();
 
     enemy.hp = Math.max(
       0,
@@ -393,13 +720,26 @@ function startAutoBattle(){
         document.getElementById("dungeonEnemy");
 
       if(enemyEl){
+
+        // 通常の敵は通常位置
+        let enemyDisplayX =
+          marchState.enemyX;
+
+        // ドラゴンだけ画面上では少し手前に配置
+        if(nextEnemyId === "dungeon_dragon"){
+          enemyDisplayX -= 300;
+        }
+
         enemyEl.style.left =
-          `${marchState.enemyX}px`;
+          `${enemyDisplayX}px`;
       }
 
       // 次の接敵を許可
       marchState.battleStarted = false;
       marchState.running = true;
+
+      // ボス撃破後は通常BGMへ戻す
+      playDungeonBgm(false);
 
       renderEnemy();
       return;
@@ -419,6 +759,9 @@ function startAutoBattle(){
 
       player.guardReduction = 0;
     }
+
+    // 敵攻撃音
+    playDungeonEnemyAttackSound();
 
     player.hp = Math.max(
       0,
@@ -521,6 +864,33 @@ function addBattleLog(text){
 }
 // ===== Character Skills =====
 
+const CHARACTER_STATS = {
+  slime: {
+    hp: 100,
+    attack: 20
+  },
+
+  golem: {
+    hp: 180,
+    attack: 20
+  },
+
+  fire_lizard: {
+    hp: 150,
+    attack: 30
+  },
+
+  forest_spirit: {
+    hp: 150,
+    attack: 30
+  },
+
+  mimic: {
+    hp: 100,
+    attack: 40
+  }
+};
+
 const CHARACTER_SKILLS = {
   slime: {
     name: "みずのちから",
@@ -539,22 +909,22 @@ const CHARACTER_SKILLS = {
   fire_lizard: {
     name: "フレイムブレス",
     cooldown: 5,
-    type: "damage",
+    type: "damage_all",
     value: 50
   },
 
   forest_spirit: {
     name: "いやしのかぜ",
     cooldown: 5,
-    type: "heal",
-    value: 20
+    type: "heal_all",
+    value: 50
   },
 
   mimic: {
     name: "デッドリーバイト",
     cooldown: 5,
     type: "damage",
-    value: 70
+    value: 100
   }
 };
 // ===== DEV Skill Tester =====
