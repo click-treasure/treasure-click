@@ -940,17 +940,17 @@ function requireGoogleForRedemption(){
     const a=document.getElementById('adminShortcut');
     const tester=document.getElementById('devPrizeTester');
     if(a) a.hidden=true;
-    if(tester) tester.hidden=true;
+    if(tester) tester.hidden=!["localhost","127.0.0.1"].includes(location.hostname);
     if(!user?.id || !accessToken) return;
     try{
       const result=await req('/rest/v1/rpc/is_app_admin',{method:'POST',body:'{}'});
       const isAdmin=adminResultIsTrue(result);
       if(a) a.hidden=!isAdmin;
-      if(tester) tester.hidden=!isAdmin;
+      if(tester) tester.hidden=!isAdmin && !["localhost","127.0.0.1"].includes(location.hostname);
     }catch(e){
       console.error('admin UI check:',e);
       if(a) a.hidden=true;
-      if(tester) tester.hidden=true;
+      if(tester) tester.hidden=!["localhost","127.0.0.1"].includes(location.hostname);
     }
   }
   let tries=0;
@@ -998,7 +998,7 @@ document.getElementById("loginBonusClaim")?.addEventListener("click",claimLoginB
 // V66 — player UI uses 10P per internal yen-equivalent unit.
 document.addEventListener("DOMContentLoaded",()=>{
   const tester=document.getElementById("devPrizeTester");
-  if(tester) tester.hidden=true;
+  if(tester) tester.hidden=!["localhost","127.0.0.1"].includes(location.hostname);
 });
 
 
