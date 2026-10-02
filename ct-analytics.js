@@ -2,8 +2,8 @@
 // Shared GA4 event helper. Never sends email, nickname, Supabase user id, or prize balance.
 (function(){
   const MID='G-S7C8F83L5W';
-  const SURL='https://osawhwcddovhddrxgfju.supabase.co';
-  const SKEY='sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f';
+  const SURL='https://xjnaombhyeyeibuarmcf.supabase.co';
+  const SKEY='sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s';
   let role='unknown';
   let ready=false;
   const queue=[];

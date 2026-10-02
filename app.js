@@ -70,7 +70,7 @@ function v41Jackpot500(){
  },5750);
 }
 
-const URL="https://osawhwcddovhddrxgfju.supabase.co", KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
+const URL="https://xjnaombhyeyeibuarmcf.supabase.co", KEY="sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s";
 const $=id=>document.getElementById(id);
 const POINTS_PER_YEN=10;
 function points(n){return Number(n||0)*POINTS_PER_YEN}

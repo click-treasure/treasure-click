@@ -7,7 +7,7 @@ function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===n
 function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=Math.min(1,ctGetSeVolume()))}
 
 // V88-40 Golden Island standalone runtime
-const URL='https://osawhwcddovhddrxgfju.supabase.co', KEY='sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f';
+const URL='https://xjnaombhyeyeibuarmcf.supabase.co', KEY='sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s';
 let accessToken="", currentUser=null, goldenTickets=0, opening=false;
 const $=id=>document.getElementById(id);
 

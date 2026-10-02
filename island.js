@@ -7,8 +7,8 @@ function ctGetSeVolume(){const r=localStorage.getItem(CT_SE_VOLUME_KEY);if(r===n
 function ctApplyMediaSeVolume(){document.querySelectorAll('audio:not([data-ct-bgm])').forEach(a=>a.volume=Math.min(1,ctGetSeVolume()))}
 
 // V88-32 HARD island complete
-const SUPABASE_URL="https://osawhwcddovhddrxgfju.supabase.co";
-const SUPABASE_KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
+const SUPABASE_URL="https://xjnaombhyeyeibuarmcf.supabase.co";
+const SUPABASE_KEY="sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s";
 const POINTS_PER_YEN=10;
 const $=id=>document.getElementById(id);
 

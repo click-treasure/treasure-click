@@ -1,4 +1,4 @@
-const URL="https://osawhwcddovhddrxgfju.supabase.co", KEY="sb_publishable_AMGEh3TguYyEpd7piWIjTQ_oHlYdG8f";
+const URL="https://xjnaombhyeyeibuarmcf.supabase.co", KEY="sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s";
 let accessToken=localStorage.getItem("v261_access_token")||"";
 const $=id=>document.getElementById(id);
 function fail(e){$("error").hidden=false;$("error").textContent="エラー: "+(e?.message||e)}
