@@ -1955,3 +1955,56 @@ section.ad ins{
     max-width:55px !important;
   }
 }
+
+.character-home-entry{
+  margin:18px 0;
+}
+
+.character-home-card{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  padding:18px 20px;
+  border-radius:18px;
+  text-decoration:none;
+  color:#f5f8ff;
+  background:linear-gradient(135deg,#172a42,#101b2b);
+  border:1px solid rgba(116,181,255,.22);
+}
+
+.character-home-card:hover{
+  transform:translateY(-2px);
+  border-color:rgba(116,181,255,.5);
+}
+
+.character-home-icon{
+  font-size:38px;
+}
+
+.character-home-card div{
+  flex:1;
+}
+
+.character-home-card small{
+  display:block;
+  color:#75b9ff;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.18em;
+}
+
+.character-home-card b{
+  display:block;
+  margin-top:2px;
+  font-size:18px;
+}
+
+.character-home-card p{
+  margin:3px 0 0;
+  color:#8fa5bd;
+  font-size:12px;
+}
+
+.character-home-card>strong{
+  font-size:22px;
+}

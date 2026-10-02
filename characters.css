@@ -322,3 +322,106 @@ main{
   object-fit:contain;
   display:block;
 }
+
+/* ===== Character ownership ===== */
+
+.character-card:not(.owned) .character-art img{
+  filter: grayscale(1) brightness(.16);
+  opacity:.7;
+}
+
+.character-card:not(.owned) .character-info h3,
+.character-card:not(.owned) .character-info small,
+.character-card:not(.owned) .type,
+.character-card:not(.owned) .skill{
+  opacity:.35;
+}
+
+.character-card:not(.owned)::after{
+  content:"？？？";
+  position:absolute;
+  left:50%;
+  top:145px;
+  transform:translateX(-50%);
+  z-index:5;
+  padding:6px 14px;
+  border-radius:999px;
+  background:rgba(0,0,0,.72);
+  color:#fff;
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.15em;
+}
+
+.character-card.owned::after{
+  content:"GET!";
+  position:absolute;
+  top:15px;
+  left:16px;
+  z-index:5;
+  padding:5px 10px;
+  border-radius:999px;
+  background:#ffd75d;
+  color:#172033;
+  font-size:11px;
+  font-weight:1000;
+}
+
+/* 未所持キャラ：完全シルエット */
+.character-card:not(.owned) .character-art img{
+  filter: brightness(0) !important;
+  opacity:1 !important;
+}
+
+.character-card:not(.owned) .character-art{
+  filter:drop-shadow(0 0 18px rgba(0,0,0,.8));
+}
+
+
+/* 未所持キャラ：情報を完全に隠す */
+.character-card:not(.owned) .character-info > small,
+.character-card:not(.owned) .character-info h3,
+.character-card:not(.owned) .character-info .type,
+.character-card:not(.owned) .character-info .skill b,
+.character-card:not(.owned) .character-info .skill p{
+  font-size:0 !important;
+}
+
+/* 英字名 */
+.character-card:not(.owned) .character-info > small::after{
+  content:"UNKNOWN";
+  font-size:10px;
+}
+
+/* キャラ名 */
+.character-card:not(.owned) .character-info h3::after{
+  content:"？？？";
+  font-size:23px;
+}
+
+/* タイプ */
+.character-card:not(.owned) .character-info .type::after{
+  content:"？？？";
+  font-size:11px;
+}
+
+/* 技名 */
+.character-card:not(.owned) .character-info .skill b::after{
+  content:"？？？";
+  font-size:13px;
+}
+
+/* 技説明 */
+.character-card:not(.owned) .character-info .skill p::after{
+  content:"？？？";
+  font-size:12px;
+}
+
+/* 未所持情報も読める濃さにする */
+.character-card:not(.owned) .character-info h3,
+.character-card:not(.owned) .character-info small,
+.character-card:not(.owned) .type,
+.character-card:not(.owned) .skill{
+  opacity:1 !important;
+}
+
