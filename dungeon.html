@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -36,6 +36,7 @@
         <span>DISTANCE</span>
         <strong id="distanceNumber">0m</strong>
       </div>
+      <div class="dev-speed"><span>DEV SPEED</span><div><button type="button" class="speed-btn active" data-speed="1">×1</button><button type="button" class="speed-btn" data-speed="2">×2</button><button type="button" class="speed-btn" data-speed="3">×3</button></div></div>
     </section>
 
     <section class="dungeon-screen">
@@ -76,6 +77,7 @@
 
       </div>
 
+      <div class="dev-speed"><span>DEV SPEED</span><div><button type="button" class="speed-btn active" data-speed="1">×1</button><button type="button" class="speed-btn" data-speed="2">×2</button><button type="button" class="speed-btn" data-speed="3">×3</button></div></div>
     </section>
 
     
@@ -118,7 +120,7 @@
   <div class="dungeon-result-card">
     <span class="result-label">EXPEDITION RESULT</span>
 
-    <h2>💀 冒険終了</h2>
+    <h2 id="resultTitle">🏆 1階層クリア！</h2>
 
     <div class="result-stats">
       <div>
@@ -128,9 +130,11 @@
 
       <div>
         <span>撃破数</span>
-        <strong id="resultKills">0体</strong>
+        <strong id="resultKills">0体</strong><div><span>獲得EXP</span><strong id="resultExp">0 EXP</strong></div>
       </div>
     </div>
+
+    <div id="resultPartyExp" class="result-party-exp"></div>
 
     <button id="returnButton" type="button">
       🏠 帰還する
@@ -139,3 +143,9 @@
 </div>
 </body>
 </html>
+
+
+
+
+
+

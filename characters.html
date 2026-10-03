@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
@@ -36,61 +36,212 @@
 
 <section class="character-grid">
 
-  <article class="character-card rarity-1" data-character="slime">
+  <div class="evolution-row" data-evolution-line="slime">
+
+  <article class="character-card rarity-1 evolution-card"
+           data-character="slime"
+           data-evolution-stage="0">
     <div class="rarity">★</div>
-    <div class="character-art"><img src="assets/characters/slime.png" alt="スライム"></div>
+    <div class="character-art">
+      <img src="assets/characters/slime.png" alt="スライム">
+    </div>
     <div class="character-info">
       <small>SLIME</small>
       <h3>スライム</h3>
-      <span class="type">バランス</span>
-      <div class="skill">
-        <b>💦 みずのちから</b>
-        <p>敵1体にダメージを与える。</p>
-      </div>
     </div>
   </article>
 
-  <article class="character-card rarity-1" data-character="golem">
+  <article class="character-card rarity-1 evolution-card"
+           data-evolution-of="slime"
+           data-evolution-stage="1">
+    <div class="rarity">★★</div>
+    <div class="character-art">
+      <img src="assets/characters/slime-evo1.png" alt="スライム2">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 1</small>
+      <h3>スライム2</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-1 evolution-card"
+           data-evolution-of="slime"
+           data-evolution-stage="2">
+    <div class="rarity">★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/slime-evo2.png" alt="スライム3">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 2</small>
+      <h3>スライム3</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-1 evolution-card"
+           data-evolution-of="slime"
+           data-evolution-stage="3">
+    <div class="rarity">★★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/slime-evo3.png" alt="スライム4">
+    </div>
+    <div class="character-info">
+      <small>FINAL EVOLUTION</small>
+      <h3>スライム4</h3>
+    </div>
+  </article>
+
+</div>
+<div class="evolution-row" data-evolution-line="golem">
+
+  <article class="character-card rarity-1 evolution-card"
+           data-character="golem"
+           data-evolution-stage="0">
     <div class="rarity">★</div>
-    <div class="character-art"><img src="assets/characters/golem.png" alt="ゴーレム"></div>
+    <div class="character-art">
+      <img src="assets/characters/golem.png" alt="ゴーレム">
+    </div>
     <div class="character-info">
       <small>GOLEM</small>
       <h3>ゴーレム</h3>
-      <span class="type">タンク</span>
-      <div class="skill">
-        <b>🛡️ ストーンガード</b>
-        <p>受けるダメージを軽減する。</p>
-      </div>
     </div>
   </article>
 
-  <article class="character-card rarity-2" data-character="fire-lizard">
+  <article class="character-card rarity-2 evolution-card"
+           data-evolution-of="golem"
+           data-evolution-stage="1">
     <div class="rarity">★★</div>
-    <div class="character-art"><img src="assets/characters/fire-lizard.png" alt="ファイアリザード"></div>
+    <div class="character-art">
+      <img src="assets/characters/golem-evo1.png" alt="ゴーレム2">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 1</small>
+      <h3>ゴーレム2</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-3 evolution-card"
+           data-evolution-of="golem"
+           data-evolution-stage="2">
+    <div class="rarity">★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/golem-evo2.png" alt="ゴーレム3">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 2</small>
+      <h3>ゴーレム3</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-4 evolution-card"
+           data-evolution-of="golem"
+           data-evolution-stage="3">
+    <div class="rarity">★★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/golem-evo3.png" alt="ゴーレム4">
+    </div>
+    <div class="character-info">
+      <small>FINAL EVOLUTION</small>
+      <h3>ゴーレム4</h3>
+    </div>
+  </article>
+
+</div>
+
+<div class="evolution-row" data-evolution-line="fire-lizard">
+
+  <article class="character-card rarity-2 evolution-card"
+           data-character="fire-lizard"
+           data-evolution-stage="0">
+    <div class="rarity">★★</div>
+    <div class="character-art">
+      <img src="assets/characters/fire-lizard.png" alt="ファイアリザード">
+    </div>
     <div class="character-info">
       <small>FIRE LIZARD</small>
       <h3>ファイアリザード</h3>
-      <span class="type">アタッカー</span>
-      <div class="skill">
-        <b>🔥 フレイムブレス</b>
-        <p>敵全体に炎ダメージを与える。</p>
-      </div>
     </div>
   </article>
 
-  <article class="character-card rarity-2" data-character="forest-spirit">
+  <article class="character-card rarity-3 evolution-card"
+           data-evolution-of="fire-lizard"
+           data-evolution-stage="1">
+    <div class="rarity">★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/fire-lizard-evo1.png" alt="ファイアリザード2">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 1</small>
+      <h3>ファイアリザード2</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-4 evolution-card"
+           data-evolution-of="fire-lizard"
+           data-evolution-stage="2">
+    <div class="rarity">★★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/fire-lizard-evo2.png" alt="ファイアリザード3">
+    </div>
+    <div class="character-info">
+      <small>EVOLUTION 2</small>
+      <h3>ファイアリザード3</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-5 evolution-card"
+           data-evolution-of="fire-lizard"
+           data-evolution-stage="3">
+    <div class="rarity">★★★★★</div>
+    <div class="character-art">
+      <img src="assets/characters/fire-lizard-evo3.png" alt="ファイアリザード4">
+    </div>
+    <div class="character-info">
+      <small>FINAL EVOLUTION</small>
+      <h3>ファイアリザード4</h3>
+    </div>
+  </article>
+
+</div>
+
+<div class="evolution-row" data-evolution-line="forest-spirit">
+
+  <article class="character-card rarity-2 evolution-card" data-character="forest-spirit" data-evolution-stage="0">
     <div class="rarity">★★</div>
     <div class="character-art"><img src="assets/characters/forest-spirit.png" alt="森の精霊"></div>
     <div class="character-info">
       <small>FOREST SPIRIT</small>
       <h3>森の精霊</h3>
-      <span class="type">サポート</span>
-      <div class="skill">
-        <b>🍃 いやしのかぜ</b>
-        <p>味方全体のHPを回復する。</p>
-      </div>
     </div>
   </article>
+
+  <article class="character-card rarity-3 evolution-card" data-evolution-of="forest-spirit" data-evolution-stage="1">
+    <div class="rarity">★★★</div>
+    <div class="character-art"><img src="assets/characters/forest-spirit-evo1.png" alt="森の精霊 進化1"></div>
+    <div class="character-info">
+      <small>EVOLUTION I</small>
+      <h3>森の精霊2</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-4 evolution-card" data-evolution-of="forest-spirit" data-evolution-stage="2">
+    <div class="rarity">★★★★</div>
+    <div class="character-art"><img src="assets/characters/forest-spirit-evo2.png" alt="森の精霊 進化2"></div>
+    <div class="character-info">
+      <small>EVOLUTION II</small>
+      <h3>森の精霊3</h3>
+    </div>
+  </article>
+
+  <article class="character-card rarity-5 evolution-card" data-evolution-of="forest-spirit" data-evolution-stage="3">
+    <div class="rarity">★★★★★</div>
+    <div class="character-art"><img src="assets/characters/forest-spirit-evo3.png" alt="森の精霊 最終進化"></div>
+    <div class="character-info">
+      <small>FINAL EVOLUTION</small>
+      <h3>森の精霊4</h3>
+    </div>
+  </article>
+
+</div>
 
   <article class="character-card rarity-3" data-character="mimic">
     <div class="rarity">★★★</div>
@@ -134,3 +285,8 @@
 <script src="characters.js"></script>
 </body>
 </html>
+
+
+
+
+

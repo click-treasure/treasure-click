@@ -1,4 +1,4 @@
-* {
+﻿* {
   box-sizing: border-box;
 }
 
@@ -673,3 +673,226 @@ button {
 .dungeon-world {
   z-index: 5;
 }
+.result-level-box{margin:18px 0;padding:14px;border-radius:14px;background:rgba(0,0,0,.28)}.result-level-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.result-level-row strong{font-size:20px}.result-level-row span{font-size:12px;opacity:.85}.result-exp-bar{width:100%;height:12px;background:rgba(255,255,255,.15);border-radius:999px;overflow:hidden}.result-exp-bar i{display:block;width:0;height:100%;background:linear-gradient(90deg,#5de0ff,#8bffb0);border-radius:999px;transition:width 1s ease}.result-level-up{text-align:center;margin-top:12px;font-size:22px;font-weight:900;animation:levelUpPop .6s ease}@keyframes levelUpPop{0%{transform:scale(.5);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+
+.dev-speed{display:flex;flex-direction:column;align-items:center;gap:5px}.dev-speed>span{font-size:10px;opacity:.7}.dev-speed>div{display:flex;gap:4px}.speed-btn{padding:5px 9px;border:1px solid rgba(255,255,255,.25);border-radius:7px;background:rgba(0,0,0,.35);color:#fff;font-weight:700;cursor:pointer}.speed-btn.active{background:#fff;color:#111;transform:scale(1.08)}
+
+/* ===== Battle HP Layout Fix ===== */
+.player-info{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:4px}.player-info strong{margin-bottom:2px;text-align:center}.player-info .hp-bar{width:150px}.player-info #playerHpText{margin-top:1px;text-align:center}.enemy-placeholder{justify-content:flex-start;gap:4px}.enemy-name{text-align:center;margin:0}.enemy-hp-bar{flex-shrink:0}.enemy-hp-text{margin-top:0;text-align:center}
+
+
+/* ===== Battle Character Layout Fix v2 ===== */
+.dungeon-player{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:180px;height:auto;bottom:50px}
+.dungeon-player .player-placeholder{width:120px;height:120px;flex:0 0 120px;display:flex;align-items:flex-end;justify-content:center}
+.dungeon-player .dungeon-character-image{width:110px;height:110px}
+.dungeon-player .player-info{width:150px;flex:none;display:flex;flex-direction:column;align-items:center;gap:3px;margin-top:2px}
+.dungeon-player .player-info strong{margin:0;text-align:center}
+.dungeon-player .player-info .hp-bar{width:150px}
+.dungeon-player .player-info #playerHpText{margin:0;text-align:center}
+.dungeon-enemy{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;width:210px;height:auto;bottom:50px}
+.dungeon-enemy .enemy-placeholder{width:210px;min-height:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:3px}
+.dungeon-enemy .enemy-icon{width:140px;height:140px}
+.dungeon-enemy .dungeon-enemy-image{width:130px;height:130px}
+.dungeon-enemy .enemy-hp-bar{width:150px}
+
+
+/* ===== Dungeon Party ===== */
+
+.player-placeholder.dungeon-party-container{
+  display:flex;
+  align-items:flex-end;
+  gap:6px;
+  width:auto;
+  min-width:0;
+  height:90px;
+  background:none;
+  border:none;
+  overflow:visible;
+}
+
+.dungeon-party-member{
+  position:relative;
+  width:54px;
+  height:70px;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+  flex-shrink:0;
+}
+
+.dungeon-party-member .dungeon-character-image{
+  width:54px;
+  height:54px;
+  object-fit:contain;
+  display:block;
+}
+
+.party-member-hp{
+  position:absolute;
+  left:4px;
+  right:4px;
+  bottom:-7px;
+  height:5px;
+  background:rgba(0,0,0,.55);
+  border-radius:999px;
+  overflow:hidden;
+}
+
+.party-member-hp i{
+  display:block;
+  height:100%;
+  width:100%;
+  background:#52e36c;
+  border-radius:999px;
+}
+
+/* Party mode: hide old single-player HUD */
+.player-info { display: none !important; }
+
+
+/* ===== Party EXP Result ===== */
+
+.result-party-exp{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  margin-top:14px;
+}
+
+.result-party-exp-box{
+  padding:12px 14px;
+  background:rgba(8,15,28,.72);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:12px;
+}
+
+.result-party-exp-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:6px;
+}
+
+.result-party-exp-header strong{
+  font-size:15px;
+  color:#fff;
+}
+
+.result-party-exp-header span{
+  font-size:15px;
+  font-weight:800;
+  color:#fff;
+}
+
+.result-party-exp-detail{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:7px;
+  font-size:12px;
+  color:#aeb8ca;
+}
+
+.result-party-exp-detail strong{
+  color:#79e7c1;
+  white-space:nowrap;
+}
+
+.result-party-exp-box .result-exp-bar{
+  height:8px;
+  overflow:hidden;
+  background:rgba(255,255,255,.10);
+  border-radius:999px;
+}
+
+.result-party-exp-box .result-exp-bar i{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:999px;
+  background:linear-gradient(90deg,#52d9f5,#75efad);
+  transition:width 1s ease;
+}
+
+.result-party-level-up{
+  margin-top:7px;
+  text-align:center;
+  font-size:12px;
+  font-weight:800;
+  color:#ffe078;
+}
+
+/* ===== Party March Ground Position Fix ===== */
+.dungeon-player{
+  bottom:95px !important;
+}
+
+/* ===== Dragon Boss Party Compact ===== */
+.player-placeholder.dungeon-party-container.boss-battle{
+  gap:3px;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member{
+  width:44px;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member .dungeon-character-image{
+  width:44px;
+  height:44px;
+}
+
+/* ===== Party Character Size Final ===== */
+.dungeon-party-member{
+  width:60px !important;
+  height:76px !important;
+}
+
+.dungeon-party-member .dungeon-character-image{
+  width:60px !important;
+  height:60px !important;
+}
+
+/* ボス戦でも味方サイズを維持 */
+.player-placeholder.dungeon-party-container.boss-battle{
+  gap:6px !important;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member{
+  width:60px !important;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member .dungeon-character-image{
+  width:60px !important;
+  height:60px !important;
+}
+
+/* ===== Party Character Size 75px ===== */
+.dungeon-party-member{
+  width:75px !important;
+  height:91px !important;
+}
+
+.dungeon-party-member .dungeon-character-image{
+  width:75px !important;
+  height:75px !important;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member{
+  width:75px !important;
+}
+
+.player-placeholder.dungeon-party-container.boss-battle .dungeon-party-member .dungeon-character-image{
+  width:75px !important;
+  height:75px !important;
+}
+
+/* ===== Normal Battle Party Position ===== */
+.player-placeholder.dungeon-party-container.normal-battle{
+  transform: translateX(-100px);
+}
+
+
+
+

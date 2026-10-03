@@ -1,3 +1,6 @@
+﻿const DUNGEON_URL="https://xjnaombhyeyeibuarmcf.supabase.co", DUNGEON_KEY="sb_publishable_QrdmDnaf8T4iIgHujdnTdw_hkeHDv6s";
+const dungeonAccessToken = localStorage.getItem("v261_access_token") || "";
+
 "use strict";
 
 // =========================================================
@@ -85,41 +88,170 @@ const DUNGEON_CHARACTERS = {
   }
 };
 
-function loadSelectedCharacter(){
-  const characterId =
-    localStorage.getItem("ct_dungeon_character");
+async function loadSelectedCharacter(){
 
-  const character =
-    DUNGEON_CHARACTERS[characterId];
+  // ===== 最大5体パーティ読み込み =====
+  let partyIds = [];
 
-  if(!character){
+  try{
+    const savedParty =
+      JSON.parse(localStorage.getItem("ct_dungeon_party") || "[]");
+
+    if(Array.isArray(savedParty)){
+      partyIds = savedParty.slice(0, 5);
+    }
+  }catch(error){
+    console.error("Party load error:", error);
+  }
+
+  // 旧1体データとの互換
+  if(partyIds.length === 0){
+    const oldCharacter =
+      localStorage.getItem("ct_dungeon_character");
+
+    if(oldCharacter){
+      partyIds = [oldCharacter];
+    }
+  }
+
+  if(partyIds.length === 0){
     location.href = "characters.html";
     return;
   }
 
-  dungeonState.player.id = characterId;
-  dungeonState.player.name = character.name;
-
-  // キャラクターごとのHP
-  const characterHp = {
-    slime: 100,
-    golem: 180,
-    fire_lizard: 150,
-    forest_spirit: 150,
-    mimic: 100
+  const baseHp = {
+    slime:100,
+    golem:180,
+    fire_lizard:150,
+    forest_spirit:150,
+    mimic:100
   };
 
-  if(characterHp[characterId] !== undefined){
-    dungeonState.player.maxHp = characterHp[characterId];
-    dungeonState.player.hp = characterHp[characterId];
+  const baseAttack = {
+    slime:20,
+    golem:20,
+    fire_lizard:30,
+    forest_spirit:30,
+    mimic:40
+  };
+
+  const party = [];
+
+  for(const characterId of partyIds){
+
+    const character =
+      DUNGEON_CHARACTERS[characterId];
+
+    if(!character){
+      continue;
+    }
+
+    const response = await fetch(
+      `${DUNGEON_URL}/rest/v1/user_characters?select=level,evolution_stage&character_id=eq.${characterId.replaceAll("-","_")}`,
+      {
+        headers:{
+          "apikey":DUNGEON_KEY,
+          "Authorization":"Bearer " + dungeonAccessToken
+        }
+      }
+    );
+
+    if(!response.ok){
+      throw new Error(await response.text());
+    }
+
+    const rows = await response.json();
+    const ownedCharacter = rows[0];
+
+    const level =
+      ownedCharacter?.level ?? 1;
+
+    const evolutionStage =
+      ownedCharacter?.evolution_stage ?? 0;
+
+    const levelMultiplier =
+      1 + ((level - 1) * 9 / 99);
+
+    const evolutionMultiplier =
+      Math.pow(1.5, evolutionStage);
+
+    const multiplier =
+      levelMultiplier * evolutionMultiplier;
+
+    const maxHp =
+      Math.round((baseHp[characterId] ?? 100) * multiplier);
+
+    const attack =
+      Math.round((baseAttack[characterId] ?? 20) * multiplier);
+
+    party.push({
+      id: characterId,
+      name: character.name,
+      image: characterId === "slime"
+  ? [
+      "assets/characters/slime.png",
+      "assets/characters/slime-evo1.png",
+      "assets/characters/slime-evo2.png",
+      "assets/characters/slime-evo3.png"
+    ][evolutionStage] || character.image
+  : character.image,
+      level,
+      evolutionStage,
+      maxHp,
+      hp: maxHp,
+      attack,
+      guardReduction: 0
+    });
   }
 
+  if(party.length === 0){
+    location.href = "characters.html";
+    return;
+  }
+
+  // 新しい5体パーティ
+  dungeonState.party = party;
+
+  // 既存1体戦闘との互換性を維持
+  dungeonState.player = party[0];
+
+  console.log(
+    "[DUNGEON PARTY LOADED]",
+    dungeonState.party
+  );
+
+  // ===== パーティ最大5体を表示 =====
   const playerBox =
     document.querySelector(".player-placeholder");
 
   if(playerBox){
-    playerBox.innerHTML =
-      `<img src="${character.image}" alt="${character.name}" class="dungeon-character-image">`;
+
+    playerBox.innerHTML = "";
+    playerBox.classList.add("dungeon-party-container", "normal-battle");
+
+    party.forEach((member, index) => {
+
+      const memberEl =
+        document.createElement("div");
+
+      memberEl.className =
+        "dungeon-party-member";
+
+      memberEl.dataset.partyIndex = index;
+
+      memberEl.innerHTML = `
+        <img
+          src="${member.image}"
+          alt="${member.name}"
+          class="dungeon-character-image"
+        >
+        <div class="party-member-hp">
+          <i style="width:100%"></i>
+        </div>
+      `;
+
+      playerBox.appendChild(memberEl);
+    });
   }
 
   renderDungeon();
@@ -154,6 +286,13 @@ const DUNGEON_ENEMIES = {
   }
 };
 
+
+// ===== Dungeon Enemy EXP =====
+const DUNGEON_ENEMY_EXP = {
+  dungeon_slime: 10,
+  dungeon_golem: 50,
+  dungeon_dragon: 100
+};
 dungeonState.enemy = {
   id: "dungeon_slime",
   name: DUNGEON_ENEMIES.dungeon_slime.name,
@@ -168,6 +307,14 @@ function renderEnemy(){
   if(!enemyBox) return;
 
   const enemy = dungeonState.enemy;
+  // ドラゴンはWARNINGまで完全に描画しない
+  if(
+    enemy.id === "dungeon_dragon" &&
+    !marchState.bossAppeared
+  ){
+    enemyBox.innerHTML = "";
+    return;
+  }
   const hpPercent = Math.max(
     0,
     (enemy.hp / enemy.maxHp) * 100
@@ -212,7 +359,9 @@ function startNextRoom(){
 
   const enemyData = DUNGEON_ENEMIES.dungeon_slime;
 
-  dungeonState.enemy = {
+  
+
+dungeonState.enemy = {
     id: "dungeon_slime",
     name: enemyData.name,
     hp: enemyData.maxHp,
@@ -242,7 +391,11 @@ const marchState = {
   cameraX: 0,
   enemyX: 750,
   kills: 0,
+  earnedExp: 0,
+  expSaved: false,
   battleStarted: false,
+  bossWarningActive: false,
+  bossAppeared: false,
   running: true
 };
 
@@ -258,44 +411,172 @@ function updateMarch(){
 
   if(marchState.running){
 
-    const enemyX = marchState.enemyX;
+    // ===== Dragon Boss Entrance =====
+    if(
+      dungeonState.enemy?.id === "dungeon_dragon" &&
+      !marchState.bossAppeared
+    ){
 
-    const isBossEnemy =
-      dungeonState.enemy &&
-      (
-        dungeonState.enemy.id === "dungeon_golem" ||
-        dungeonState.enemy.id === "dungeon_dragon"
-      );
+      // ドラゴンを見せないまま、さらに奥へ進軍
+      const bossTriggerX = marchState.enemyX + 300;
 
-    // プレイヤーの表示幅＋余白を考慮して接敵位置を決定
-    // 敵の表示ボックス180px + 余白20px
-    const battleDistance =
-      isBossEnemy ? 200 : 150;
+      if(marchState.playerX < bossTriggerX){
 
-    if(marchState.playerX < enemyX - battleDistance){
-      marchState.playerX += marchState.speed;
-    }else{
-      marchState.playerX = enemyX - battleDistance;
-      marchState.running = false;
+        marchState.playerX +=
+          marchState.speed * dungeonGameSpeed;
 
-      if(!marchState.battleStarted){
-        marchState.battleStarted = true;
+      }else{
 
-        const isBoss =
-          dungeonState.enemy &&
-          (
-            dungeonState.enemy.id === "dungeon_golem" ||
-            dungeonState.enemy.id === "dungeon_dragon"
-          );
+        // 画面外まで進軍完了
+        marchState.running = false;
+        marchState.bossWarningActive = true;
 
-        playDungeonBgm(isBoss);
-
-        if(isBoss){
-          addBattleLog("🔥 ボス戦BGM開始！");
+        if(playerEl){
+          playerEl.style.display = "none";
         }
 
-        addBattleLog("⚔️ 敵と遭遇！ 自動戦闘開始！");
-        startAutoBattle();
+        addBattleLog("⚠️ WARNING");
+        addBattleLog("⚠️ 強大な気配を感じる……");
+
+        // 少し溜めてからドラゴン出現
+        setTimeout(() => {
+
+          const enemyEl =
+            document.getElementById("dungeonEnemy");          // ===== ボス登場：カメラ切り替えと同時に2体表示 =====
+
+          // スライムは現在位置から動かさない
+          // ドラゴンをスライムの少し前に配置
+          marchState.enemyX =
+            marchState.playerX + 400;
+
+          const bossEnemyEl =
+            document.getElementById("dungeonEnemy");
+
+          if(bossEnemyEl){
+            bossEnemyEl.style.left =
+              `${marchState.enemyX - 70}px`;
+          }
+
+          // ボス出現フラグを先にON
+          const bossPartyBox = document.querySelector(".dungeon-party-container");
+          if(bossPartyBox){
+            bossPartyBox.classList.remove("normal-battle");
+          }
+
+          marchState.bossAppeared = true;
+          marchState.bossWarningActive = false;
+
+          // ドラゴンを描画
+          renderEnemy();
+
+          // スライムとドラゴンを同時表示
+          if(playerEl){
+            playerEl.style.display = "";
+          }
+
+          if(bossEnemyEl){
+            bossEnemyEl.style.display = "";
+          }
+
+          // ボス戦カメラへ切り替え
+          marchState.cameraX =
+            Math.max(
+              0,
+              marchState.playerX -
+              (viewportEl.clientWidth * 0.25)
+            );
+
+          addBattleLog("🐉 ドラゴン出現！");
+          addBattleLog("🔥 ボス戦開始！");
+
+          playDungeonBgm(true);
+
+          marchState.battleStarted = true;
+          const partyBox = document.querySelector(".dungeon-party-container");
+
+          if(partyBox){
+            partyBox.classList.toggle('normal-battle',
+              dungeonState.enemy?.id === "dungeon_slime" ||
+              dungeonState.enemy?.id === "dungeon_golem"
+            );
+          }
+
+          startAutoBattle();
+
+        }, 100);
+      }
+
+    }else{
+
+      // ===== 通常進軍 =====
+
+      const enemyX = marchState.enemyX;
+
+      const isBossEnemy =
+        dungeonState.enemy &&
+        (
+          dungeonState.enemy.id === "dungeon_golem" ||
+          dungeonState.enemy.id === "dungeon_dragon"
+        );
+
+      const partyCount = Math.max(
+        1,
+        dungeonState.party?.filter(member => member.hp > 0).length ?? 1
+      );
+
+      const partySpacing = (partyCount - 1) * 20;
+
+      let battleDistance =
+        (isBossEnemy ? 200 : 150) + partySpacing;
+
+      if(dungeonState.enemy?.id === "dungeon_dragon"){
+        battleDistance = 400;
+      }
+
+      if(marchState.playerX < enemyX - battleDistance){
+
+        marchState.playerX +=
+          marchState.speed * dungeonGameSpeed;
+
+      }else{
+
+        marchState.playerX =
+          enemyX - battleDistance;
+
+        marchState.running = false;
+
+        if(!marchState.battleStarted){
+
+          marchState.battleStarted = true;
+
+          const isBoss =
+            dungeonState.enemy &&
+            (
+              dungeonState.enemy.id === "dungeon_golem" ||
+              dungeonState.enemy.id === "dungeon_dragon"
+            );
+
+          playDungeonBgm(isBoss);
+
+          if(isBoss){
+            addBattleLog("🔥 ボス戦BGM開始！");
+          }
+
+          addBattleLog(
+            "⚔️ 敵と遭遇！ 自動戦闘開始！"
+          );
+
+          const normalPartyBox = document.querySelector(".dungeon-party-container");
+
+          if(normalPartyBox){
+            normalPartyBox.classList.toggle("normal-battle",
+              dungeonState.enemy?.id === "dungeon_slime" ||
+              dungeonState.enemy?.id === "dungeon_golem"
+            );
+          }
+
+          startAutoBattle();
+        }
       }
     }
   }
@@ -336,8 +617,16 @@ function updateMarch(){
 
     // 敵が画面右端に近すぎる場合、
     // 敵が画面内に入るようカメラを右へ寄せる
+    const bossPartyCount = Math.max(
+      1,
+      dungeonState.party?.filter(member => member.hp > 0).length ?? 1
+    );
+
+    const desiredEnemyRatio =
+      0.72 + ((bossPartyCount - 1) * 0.015);
+
     const desiredEnemyScreenX =
-      viewportWidth * 0.72;
+      viewportWidth * desiredEnemyRatio;
 
     const enemyCameraTarget =
       marchState.enemyX - desiredEnemyScreenX;
@@ -346,8 +635,7 @@ function updateMarch(){
       Math.max(cameraTarget, enemyCameraTarget);
   }
 
-  const maxCamera =
-    Math.max(0, 5300 - viewportWidth);
+  const maxCamera = Math.max(0, 6500 - viewportWidth);
 
   marchState.cameraX = Math.max(
     0,
@@ -552,130 +840,201 @@ document.addEventListener(
 
 // ===== Auto Battle =====
 
+let dungeonGameSpeed = 1;
+
 let autoBattleTimer = null;
 let autoSkillCounter = 0;
+
+function getLivingParty(){
+  return (dungeonState.party || []).filter(member => member.hp > 0);
+}
+
+function renderPartyHp(){
+  const party = dungeonState.party || [];
+
+  party.forEach((member, index) => {
+    const memberEl = document.querySelector(
+      `.dungeon-party-member[data-party-index="${index}"]`
+    );
+
+    if(!memberEl) return;
+
+    const hpBar = memberEl.querySelector(".party-member-hp i");
+    const hpPercent = member.maxHp > 0
+      ? Math.max(0, Math.min(100, (member.hp / member.maxHp) * 100))
+      : 0;
+
+    if(hpBar){
+      hpBar.style.width = `${hpPercent}%`;
+    }
+
+    if(member.hp <= 0){
+      memberEl.style.opacity = "0.3";
+      memberEl.style.filter = "grayscale(1)";
+    }else{
+      memberEl.style.opacity = "1";
+      memberEl.style.filter = "";
+    }
+  });
+}
 
 function startAutoBattle(){
   if(autoBattleTimer) return;
 
   autoBattleTimer = setInterval(() => {
     const enemy = dungeonState.enemy;
-    const player = dungeonState.player;
+    const livingParty = getLivingParty();
 
-    if(!enemy || enemy.hp <= 0 || player.hp <= 0){
+    if(!enemy || enemy.hp <= 0){
       clearInterval(autoBattleTimer);
       autoBattleTimer = null;
       return;
     }
 
-    const characterStats =
-      CHARACTER_STATS[dungeonState.player.id];
+    if(livingParty.length === 0){
+      addBattleLog("💀 全滅…");
 
-    const playerDamage =
-      characterStats
-        ? characterStats.attack
-        : 20;
+      showDungeonResult(false);
 
-    // ===== Auto Skill =====
-    autoSkillCounter += 1;
-
-    const characterId = dungeonState.player.id;
-    const skill = CHARACTER_SKILLS[characterId];
-
-    if(
-      skill &&
-      autoSkillCounter >= skill.cooldown
-    ){
-      autoSkillCounter = 0;
-
-      // ==========================================
-      // 単体ダメージ
-      // ==========================================
-
-      if(skill.type === "damage"){
-
-        enemy.hp = Math.max(
-          0,
-          enemy.hp - skill.value
-        );
-
-        addBattleLog(
-          `✨ ${dungeonState.player.name}がスキル「${skill.name}」を発動！ ${skill.value}ダメージ！`
-        );
-
-        renderEnemy();
-      }
-
-
-      // ==========================================
-      // ゴーレム：次の敵攻撃を50%軽減
-      // ==========================================
-
-      if(skill.type === "guard"){
-
-        dungeonState.player.guardReduction =
-          skill.value;
-
-        addBattleLog(
-          `🪨 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 次のダメージを${skill.value}%軽減！`
-        );
-      }
-
-
-      // ==========================================
-      // ファイアリザード：敵全体50ダメージ
-      // ==========================================
-
-      if(skill.type === "damage_all"){
-
-        enemy.hp = Math.max(
-          0,
-          enemy.hp - skill.value
-        );
-
-        addBattleLog(
-          `🔥 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 敵全体に${skill.value}ダメージ！`
-        );
-
-        renderEnemy();
-      }
-
-
-      // ==========================================
-      // 森の精霊：味方全体50回復
-      // ==========================================
-
-      if(skill.type === "heal_all"){
-
-        const oldHp = player.hp;
-
-        player.hp = Math.min(
-          player.maxHp,
-          player.hp + skill.value
-        );
-
-        const healed =
-          player.hp - oldHp;
-
-        addBattleLog(
-          `🌿 ${dungeonState.player.name}がスキル「${skill.name}」を発動！ 味方全体を${skill.value}回復！`
-        );
-
-        renderDungeon();
-      }
+      clearInterval(autoBattleTimer);
+      autoBattleTimer = null;
+      marchState.running = false;
+      return;
     }
 
-    // 通常攻撃音
-    playDungeonAttackSound();
+    autoSkillCounter += 1;
 
-    enemy.hp = Math.max(
-      0,
-      enemy.hp - playerDamage
-    );
+    // ==========================================
+    // 味方全員のターン
+    // ==========================================
 
-    renderEnemy();
+    for(const member of livingParty){
+
+      if(enemy.hp <= 0) break;
+
+      const skill = CHARACTER_SKILLS[member.id];
+
+      const skillMultiplier =
+        (1 + ((member.level - 1) * 9 / 99)) *
+        Math.pow(1.5, member.evolutionStage ?? 0);
+
+      const scaledSkillValue =
+        Math.round((skill?.value ?? 0) * skillMultiplier);
+
+      // ==========================================
+      // スキル
+      // ==========================================
+
+      if(
+        skill &&
+        autoSkillCounter % skill.cooldown === 0
+      ){
+
+        // スライム専用スキルSE
+        if(member.id === "slime"){
+          const slimeSkillSound = new Audio("./slime-skill.mp3");
+          slimeSkillSound.volume = 0.8;
+          slimeSkillSound.play().catch(() => {});
+        }
+
+        // ゴーレム専用ガードSE
+        if(member.id === "golem"){
+          const golemSkillSound = new Audio("./golem-skill.mp3");
+          golemSkillSound.volume = 0.8;
+          golemSkillSound.play().catch(() => {});
+        }
+
+
+        // 単体ダメージ
+        if(skill.type === "damage"){
+
+          enemy.hp = Math.max(
+            0,
+            enemy.hp - scaledSkillValue
+          );
+
+          addBattleLog(
+            `✨ ${member.name}がスキル「${skill.name}」を発動！ ${scaledSkillValue}ダメージ！`
+          );
+        }
+
+        // ガード
+        if(skill.type === "guard"){
+
+          member.guardReduction = skill.value;
+
+          addBattleLog(
+            `🪨 ${member.name}がスキル「${skill.name}」を発動！ 次の被ダメージを${skill.value}%軽減！`
+          );
+        }
+
+        // 全体攻撃
+        if(skill.type === "damage_all"){
+
+          enemy.hp = Math.max(
+            0,
+            enemy.hp - scaledSkillValue
+          );
+
+          addBattleLog(
+            `🔥 ${member.name}がスキル「${skill.name}」を発動！ 敵全体に${scaledSkillValue}ダメージ！`
+          );
+        }
+
+        // 味方全体回復
+        if(skill.type === "heal_all"){
+
+          let totalHeal = 0;
+
+          for(const ally of getLivingParty()){
+
+            const oldHp = ally.hp;
+
+            ally.hp = Math.min(
+              ally.maxHp,
+              ally.hp + scaledSkillValue
+            );
+
+            totalHeal += ally.hp - oldHp;
+          }
+
+          addBattleLog(
+            `🌿 ${member.name}がスキル「${skill.name}」を発動！ 味方全体を${scaledSkillValue}回復！`
+          );
+        }
+
+        renderEnemy();
+        renderPartyHp();
+      }
+
+      if(enemy.hp <= 0) break;
+
+      // ==========================================
+      // 通常攻撃
+      // ==========================================
+
+      const memberDamage = member.attack ?? 20;
+
+      playDungeonAttackSound();
+
+      enemy.hp = Math.max(
+        0,
+        enemy.hp - memberDamage
+      );
+
+      renderEnemy();
+
+      addBattleLog(
+        `⚔️ ${member.name}の攻撃！ ${memberDamage}ダメージ！`
+      );
+    }
+
+    // ==========================================
+    // 敵撃破
+    // ==========================================
 
     if(enemy.hp <= 0){
+
       addBattleLog(
         `⚔️ ${enemy.name}を撃破！進軍再開！`
       );
@@ -683,17 +1042,40 @@ function startAutoBattle(){
       clearInterval(autoBattleTimer);
       autoBattleTimer = null;
 
-      // 撃破数を加算
       marchState.kills += 1;
 
-      // 次の敵を100m先へ
+      const gainedExp =
+        DUNGEON_ENEMY_EXP[enemy.id] ?? 0;
+
+      marchState.earnedExp += gainedExp;
+
+      addBattleLog(
+        `✨ ${gainedExp} EXP獲得！ 累計 ${marchState.earnedExp} EXP`
+      );
+
+      // ドラゴン撃破
+      if(enemy.id === "dungeon_dragon"){
+
+        addBattleLog("🎉 1階層クリア！");
+        addBattleLog("🏆 ボスを撃破しました！");
+
+        marchState.running = false;
+
+        stopDungeonBgm();
+
+        setTimeout(() => {
+          showDungeonResult(true);
+        }, 500);
+
+        return;
+      }
+
+      // 次の敵
       marchState.enemyX += 500;
 
-      // 次の敵の距離
       const nextDistance =
         Math.floor((marchState.enemyX - 250) / 5);
 
-      // 距離によって敵を決定
       let nextEnemyId = "dungeon_slime";
 
       if(nextDistance === 500){
@@ -716,84 +1098,275 @@ function startAutoBattle(){
         type: nextEnemy.type
       };
 
+      const partyBox = document.querySelector(".dungeon-party-container");
+
+      if(partyBox && nextEnemyId !== "dungeon_dragon"){
+        partyBox.classList.add("normal-battle");
+      }
+
       const enemyEl =
         document.getElementById("dungeonEnemy");
 
       if(enemyEl){
 
-        // 通常の敵は通常位置
         let enemyDisplayX =
           marchState.enemyX;
 
-        // ドラゴンだけ画面上では少し手前に配置
+        if(nextEnemyId === "dungeon_golem"){
+          enemyDisplayX = marchState.enemyX - 70;
+        }
+
         if(nextEnemyId === "dungeon_dragon"){
-          enemyDisplayX -= 300;
+          marchState.enemyX -= 200;
+          enemyDisplayX = marchState.enemyX;
         }
 
         enemyEl.style.left =
           `${enemyDisplayX}px`;
       }
 
-      // 次の接敵を許可
       marchState.battleStarted = false;
       marchState.running = true;
 
-      // ボス撃破後は通常BGMへ戻す
       playDungeonBgm(false);
 
       renderEnemy();
       return;
     }
 
-    let enemyDamage = enemy.attack;
+    // ==========================================
+    // 敵の反撃：生存キャラからランダム1体
+    // ==========================================
 
-    // ゴーレムのストーンガード
-    if(player.guardReduction > 0){
-      enemyDamage = Math.floor(
-        enemyDamage * (1 - player.guardReduction / 100)
-      );
+    const targets = getLivingParty();
 
-      addBattleLog(
-        `🪨 ストーンガード！ ダメージを${player.guardReduction}%軽減！`
-      );
-
-      player.guardReduction = 0;
-    }
-
-    // 敵攻撃音
-    playDungeonEnemyAttackSound();
-
-    player.hp = Math.max(
-      0,
-      player.hp - enemyDamage
-    );
-
-    renderDungeon();
-
-    if(player.hp <= 0){
-      addBattleLog("💀 全滅…");
-
-      showDungeonResult();
-
-      clearInterval(autoBattleTimer);
-      autoBattleTimer = null;
-
-      marchState.running = false;
+    if(targets.length === 0){
       return;
     }
 
-    addBattleLog(
-      `⚔️ ${playerDamage}ダメージ！ 敵の反撃 ${enemyDamage}ダメージ！`
+    const target =
+      targets[Math.floor(Math.random() * targets.length)];
+
+    let enemyDamage = enemy.attack;
+
+    // ガード
+    if(target.guardReduction > 0){
+
+      enemyDamage = Math.floor(
+        enemyDamage *
+        (1 - target.guardReduction / 100)
+      );
+
+      addBattleLog(
+        `🪨 ${target.name}のストーンガード！ ダメージを${target.guardReduction}%軽減！`
+      );
+
+      target.guardReduction = 0;
+    }
+
+    playDungeonEnemyAttackSound();
+
+    target.hp = Math.max(
+      0,
+      target.hp - enemyDamage
     );
 
-  }, 1000);
+    renderPartyHp();
+
+    // 既存HUDは先頭キャラ表示を維持
+    renderDungeon();
+
+    addBattleLog(
+      `👹 ${enemy.name}の反撃！ ${target.name}に${enemyDamage}ダメージ！`
+    );
+
+    // ==========================================
+    // キャラ戦闘不能
+    // ==========================================
+
+    if(target.hp <= 0){
+
+      addBattleLog(
+        `💀 ${target.name}が倒れた！`
+      );
+
+      renderPartyHp();
+
+      if(getLivingParty().length === 0){
+
+        addBattleLog("💀 全滅…");
+
+        showDungeonResult(false);
+
+        clearInterval(autoBattleTimer);
+        autoBattleTimer = null;
+
+        marchState.running = false;
+        return;
+      }
+    }
+
+  }, 1000 / dungeonGameSpeed);
 }
 // ===== Dungeon Result =====
 
-function showDungeonResult(){
+async function saveDungeonExp(){
+  if(!dungeonAccessToken || marchState.earnedExp <= 0) return null;
+
+  const party = dungeonState.party || [];
+
+  if(party.length === 0) return null;
+
+  const baseExp = Math.floor(marchState.earnedExp / party.length);
+  const remainderExp = marchState.earnedExp % party.length;
+
+  const results = await Promise.all(
+    party.map(async (member, index) => {
+
+      const memberExp =
+        baseExp + (index < remainderExp ? 1 : 0);
+
+      const characterId =
+        member.id.replaceAll("-", "_");
+
+      const response = await fetch(
+        `${DUNGEON_URL}/rest/v1/rpc/apply_character_exp`,
+        {
+          method: "POST",
+          headers: {
+            "apikey": DUNGEON_KEY,
+            "Authorization": "Bearer " + dungeonAccessToken,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            p_character_id: characterId,
+            p_exp: memberExp
+          })
+        }
+      );
+
+      if(!response.ok){
+        throw new Error(
+          `${member.name}: ${await response.text()}`
+        );
+      }
+
+      const result = await response.json();
+
+      return {
+        characterId: member.id,
+        characterName: member.name,
+        gainedExp: memberExp,
+        result: Array.isArray(result) ? result[0] : result
+      };
+    })
+  );
+
+  console.log("Party EXP saved:", results);
+
+  return results;
+}
+function renderPartyDungeonExp(results){
+  const container = document.getElementById("resultPartyExp");
+
+  if(!container) return;
+
+  container.innerHTML = "";
+
+  if(!Array.isArray(results) || results.length === 0){
+    return;
+  }
+
+  results.forEach((entry) => {
+    const r = entry?.result;
+
+    if(!r) return;
+
+    const oldLevel = Number(r.old_level ?? 1);
+    const newLevel = Number(r.new_level ?? oldLevel);
+    const oldExp = Number(r.old_exp ?? 0);
+    const newExp = Number(r.new_exp ?? 0);
+    const nextExp = Number(r.next_level_exp ?? 0);
+
+    const characterName =
+      entry.characterName ?? "キャラクター";
+
+    const box = document.createElement("div");
+    box.className = "result-party-exp-box";
+
+    const levelUp =
+      newLevel > oldLevel
+        ? `<div class="result-party-level-up">✨ LEVEL UP! Lv.${oldLevel} → Lv.${newLevel}</div>`
+        : "";
+
+    const percent =
+      nextExp > 0
+        ? Math.max(0, Math.min(100, (newExp / nextExp) * 100))
+        : 100;
+
+    box.innerHTML = `
+      <div class="result-party-exp-header">
+        <strong>${characterName}</strong>
+        <span>Lv.${newLevel}</span>
+      </div>
+
+      <div class="result-party-exp-detail">
+        <span>${newExp} / ${nextExp || "MAX"} EXP</span>
+        <strong>+${entry.gainedExp ?? 0} EXP</strong>
+      </div>
+
+      <div class="result-exp-bar">
+        <i style="width:0%"></i>
+      </div>
+
+      ${levelUp}
+    `;
+
+    container.appendChild(box);
+
+    const bar = box.querySelector(".result-exp-bar i");
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        if(bar){
+          bar.style.width = `${percent}%`;
+
+          if(newLevel > oldLevel){
+            setTimeout(() => {
+              const levelUpSound = new Audio("./level-up.mp3");
+              levelUpSound.volume = 0.7;
+              levelUpSound.play().catch(() => {});
+            }, 1000);
+          }
+        }
+      });
+    });
+  });
+}
+
+async function showDungeonResult(isClear = false){
+  if(!marchState.expSaved){
+    marchState.expSaved = true;
+    try {
+      const expResult = await saveDungeonExp();
+      console.log("Dungeon EXP saved:", expResult);
+      marchState.partyExpResults = Array.isArray(expResult) ? expResult : [];
+      renderPartyDungeonExp(marchState.partyExpResults);
+      animateDungeonExp(marchState.expResult);
+    } catch(error) {
+      marchState.expSaved = false;
+      console.error("Dungeon EXP save failed:", error);
+    }
+  }
   const result = document.getElementById("dungeonResult");
+  const titleEl = document.getElementById("resultTitle");
+
+  if(titleEl){
+    titleEl.textContent = isClear ? "🏆 1階層クリア！" : "💀 冒険終了…";
+  }
   const distanceEl = document.getElementById("resultDistance");
   const killsEl = document.getElementById("resultKills");
+  const expEl = document.getElementById("resultExp");
 
   const distance =
     Math.max(0, Math.floor((marchState.playerX - 100) / 5));
@@ -804,6 +1377,10 @@ function showDungeonResult(){
 
   if(killsEl){
     killsEl.textContent = `${marchState.kills}体`;
+  }
+
+  if(expEl){
+    expEl.textContent = `${marchState.earnedExp} EXP`;
   }
 
   if(result){
@@ -948,3 +1525,72 @@ document.querySelectorAll("[data-dev-skill]").forEach(button => {
     renderDungeon();
   });
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+document.addEventListener("click", (e) => {
+  const btn = e.target.closest(".speed-btn");
+  if(!btn) return;
+  dungeonGameSpeed = Number(btn.dataset.speed) || 1;
+  document.querySelectorAll(".speed-btn").forEach(b => b.classList.toggle("active", b === btn));
+  if(autoBattleTimer){
+    clearInterval(autoBattleTimer);
+    autoBattleTimer = null;
+    startAutoBattle();
+  }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
