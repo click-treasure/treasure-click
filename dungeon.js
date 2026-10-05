@@ -304,7 +304,7 @@ const DUNGEON_FLOORS = {
     background: "assets/dungeon/volcanic-cave.png",
     normalEnemy: "fire_slime",
     midboss: "magma_golem",
-    boss: "inferno_golem",
+    boss: "inferno_salamander",
     midbossDistance: 500,
     bossDistance: 1000
   },
@@ -362,9 +362,9 @@ const DUNGEON_ENEMIES = {
   dungeon_golem: { name: "ダンジョンゴーレム", maxHp: 250, attack: 25, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
   dungeon_dragon: { name: "ダンジョンドラゴン", maxHp: 600, attack: 40, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
 
-  fire_slime: { name: "ファイアスライム", maxHp: 100, attack: 15, type: "normal", image: "assets/enemies/dungeon-slime.png" },
-  magma_golem: { name: "マグマゴーレム", maxHp: 450, attack: 35, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
-  inferno_golem: { name: "インフェルノゴーレム", maxHp: 1000, attack: 55, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
+  fire_slime: { name: "ファイアスライム", maxHp: 100, attack: 15, type: "normal", image: "assets/enemies/fire-slime.png" },
+  magma_golem: { name: "マグマゴーレム", maxHp: 450, attack: 35, type: "midboss", image: "assets/enemies/magma-golem.png" },
+  inferno_salamander: { name: "インフェルノサラマンダー", maxHp: 1000, attack: 55, type: "boss", image: "assets/enemies/inferno-salamander.png" },
 
   frost_wolf: { name: "フロストウルフ", maxHp: 180, attack: 20, type: "normal", image: "assets/enemies/dungeon-slime.png" },
   ice_golem: { name: "アイスゴーレム", maxHp: 700, attack: 45, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
@@ -382,7 +382,7 @@ const DUNGEON_ENEMIES = {
 // ===== Dungeon Enemy EXP =====
 const DUNGEON_ENEMY_EXP = {
   dungeon_slime: 10, dungeon_golem: 50, dungeon_dragon: 100,
-  fire_slime: 18, magma_golem: 80, inferno_golem: 160,
+  fire_slime: 18, magma_golem: 80, inferno_salamander: 160,
   frost_wolf: 28, ice_golem: 120, frost_wyvern: 240,
   shadow_knight: 40, abyss_guardian: 170, abyss_lord: 340,
   sky_harpy: 55, celestial_golem: 230, sky_titan: 500
@@ -391,7 +391,7 @@ const DUNGEON_ENEMY_EXP = {
 // ===== Dungeon Enemy Coin =====
 const HERO_ENEMY_COIN = {
   dungeon_slime: 10, dungeon_golem: 30, dungeon_dragon: 100,
-  fire_slime: 15, magma_golem: 45, inferno_golem: 130,
+  fire_slime: 15, magma_golem: 45, inferno_salamander: 130,
   frost_wolf: 20, ice_golem: 60, frost_wyvern: 160,
   shadow_knight: 25, abyss_guardian: 80, abyss_lord: 200,
   sky_harpy: 30, celestial_golem: 100, sky_titan: 250
@@ -2432,6 +2432,7 @@ heroEquipmentCloseButton?.addEventListener("click", () => {
     heroEquipmentPanel.hidden = true;
   }
 });
+
 
 
 

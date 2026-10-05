@@ -1211,3 +1211,19 @@ button {
   opacity:.55;
 }
 
+
+/* ===== Enemy Size by Type ===== */
+.dungeon-enemy .dungeon-enemy-image.enemy-normal{
+  width:130px;
+  height:130px;
+}
+
+.dungeon-enemy .dungeon-enemy-image.enemy-midboss{
+  width:230px;
+  height:230px;
+}
+
+.dungeon-enemy .dungeon-enemy-image.enemy-boss{
+  width:260px;
+  height:260px;
+}
