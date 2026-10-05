@@ -87,12 +87,75 @@ function renderParty(){
 }
 
 document.getElementById("dungeonMenuStart").addEventListener("click", event => {
+  event.preventDefault();
+
   const party = getParty();
 
   if(party.length === 0){
-    event.preventDefault();
     location.href = "party.html";
+    return;
   }
+
+  const selectedFloor =
+    Number(localStorage.getItem("ct_dungeon_floor") || 1);
+
+  localStorage.setItem(
+    "ct_dungeon_floor",
+    String(selectedFloor)
+  );
+
+  location.href = "dungeon.html";
 });
 
 renderParty();
+
+
+// ===== Dungeon Floor Select =====
+const floorSelectButtons =
+  document.querySelectorAll(".floor-select-button");
+
+const dungeonFloorInfo = {
+  1: { name: "はじまりの森", recommendedLevel: "1〜25", boss: "DRAGON", description: "森を進み、最深部に待つドラゴンを撃破しよう。" },
+  2: { name: "灼熱の洞窟", recommendedLevel: "26〜40", boss: "INFERNO GOLEM", description: "灼熱の洞窟を突破し、最深部の強敵を撃破しよう。" },
+  3: { name: "氷結の遺跡", recommendedLevel: "41〜55", boss: "FROST WYRM", description: "凍てつく遺跡を進み、氷の支配者を撃破しよう。" },
+  4: { name: "深淵の城", recommendedLevel: "56〜75", boss: "ABYSS LORD", description: "闇に沈んだ古城を進み、深淵の主を撃破しよう。" },
+  5: { name: "天空神殿", recommendedLevel: "76〜100", boss: "SKY TITAN", description: "天空にそびえる神殿を登り、最上層の守護者を撃破しよう。" }
+};
+
+function selectDungeonFloor(floor){
+  const selectedFloor = Number(floor) || 1;
+
+  localStorage.setItem(
+    "ct_dungeon_floor",
+    String(selectedFloor)
+  );
+
+  floorSelectButtons.forEach(button => {
+    button.classList.toggle(
+      "active",
+      Number(button.dataset.floor) === selectedFloor
+    );
+  });
+
+  const info = dungeonFloorInfo[selectedFloor] || dungeonFloorInfo[1];
+
+  document.getElementById("dungeonNumber").textContent =
+    `DUNGEON ${String(selectedFloor).padStart(2, "0")}`;
+
+  document.getElementById("dungeonName").textContent = info.name;
+  document.getElementById("dungeonFloor").textContent = selectedFloor;
+  document.getElementById("dungeonRecommendedLevel").textContent = info.recommendedLevel;
+  document.getElementById("dungeonBoss").textContent = info.boss;
+  document.getElementById("dungeonDescription").textContent = info.description;
+}
+
+floorSelectButtons.forEach(button => {
+  button.addEventListener("click", () => {
+    selectDungeonFloor(button.dataset.floor);
+  });
+});
+
+selectDungeonFloor(
+  Number(localStorage.getItem("ct_dungeon_floor") || 1)
+);
+

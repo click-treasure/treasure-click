@@ -296,6 +296,42 @@ const DUNGEON_FLOORS = {
     boss: "dungeon_dragon",
     midbossDistance: 500,
     bossDistance: 1000
+  },
+  2: {
+    id: 2,
+    name: "灼熱の洞窟",
+    normalEnemy: "fire_slime",
+    midboss: "magma_golem",
+    boss: "inferno_golem",
+    midbossDistance: 500,
+    bossDistance: 1000
+  },
+  3: {
+    id: 3,
+    name: "氷結の遺跡",
+    normalEnemy: "frost_wolf",
+    midboss: "ice_golem",
+    boss: "frost_wyvern",
+    midbossDistance: 500,
+    bossDistance: 1000
+  },
+  4: {
+    id: 4,
+    name: "深淵の城",
+    normalEnemy: "shadow_knight",
+    midboss: "abyss_guardian",
+    boss: "abyss_lord",
+    midbossDistance: 500,
+    bossDistance: 1000
+  },
+  5: {
+    id: 5,
+    name: "天空神殿",
+    normalEnemy: "sky_harpy",
+    midboss: "celestial_golem",
+    boss: "sky_titan",
+    midbossDistance: 500,
+    bossDistance: 1000
   }
 };
 
@@ -310,44 +346,53 @@ dungeonState.floor = currentFloor.id;
 // ===== Enemy System =====
 
 const DUNGEON_ENEMIES = {
-  dungeon_slime: {
-    name: "ダンジョンスライム",
-    maxHp: 50,
-    attack: 10,
-    type: "normal",
-    image: "assets/enemies/dungeon-slime.png"
-  },
+  dungeon_slime: { name: "ダンジョンスライム", maxHp: 50, attack: 10, type: "normal", image: "assets/enemies/dungeon-slime.png" },
+  dungeon_golem: { name: "ダンジョンゴーレム", maxHp: 250, attack: 25, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
+  dungeon_dragon: { name: "ダンジョンドラゴン", maxHp: 600, attack: 40, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
 
-  dungeon_golem: {
-    name: "ダンジョンゴーレム",
-    maxHp: 250,
-    attack: 25,
-    type: "midboss",
-    image: "assets/enemies/dungeon-golem.png"
-  },
+  fire_slime: { name: "ファイアスライム", maxHp: 100, attack: 15, type: "normal", image: "assets/enemies/dungeon-slime.png" },
+  magma_golem: { name: "マグマゴーレム", maxHp: 450, attack: 35, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
+  inferno_golem: { name: "インフェルノゴーレム", maxHp: 1000, attack: 55, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
 
-  dungeon_dragon: {
-    name: "ダンジョンドラゴン",
-    maxHp: 600,
-    attack: 40,
-    type: "boss",
-    image: "assets/enemies/dungeon-dragon.png"
-  }
+  frost_wolf: { name: "フロストウルフ", maxHp: 180, attack: 20, type: "normal", image: "assets/enemies/dungeon-slime.png" },
+  ice_golem: { name: "アイスゴーレム", maxHp: 700, attack: 45, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
+  frost_wyvern: { name: "フロストワイバーン", maxHp: 1500, attack: 70, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
+
+  shadow_knight: { name: "シャドウナイト", maxHp: 280, attack: 25, type: "normal", image: "assets/enemies/dungeon-slime.png" },
+  abyss_guardian: { name: "アビスガーディアン", maxHp: 1050, attack: 60, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
+  abyss_lord: { name: "アビスロード", maxHp: 2200, attack: 90, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
+
+  sky_harpy: { name: "スカイハーピー", maxHp: 400, attack: 35, type: "normal", image: "assets/enemies/dungeon-slime.png" },
+  celestial_golem: { name: "セレスティアルゴーレム", maxHp: 1500, attack: 80, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
+  sky_titan: { name: "スカイタイタン", maxHp: 3000, attack: 120, type: "boss", image: "assets/enemies/dungeon-dragon.png" }
 };
-
 
 // ===== Dungeon Enemy EXP =====
 const DUNGEON_ENEMY_EXP = {
-  dungeon_slime: 10,
-  dungeon_golem: 50,
-  dungeon_dragon: 100
+  dungeon_slime: 10, dungeon_golem: 50, dungeon_dragon: 100,
+  fire_slime: 18, magma_golem: 80, inferno_golem: 160,
+  frost_wolf: 28, ice_golem: 120, frost_wyvern: 240,
+  shadow_knight: 40, abyss_guardian: 170, abyss_lord: 340,
+  sky_harpy: 55, celestial_golem: 230, sky_titan: 500
 };
+
+// ===== Dungeon Enemy Coin =====
+const HERO_ENEMY_COIN = {
+  dungeon_slime: 10, dungeon_golem: 30, dungeon_dragon: 100,
+  fire_slime: 15, magma_golem: 45, inferno_golem: 130,
+  frost_wolf: 20, ice_golem: 60, frost_wyvern: 160,
+  shadow_knight: 25, abyss_guardian: 80, abyss_lord: 200,
+  sky_harpy: 30, celestial_golem: 100, sky_titan: 250
+};
+const initialEnemyId = currentFloor.normalEnemy;
+const initialEnemy = DUNGEON_ENEMIES[initialEnemyId];
+
 dungeonState.enemy = {
-  id: "dungeon_slime",
-  name: DUNGEON_ENEMIES.dungeon_slime.name,
-  hp: DUNGEON_ENEMIES.dungeon_slime.maxHp,
-  maxHp: DUNGEON_ENEMIES.dungeon_slime.maxHp,
-  attack: DUNGEON_ENEMIES.dungeon_slime.attack
+  id: initialEnemyId,
+  name: initialEnemy.name,
+  hp: initialEnemy.maxHp,
+  maxHp: initialEnemy.maxHp,
+  attack: initialEnemy.attack
 };
 
 function renderEnemy(){
@@ -1176,11 +1221,6 @@ if(member.id === "golem"){
       // ==========================================
       // HERO - Dungeon Coin
       // ==========================================
-      const HERO_ENEMY_COIN = {
-        dungeon_slime: 10,
-        dungeon_golem: 30,
-        dungeon_dragon: 100
-      };
 
       const gainedCoin = HERO_ENEMY_COIN[enemy.id] ?? 0;
 
@@ -1273,7 +1313,7 @@ if(member.id === "golem"){
           `装備ドロップ！ ★★★ ${droppedEquipment.name} / ATK +${droppedEquipment.attack}`
         );
 
-        addBattleLog("🎉 1階層クリア！");
+        addBattleLog(`🎉 ${currentFloor.id}階層クリア！`);
         addBattleLog("🏆 ボスを撃破しました！");
 
         marchState.running = false;
@@ -1671,7 +1711,7 @@ async function showDungeonResult(isClear = false){
   const titleEl = document.getElementById("resultTitle");
 
   if(titleEl){
-    titleEl.textContent = isClear ? "🏆 1階層クリア！" : "💀 冒険終了…";
+    titleEl.textContent = isClear ? `🏆 ${currentFloor.id}階層クリア！` : "💀 冒険終了…";
   }
   const distanceEl = document.getElementById("resultDistance");
   const killsEl = document.getElementById("resultKills");
@@ -2380,6 +2420,7 @@ heroEquipmentCloseButton?.addEventListener("click", () => {
     heroEquipmentPanel.hidden = true;
   }
 });
+
 
 
 

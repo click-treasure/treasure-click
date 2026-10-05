@@ -333,6 +333,83 @@
     .locked-dungeon p{
       color:rgba(255,255,255,.48);
     }
+
+    /* ===== Floor Select ===== */
+    .floor-select{
+      margin-top:18px;
+      padding:20px;
+      border-radius:18px;
+      background:rgba(7,9,12,.88);
+      border:1px solid rgba(255,255,255,.08);
+    }
+
+    .floor-select-label{
+      display:block;
+      margin-bottom:12px;
+      font-size:10px;
+      letter-spacing:.22em;
+      color:rgba(255,255,255,.5);
+    }
+
+    .floor-select-list{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:8px;
+    }
+
+    .floor-select-button{
+      min-width:0;
+      padding:14px 8px;
+      border-radius:10px;
+      border:1px solid rgba(255,255,255,.08);
+      background:rgba(255,255,255,.04);
+      color:#fff;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+
+    .floor-select-button small{
+      display:block;
+      margin-bottom:6px;
+      font-size:9px;
+      letter-spacing:.12em;
+      color:rgba(255,255,255,.45);
+    }
+
+    .floor-select-button strong{
+      display:block;
+      font-size:12px;
+      white-space:nowrap;
+    }
+
+    .floor-select-button:hover{
+      transform:translateY(-2px);
+      border-color:rgba(216,189,123,.45);
+    }
+
+    .floor-select-button.active{
+      background:linear-gradient(
+        180deg,
+        rgba(216,189,123,.22),
+        rgba(169,133,61,.12)
+      );
+      border-color:#d8bd7b;
+      box-shadow:0 5px 18px rgba(0,0,0,.3);
+    }
+
+    .floor-select-button.active small{
+      color:#d8bd7b;
+    }
+
+    @media(max-width:700px){
+      .floor-select-list{
+        grid-template-columns:1fr;
+      }
+
+      .floor-select-button{
+        text-align:left;
+      }
+    }
 </style>
 </head>
 <body>
@@ -348,25 +425,25 @@
   </header>
 
   <section class="dungeon-menu-card">
-    <span>DUNGEON 01</span>
-    <h2>はじまりの森</h2>
+    <span id="dungeonNumber">DUNGEON 01</span>
+    <h2 id="dungeonName">はじまりの森</h2>
 
     <div class="stage-info">
       <div>
         <small>FLOOR</small>
-        <strong>1</strong>
+        <strong id="dungeonFloor">1</strong>
       </div>
       <div>
         <small>推奨LV</small>
-        <strong>1〜25</strong>
+        <strong id="dungeonRecommendedLevel">1〜25</strong>
       </div>
       <div>
         <small>BOSS</small>
-        <strong>DRAGON</strong>
+        <strong id="dungeonBoss">DRAGON</strong>
       </div>
     </div>
 
-    <p>森を進み、最深部に待つドラゴンを撃破しよう。</p>
+    <p id="dungeonDescription">森を進み、最深部に待つドラゴンを撃破しよう。</p>
 
     <div class="current-party-wrap">
       <span>CURRENT PARTY</span>
@@ -380,17 +457,43 @@
   </section>
 
 
-  <section class="locked-dungeon">
-    
-    <small>DUNGEON 02</small>
-    <h2>COMING SOON</h2>
-    <p>新たなダンジョンが今後追加されます。</p>
+  <section class="floor-select">
+    <span class="floor-select-label">FLOOR SELECT</span>
+
+    <div class="floor-select-list">
+      <button type="button" class="floor-select-button active" data-floor="1">
+        <small>FLOOR 01</small>
+        <strong>始まりの森</strong>
+      </button>
+
+      <button type="button" class="floor-select-button" data-floor="2">
+        <small>FLOOR 02</small>
+        <strong>灼熱の洞窟</strong>
+      </button>
+
+      <button type="button" class="floor-select-button" data-floor="3">
+        <small>FLOOR 03</small>
+        <strong>氷結の遺跡</strong>
+      </button>
+
+      <button type="button" class="floor-select-button" data-floor="4">
+        <small>FLOOR 04</small>
+        <strong>深淵の城</strong>
+      </button>
+
+      <button type="button" class="floor-select-button" data-floor="5">
+        <small>FLOOR 05</small>
+        <strong>天空神殿</strong>
+      </button>
+    </div>
   </section>
 </main>
 
 <script src="dungeon-menu.js"></script>
 </body>
 </html>
+
+
 
 
 
