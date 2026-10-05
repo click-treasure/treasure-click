@@ -291,6 +291,7 @@ const DUNGEON_FLOORS = {
   1: {
     id: 1,
     name: "始まりの森",
+    background: "assets/dungeon/dungeon-background.png",
     normalEnemy: "dungeon_slime",
     midboss: "dungeon_golem",
     boss: "dungeon_dragon",
@@ -300,6 +301,7 @@ const DUNGEON_FLOORS = {
   2: {
     id: 2,
     name: "灼熱の洞窟",
+    background: "assets/dungeon/volcanic-cave.png",
     normalEnemy: "fire_slime",
     midboss: "magma_golem",
     boss: "inferno_golem",
@@ -309,6 +311,7 @@ const DUNGEON_FLOORS = {
   3: {
     id: 3,
     name: "氷結の遺跡",
+    background: "assets/dungeon/frozen-ruins.png",
     normalEnemy: "frost_wolf",
     midboss: "ice_golem",
     boss: "frost_wyvern",
@@ -318,6 +321,7 @@ const DUNGEON_FLOORS = {
   4: {
     id: 4,
     name: "深淵の城",
+    background: "assets/dungeon/abyss-castle.png",
     normalEnemy: "shadow_knight",
     midboss: "abyss_guardian",
     boss: "abyss_lord",
@@ -327,6 +331,7 @@ const DUNGEON_FLOORS = {
   5: {
     id: 5,
     name: "天空神殿",
+    background: "assets/dungeon/sky-temple.png",
     normalEnemy: "sky_harpy",
     midboss: "celestial_golem",
     boss: "sky_titan",
@@ -342,6 +347,13 @@ const currentFloor =
   DUNGEON_FLOORS[selectedDungeonFloor] || DUNGEON_FLOORS[1];
 
 dungeonState.floor = currentFloor.id;
+
+// ===== Dungeon Floor Background =====
+const floorBackground = document.querySelector(".dungeon-bg-far");
+
+if(floorBackground){
+  floorBackground.style.backgroundImage = `url("${currentFloor.background}")`;
+}
 
 // ===== Enemy System =====
 
@@ -2420,6 +2432,8 @@ heroEquipmentCloseButton?.addEventListener("click", () => {
     heroEquipmentPanel.hidden = true;
   }
 });
+
+
 
 
 

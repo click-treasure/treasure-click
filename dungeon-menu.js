@@ -139,6 +139,29 @@ function selectDungeonFloor(floor){
 
   const info = dungeonFloorInfo[selectedFloor] || dungeonFloorInfo[1];
 
+  // ===== Dungeon Menu Background =====
+  const dungeonBackgrounds = {
+    1: "assets/dungeons/beginning-forest.png",
+    2: "assets/dungeon/volcanic-cave.png",
+    3: "assets/dungeon/frozen-ruins.png",
+    4: "assets/dungeon/abyss-castle.png",
+    5: "assets/dungeon/sky-temple.png"
+  };
+
+  const dungeonMenuCard = document.querySelector(".dungeon-menu-card");
+
+  if(dungeonMenuCard){
+    dungeonMenuCard.style.background = `
+      linear-gradient(
+        90deg,
+        rgba(5,8,10,.96) 0%,
+        rgba(5,8,10,.82) 48%,
+        rgba(5,8,10,.38) 100%
+      ),
+      url("${dungeonBackgrounds[selectedFloor]}") center / cover no-repeat
+    `;
+  }
+
   document.getElementById("dungeonNumber").textContent =
     `DUNGEON ${String(selectedFloor).padStart(2, "0")}`;
 
@@ -158,4 +181,5 @@ floorSelectButtons.forEach(button => {
 selectDungeonFloor(
   Number(localStorage.getItem("ct_dungeon_floor") || 1)
 );
+
 
