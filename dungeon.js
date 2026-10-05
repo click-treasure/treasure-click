@@ -285,6 +285,28 @@ async function loadSelectedCharacter(){
 }
 
 loadSelectedCharacter();
+
+// ===== Dungeon Floor Config =====
+const DUNGEON_FLOORS = {
+  1: {
+    id: 1,
+    name: "始まりの森",
+    normalEnemy: "dungeon_slime",
+    midboss: "dungeon_golem",
+    boss: "dungeon_dragon",
+    midbossDistance: 500,
+    bossDistance: 1000
+  }
+};
+
+const selectedDungeonFloor =
+  Number(localStorage.getItem("ct_dungeon_floor") || 1);
+
+const currentFloor =
+  DUNGEON_FLOORS[selectedDungeonFloor] || DUNGEON_FLOORS[1];
+
+dungeonState.floor = currentFloor.id;
+
 // ===== Enemy System =====
 
 const DUNGEON_ENEMIES = {
@@ -336,7 +358,7 @@ function renderEnemy(){
   const enemy = dungeonState.enemy;
   // ドラゴンはWARNINGまで完全に描画しない
   if(
-    enemy.id === "dungeon_dragon" &&
+    enemy.id === currentFloor.boss &&
     !marchState.bossAppeared
   ){
     enemyBox.innerHTML = "";
@@ -384,7 +406,7 @@ function showNextRoomButton(){
 function startNextRoom(){
   dungeonState.room += 1;
 
-  const enemyData = DUNGEON_ENEMIES.dungeon_slime;
+  const enemyData = DUNGEON_ENEMIES[currentFloor.normalEnemy];
 
   
 
@@ -440,7 +462,7 @@ function updateMarch(){
 
     // ===== Dragon Boss Entrance =====
     if(
-      dungeonState.enemy?.id === "dungeon_dragon" &&
+      dungeonState.enemy?.id === currentFloor.boss &&
       !marchState.bossAppeared
     ){
 
@@ -523,8 +545,8 @@ function updateMarch(){
 
           if(partyBox){
             partyBox.classList.toggle('normal-battle',
-              dungeonState.enemy?.id === "dungeon_slime" ||
-              dungeonState.enemy?.id === "dungeon_golem"
+              dungeonState.enemy?.id === currentFloor.normalEnemy ||
+              dungeonState.enemy?.id === currentFloor.midboss
             );
           }
 
@@ -542,8 +564,8 @@ function updateMarch(){
       const isBossEnemy =
         dungeonState.enemy &&
         (
-          dungeonState.enemy.id === "dungeon_golem" ||
-          dungeonState.enemy.id === "dungeon_dragon"
+          dungeonState.enemy.id === currentFloor.midboss ||
+          dungeonState.enemy.id === currentFloor.boss
         );
 
       const partyCount = Math.max(
@@ -556,7 +578,7 @@ function updateMarch(){
       let battleDistance =
         (isBossEnemy ? 200 : 150) + partySpacing;
 
-      if(dungeonState.enemy?.id === "dungeon_dragon"){
+      if(dungeonState.enemy?.id === currentFloor.boss){
         battleDistance = 400;
       }
 
@@ -579,8 +601,8 @@ function updateMarch(){
           const isBoss =
             dungeonState.enemy &&
             (
-              dungeonState.enemy.id === "dungeon_golem" ||
-              dungeonState.enemy.id === "dungeon_dragon"
+              dungeonState.enemy.id === currentFloor.midboss ||
+              dungeonState.enemy.id === currentFloor.boss
             );
 
           playDungeonBgm(isBoss);
@@ -597,8 +619,8 @@ function updateMarch(){
 
           if(normalPartyBox){
             normalPartyBox.classList.toggle("normal-battle",
-              dungeonState.enemy?.id === "dungeon_slime" ||
-              dungeonState.enemy?.id === "dungeon_golem"
+              dungeonState.enemy?.id === currentFloor.normalEnemy ||
+              dungeonState.enemy?.id === currentFloor.midboss
             );
           }
 
@@ -633,8 +655,8 @@ function updateMarch(){
   if(
     dungeonState.enemy &&
     (
-      dungeonState.enemy.id === "dungeon_golem" ||
-      dungeonState.enemy.id === "dungeon_dragon"
+      dungeonState.enemy.id === currentFloor.midboss ||
+      dungeonState.enemy.id === currentFloor.boss
     ) &&
     !marchState.running
   ){
@@ -1179,25 +1201,65 @@ if(member.id === "golem"){
       );
 
       // ドラゴン撃破
-      if(enemy.id === "dungeon_dragon"){
+      if(enemy.id === currentFloor.boss){
 
         // HERO - Boss Equipment Drop
+        const weaponRoll = Math.random();
+
+        let weaponData;
+
+        if(weaponRoll < 0.50){
+          weaponData = {
+            id: "wooden_sword",
+            name: "木の剣",
+            rarity: 1,
+            baseAttack: Math.floor(Math.random() * 5) + 1,
+            skill: {
+              id: "iai_slash",
+              name: "居合斬り",
+              power: 2.0,
+              cooldown: 8
+            }
+          };
+        }else if(weaponRoll < 0.90){
+          weaponData = {
+            id: "iron_sword",
+            name: "鉄の剣",
+            rarity: 2,
+            baseAttack: Math.floor(Math.random() * 5) + 6,
+            skill: {
+              id: "steel_slash",
+              name: "鋼鉄斬",
+              power: 2.2,
+              cooldown: 8
+            }
+          };
+        }else{
+          weaponData = {
+            id: "dragon_fang_sword",
+            name: "竜牙の剣",
+            rarity: 3,
+            baseAttack: Math.floor(Math.random() * 5) + 11,
+            skill: {
+              id: "dragon_slash",
+              name: "ドラゴンスラッシュ",
+              power: 2.5,
+              cooldown: 8
+            }
+          };
+        }
+
+        const hasWeaponSkill = Math.random() < 0.20;
+
         const droppedEquipment = {
-          id: "dragon_fang_sword",
-          name: "竜牙の剣",
+          id: weaponData.id,
+          name: weaponData.name,
           type: "weapon",
-          rarity: 3,
+          rarity: weaponData.rarity,
           level: 1,
-          baseAttack: 10,
-          attack: 10,
-          skill: Math.random() < 0.20
-            ? {
-                id: "dragon_slash",
-                name: "ドラゴンスラッシュ",
-                power: 2.5,
-                cooldown: 8
-              }
-            : null
+          baseAttack: weaponData.baseAttack,
+          attack: weaponData.baseAttack,
+          skill: hasWeaponSkill ? weaponData.skill : null
         };
 
         heroState.pendingEquipment = droppedEquipment;
@@ -1231,14 +1293,14 @@ if(member.id === "golem"){
       const nextDistance =
         Math.floor((marchState.enemyX - 250) / 5);
 
-      let nextEnemyId = "dungeon_slime";
+      let nextEnemyId = currentFloor.normalEnemy;
 
-      if(nextDistance === 500){
-        nextEnemyId = "dungeon_golem";
+      if(nextDistance === currentFloor.midbossDistance){
+        nextEnemyId = currentFloor.midboss;
       }
 
-      if(nextDistance === 1000){
-        nextEnemyId = "dungeon_dragon";
+      if(nextDistance === currentFloor.bossDistance){
+        nextEnemyId = currentFloor.boss;
       }
 
       const nextEnemy =
@@ -1255,7 +1317,7 @@ if(member.id === "golem"){
 
       const partyBox = document.querySelector(".dungeon-party-container");
 
-      if(partyBox && nextEnemyId !== "dungeon_dragon"){
+      if(partyBox && nextEnemyId !== currentFloor.boss){
         partyBox.classList.add("normal-battle");
       }
 
@@ -1267,11 +1329,11 @@ if(member.id === "golem"){
         let enemyDisplayX =
           marchState.enemyX;
 
-        if(nextEnemyId === "dungeon_golem"){
+        if(nextEnemyId === currentFloor.midboss){
           enemyDisplayX = marchState.enemyX - 70;
         }
 
-        if(nextEnemyId === "dungeon_dragon"){
+        if(nextEnemyId === currentFloor.boss){
           marchState.enemyX -= 200;
           enemyDisplayX = marchState.enemyX;
         }
@@ -2204,18 +2266,6 @@ renderHeroHud();
 // HERO - Equipment Panel
 // =========================================================
 
-window.addTestHeroEquipment = function(){
-  heroState.equipment.push({
-    id: "dragon_fang_sword",
-    name: "竜牙の剣",
-    type: "weapon",
-    rarity: 3,
-    level: 1,
-    attack: 10
-  });
-
-  console.log("[TEST EQUIPMENT ADDED]", heroState.equipment);
-};
 function getWeaponLevelUpCost(weapon){
   return 10 + (((weapon?.level || 1) - 1) * 5);
 }
@@ -2335,29 +2385,15 @@ heroEquipmentCloseButton?.addEventListener("click", () => {
 
 
 
-// =========================================================
-// DEV - Boss Drop Test
-// =========================================================
-window.testBossDrop = function(){
-  const droppedEquipment = {
-    id: "dragon_fang_sword",
-    name: "竜牙の剣",
-    type: "weapon",
-    rarity: 3,
-    level: 1,
-    attack: 10
-  };
 
-  heroState.equipment.push(droppedEquipment);
 
-  console.log("[BOSS DROP TEST]", heroState.equipment);
 
-  addBattleLog(
-    `装備ドロップ！ ★★★ ${droppedEquipment.name} / ATK +${droppedEquipment.attack}`
-  );
 
-  renderHeroEquipment();
-};
+
+
+
+
+
 
 
 
