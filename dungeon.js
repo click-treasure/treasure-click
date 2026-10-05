@@ -115,7 +115,7 @@ async function loadSelectedCharacter(){
   }
 
   if(partyIds.length === 0){
-    location.href = "characters.html";
+    location.href = "dungeon-menu.html";
     return;
   }
 
@@ -137,7 +137,12 @@ async function loadSelectedCharacter(){
 
   const party = [];
 
-  for(const characterId of partyIds){
+  for(const partyEntry of partyIds){
+
+    const parts = String(partyEntry).split("@");
+    const characterId = parts[0];
+    const devEvolutionStage =
+      parts.length > 1 ? Number(parts[1]) : null;
 
     const character =
       DUNGEON_CHARACTERS[characterId];
@@ -166,8 +171,11 @@ async function loadSelectedCharacter(){
     const level =
       ownedCharacter?.level ?? 1;
 
-    const evolutionStage =
+    let evolutionStage =
       ownedCharacter?.evolution_stage ?? 0;
+    if(devEvolutionStage !== null && Number.isFinite(devEvolutionStage)){
+      evolutionStage = Math.max(0, Math.min(3, devEvolutionStage));
+    }
 
     const levelMultiplier =
       1 + ((level - 1) * 9 / 99);
@@ -187,16 +195,35 @@ async function loadSelectedCharacter(){
     party.push({
       id: characterId,
       name: character.name,
-      image: characterId === "slime"
-  ? [
-      "assets/characters/slime.png",
-      "assets/characters/slime-evo1.png",
-      "assets/characters/slime-evo2.png",
-      "assets/characters/slime-evo3.png"
-    ][evolutionStage] || character.image
-  : character.image,
+      image: ({
+        slime: [
+          "assets/characters/slime.png",
+          "assets/characters/slime-evo1.png",
+          "assets/characters/slime-evo2.png",
+          "assets/characters/slime-evo3.png"
+        ],
+        golem: [
+          "assets/characters/golem.png",
+          "assets/characters/golem-evo1.png",
+          "assets/characters/golem-evo2.png",
+          "assets/characters/golem-evo3.png"
+        ],
+        fire_lizard: [
+          "assets/characters/fire-lizard.png",
+          "assets/characters/fire-lizard-evo1.png",
+          "assets/characters/fire-lizard-evo2.png",
+          "assets/characters/fire-lizard-evo3.png"
+        ],
+        forest_spirit: [
+          "assets/characters/forest-spirit.png",
+          "assets/characters/forest-spirit-evo1.png",
+          "assets/characters/forest-spirit-evo2.png",
+          "assets/characters/forest-spirit-evo3.png"
+        ]
+      })[characterId]?.[evolutionStage] || character.image,
       level,
       evolutionStage,
+      dbEvolutionStage: Number(ownedCharacter?.evolution_stage ?? 0),
       maxHp,
       hp: maxHp,
       attack,
@@ -205,7 +232,7 @@ async function loadSelectedCharacter(){
   }
 
   if(party.length === 0){
-    location.href = "characters.html";
+    location.href = "dungeon-menu.html";
     return;
   }
 
@@ -885,11 +912,15 @@ function startAutoBattle(){
     const enemy = dungeonState.enemy;
     const livingParty = getLivingParty();
 
-    if(!enemy || enemy.hp <= 0){
+    if(!enemy){
       clearInterval(autoBattleTimer);
       autoBattleTimer = null;
       return;
     }
+
+    // 勇者が敵を倒していた場合は味方ターンを飛ばし、
+    // このtick内で既存の敵撃破処理へ進む
+    const enemyAlreadyDefeated = enemy.hp <= 0;
 
     if(livingParty.length === 0){
       addBattleLog("💀 全滅…");
@@ -908,12 +939,81 @@ function startAutoBattle(){
     // 味方全員のターン
     // ==========================================
 
-    for(const member of livingParty){
+    if(!enemyAlreadyDefeated) for(const member of livingParty){
 
       if(enemy.hp <= 0) break;
 
-      const skill = CHARACTER_SKILLS[member.id];
+      let skill = CHARACTER_SKILLS[member.id];
 
+// ゴーレム：進化段階でシールド性能を変更
+if(member.id === "golem"){
+  const stage = Number(member.evolutionStage ?? 0);
+
+  const golemSkills = [
+    {
+      name: "ストーンシールド",
+      cooldown: 5,
+      type: "guard",
+      value: 40
+    },
+    {
+      name: "クリスタルシールド",
+      cooldown: 5,
+      type: "guard",
+      value: 55
+    },
+    {
+      name: "クリスタルバリア",
+      cooldown: 5,
+      type: "guard_all",
+      value: 50
+    },
+    {
+      name: "ダイヤモンドバリア",
+      cooldown: 5,
+      type: "guard_all",
+      value: 70
+    }
+  ];
+
+  skill = golemSkills[stage] || golemSkills[0];
+}
+
+      // スライム：進化段階で単体攻撃を強化
+      if(member.id === "slime"){
+        const stage = Number(member.evolutionStage ?? 0);
+        const skills = [
+          { name:"たいあたり", cooldown:5, type:"damage", value:30 },
+          { name:"アクアショット", cooldown:5, type:"damage", value:40 },
+          { name:"アクアバースト", cooldown:5, type:"damage", value:55 },
+          { name:"リヴァイアウェーブ", cooldown:5, type:"damage", value:75 }
+        ];
+        skill = skills[stage] || skills[0];
+      }
+
+      // ファイアリザード：進化段階で全体攻撃を強化
+      if(member.id === "fire_lizard"){
+        const stage = Number(member.evolutionStage ?? 0);
+        const skills = [
+          { name:"ファイアブレス", cooldown:5, type:"damage_all", value:50 },
+          { name:"フレイムブレス", cooldown:5, type:"damage_all", value:65 },
+          { name:"インフェルノブレス", cooldown:5, type:"damage_all", value:85 },
+          { name:"ヴォルカニックノヴァ", cooldown:5, type:"damage_all", value:110 }
+        ];
+        skill = skills[stage] || skills[0];
+      }
+
+      // 森の精霊：進化段階で全体回復を強化
+      if(member.id === "forest_spirit"){
+        const stage = Number(member.evolutionStage ?? 0);
+        const skills = [
+          { name:"ヒールリーフ", cooldown:5, type:"heal_all", value:35 },
+          { name:"フォレストヒール", cooldown:5, type:"heal_all", value:50 },
+          { name:"シルフィードブレス", cooldown:5, type:"heal_all", value:70 },
+          { name:"世界樹の祝福", cooldown:5, type:"heal_all", value:95 }
+        ];
+        skill = skills[stage] || skills[0];
+      }
       const skillMultiplier =
         (1 + ((member.level - 1) * 9 / 99)) *
         Math.pow(1.5, member.evolutionStage ?? 0);
@@ -966,6 +1066,14 @@ function startAutoBattle(){
           addBattleLog(
             `🪨 ${member.name}がスキル「${skill.name}」を発動！ 次の被ダメージを${skill.value}%軽減！`
           );
+        }
+
+        // 味方全体バリア
+        if(skill.type === "guard_all"){
+          for(const ally of getLivingParty()){
+            ally.guardReduction = skill.value;
+          }
+          addBattleLog(`🛡️ ${member.name}がスキル「${skill.name}」を発動！ 味方全体の次の被ダメージを${skill.value}%軽減！`);
         }
 
         // 全体攻撃
@@ -1043,6 +1151,23 @@ function startAutoBattle(){
       autoBattleTimer = null;
 
       marchState.kills += 1;
+      // ==========================================
+      // HERO - Dungeon Coin
+      // ==========================================
+      const HERO_ENEMY_COIN = {
+        dungeon_slime: 10,
+        dungeon_golem: 30,
+        dungeon_dragon: 100
+      };
+
+      const gainedCoin = HERO_ENEMY_COIN[enemy.id] ?? 0;
+
+      heroState.coin += gainedCoin;
+      renderHeroHud();
+
+      addBattleLog(
+        `COIN +${gainedCoin}！ 所持 ${heroState.coin} COIN`
+      );
 
       const gainedExp =
         DUNGEON_ENEMY_EXP[enemy.id] ?? 0;
@@ -1055,6 +1180,36 @@ function startAutoBattle(){
 
       // ドラゴン撃破
       if(enemy.id === "dungeon_dragon"){
+
+        // HERO - Boss Equipment Drop
+        const droppedEquipment = {
+          id: "dragon_fang_sword",
+          name: "竜牙の剣",
+          type: "weapon",
+          rarity: 3,
+          level: 1,
+          baseAttack: 10,
+          attack: 10,
+          skill: Math.random() < 0.20
+            ? {
+                id: "dragon_slash",
+                name: "ドラゴンスラッシュ",
+                power: 2.5,
+                cooldown: 8
+              }
+            : null
+        };
+
+        heroState.pendingEquipment = droppedEquipment;
+
+        console.log(
+          "[EQUIPMENT DROP PENDING]",
+          heroState.pendingEquipment
+        );
+
+        addBattleLog(
+          `装備ドロップ！ ★★★ ${droppedEquipment.name} / ATK +${droppedEquipment.attack}`
+        );
 
         addBattleLog("🎉 1階層クリア！");
         addBattleLog("🏆 ボスを撃破しました！");
@@ -1210,7 +1365,20 @@ function startAutoBattle(){
 }
 // ===== Dungeon Result =====
 
+function isDevSyntheticParty(){
+  const party = dungeonState.party || [];
+
+  return party.some(member =>
+    Number(member.evolutionStage ?? 0) !==
+    Number(member.dbEvolutionStage ?? 0)
+  );
+}
+
 async function saveDungeonExp(){
+  if(isDevSyntheticParty()){
+    console.log("[DEV] Synthetic party detected. EXP save skipped.");
+    return [];
+  }
   if(!dungeonAccessToken || marchState.earnedExp <= 0) return null;
 
   const party = dungeonState.party || [];
@@ -1263,6 +1431,8 @@ async function saveDungeonExp(){
   );
 
   console.log("Party EXP saved:", results);
+console.log("=== EXP DEBUG ===");
+console.log(JSON.stringify(results, null, 2));
 
   return results;
 }
@@ -1279,7 +1449,6 @@ function renderPartyDungeonExp(results){
 
   results.forEach((entry) => {
     const r = entry?.result;
-
     if(!r) return;
 
     const oldLevel = Number(r.old_level ?? 1);
@@ -1287,64 +1456,143 @@ function renderPartyDungeonExp(results){
     const oldExp = Number(r.old_exp ?? 0);
     const newExp = Number(r.new_exp ?? 0);
     const nextExp = Number(r.next_level_exp ?? 0);
+    const gainedExp = Number(entry.gainedExp ?? 0);
 
     const characterName =
       entry.characterName ?? "キャラクター";
 
-    const box = document.createElement("div");
-    box.className = "result-party-exp-box";
+    const didLevelUp = newLevel > oldLevel;
 
-    const levelUp =
-      newLevel > oldLevel
-        ? `<div class="result-party-level-up">✨ LEVEL UP! Lv.${oldLevel} → Lv.${newLevel}</div>`
-        : "";
+    // レベルアップした場合、
+    // oldExp + 獲得EXP - newExp から旧Lvの必要EXPを逆算
+    const oldRequiredExp = didLevelUp
+      ? Math.max(1, oldExp + gainedExp - newExp)
+      : nextExp;
 
-    const percent =
+    const oldPercent =
+      oldRequiredExp > 0
+        ? Math.max(0, Math.min(100, (oldExp / oldRequiredExp) * 100))
+        : 100;
+
+    const newPercent =
       nextExp > 0
         ? Math.max(0, Math.min(100, (newExp / nextExp) * 100))
         : 100;
 
+    const box = document.createElement("div");
+    box.className = "result-party-exp-box";
+
     box.innerHTML = `
       <div class="result-party-exp-header">
         <strong>${characterName}</strong>
-        <span>Lv.${newLevel}</span>
+        <span class="result-party-level">Lv.${oldLevel}</span>
       </div>
 
       <div class="result-party-exp-detail">
-        <span>${newExp} / ${nextExp || "MAX"} EXP</span>
-        <strong>+${entry.gainedExp ?? 0} EXP</strong>
+        <span class="result-party-exp-text">
+          ${oldExp} / ${oldRequiredExp || "MAX"} EXP
+        </span>
+        <strong>+${gainedExp} EXP</strong>
       </div>
 
       <div class="result-exp-bar">
-        <i style="width:0%"></i>
+        <i style="width:${oldPercent}%"></i>
       </div>
 
-      ${levelUp}
+      ${
+        didLevelUp
+          ? `<div class="result-party-level-up" hidden>
+               LEVEL UP! Lv.${oldLevel} → Lv.${newLevel}
+             </div>`
+          : ""
+      }
     `;
 
     container.appendChild(box);
 
     const bar = box.querySelector(".result-exp-bar i");
+    const levelEl = box.querySelector(".result-party-level");
+    const expTextEl = box.querySelector(".result-party-exp-text");
+    const levelUpEl = box.querySelector(".result-party-level-up");
 
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if(bar){
-          bar.style.width = `${percent}%`;
+    if(!bar) return;
 
-          if(newLevel > oldLevel){
-            setTimeout(() => {
-              const levelUpSound = new Audio("./level-up.mp3");
-              levelUpSound.volume = 0.7;
-              levelUpSound.play().catch(() => {});
-            }, 1000);
-          }
+    bar.style.transition = "none";
+    bar.style.width = `${oldPercent}%`;
+
+    if(!didLevelUp){
+      // 通常：現在位置から獲得後まで伸ばす
+      setTimeout(() => {
+        bar.style.transition = "width 1.2s ease";
+        bar.style.width = `${newPercent}%`;
+
+        if(expTextEl){
+          expTextEl.textContent =
+            `${newExp} / ${nextExp || "MAX"} EXP`;
         }
-      });
-    });
+      }, 400);
+
+      return;
+    }
+
+    // LEVEL UP：
+    // 旧Lvの現在位置 → 100%
+    setTimeout(() => {
+      bar.style.transition = "width 1s ease";
+      bar.style.width = "100%";
+    }, 400);
+
+    // Lv切り替え
+    setTimeout(() => {
+      if(levelEl){
+        levelEl.textContent = `Lv.${newLevel}`;
+      }
+
+      if(expTextEl){
+        expTextEl.textContent =
+          `0 / ${nextExp || "MAX"} EXP`;
+      }
+
+      if(levelUpEl){
+        levelUpEl.hidden = false;
+      }
+
+      const levelUpSound = new Audio("./level-up.mp3");
+      levelUpSound.volume = 0.7;
+      levelUpSound.play().catch(() => {});
+
+      // 新Lvのゲージを0%へ戻す
+      bar.style.transition = "none";
+      bar.style.width = "0%";
+
+      // 0%の状態を一度描画させる
+      void bar.offsetWidth;
+
+      // 残ったEXPまで伸ばす
+      setTimeout(() => {
+        bar.style.transition = "width 1s ease";
+        bar.style.width = `${newPercent}%`;
+
+        if(expTextEl){
+          expTextEl.textContent =
+            `${newExp} / ${nextExp || "MAX"} EXP`;
+        }
+      }, 250);
+
+    }, 1550);
   });
 }
-
 async function showDungeonResult(isClear = false){
+  // EXPアニメーションより先にリザルト画面を表示
+  const result = document.getElementById("dungeonResult");
+  if(result){
+    result.hidden = false;
+  }
+
+  // hidden解除を実際に描画してからEXP処理へ
+  await new Promise(resolve =>
+    requestAnimationFrame(() => requestAnimationFrame(resolve))
+  );
   if(!marchState.expSaved){
     marchState.expSaved = true;
     try {
@@ -1352,13 +1600,12 @@ async function showDungeonResult(isClear = false){
       console.log("Dungeon EXP saved:", expResult);
       marchState.partyExpResults = Array.isArray(expResult) ? expResult : [];
       renderPartyDungeonExp(marchState.partyExpResults);
-      animateDungeonExp(marchState.expResult);
+
     } catch(error) {
       marchState.expSaved = false;
       console.error("Dungeon EXP save failed:", error);
     }
   }
-  const result = document.getElementById("dungeonResult");
   const titleEl = document.getElementById("resultTitle");
 
   if(titleEl){
@@ -1383,19 +1630,140 @@ async function showDungeonResult(isClear = false){
     expEl.textContent = `${marchState.earnedExp} EXP`;
   }
 
-  if(result){
-    result.hidden = false;
+  // ===== Result Equipment Drop =====
+  const equipmentDropEl = document.getElementById("resultEquipmentDrop");
+  const dropped = heroState.pendingEquipment;
+
+  console.log("[RESULT EQUIPMENT]", {
+    isClear,
+    dropped
+  });
+
+  if(equipmentDropEl){
+    if(isClear && dropped){
+      const current =
+        heroState.equipment.find(item => item.type === "weapon") || null;
+
+      const currentNameEl =
+        document.getElementById("resultCurrentWeapon");
+      const currentStatEl =
+        document.getElementById("resultCurrentWeaponStat");
+      const droppedNameEl =
+        document.getElementById("resultDroppedWeapon");
+      const droppedStatEl =
+        document.getElementById("resultDroppedWeaponStat");
+
+      if(currentNameEl){
+        currentNameEl.textContent =
+          current ? current.name : "なし";
+      }
+
+      if(currentStatEl){
+        const currentBaseAttack = current
+          ? (current.baseAttack ?? ((current.attack || 0) - (((current.level || 1) - 1) * 2)))
+          : 0;
+
+        currentStatEl.textContent =
+          `初期ATK +${currentBaseAttack} / スキル：${current?.skill?.name || "なし"}`;
+      }
+
+      if(droppedNameEl){
+        droppedNameEl.textContent =
+          `${"★".repeat(dropped.rarity || 1)} ${dropped.name}`;
+      }
+
+      if(droppedStatEl){
+        droppedStatEl.textContent =
+          `初期ATK +${dropped.baseAttack ?? dropped.attack ?? 0} / スキル：${dropped.skill?.name || "なし"}`;
+      }
+
+      equipmentDropEl.hidden = false;
+
+      const returnButton = document.getElementById("returnButton");
+      if(returnButton){
+        returnButton.disabled = true;
+      }
+    }else{
+      equipmentDropEl.hidden = true;
+    }
+  }
+
+}
+
+
+// ===== Result Equipment Choice =====
+const equipDroppedWeaponButton =
+  document.getElementById("equipDroppedWeaponButton");
+
+const keepCurrentWeaponButton =
+  document.getElementById("keepCurrentWeaponButton");
+
+function finishEquipmentChoice(message){
+  const dropBox = document.getElementById("resultEquipmentDrop");
+  const returnButton = document.getElementById("returnButton");
+
+  if(dropBox){
+    dropBox.innerHTML = `
+      <span class="result-equipment-label">EQUIPMENT</span>
+      <strong>${message}</strong>
+    `;
+  }
+
+  if(returnButton){
+    returnButton.disabled = false;
   }
 }
 
+equipDroppedWeaponButton?.addEventListener("click", () => {
+  const dropped = heroState.pendingEquipment;
+  if(!dropped) return;
+
+  const current =
+    heroState.equipment.find(item => item.type === "weapon") || null;
+
+  const currentAttack = current?.attack || 0;
+  const droppedAttack = dropped.attack || 0;
+
+  heroState.equipment = [
+    ...heroState.equipment.filter(item => item.type !== "weapon"),
+    dropped
+  ];
+  localStorage.setItem("ct_hero_weapon", JSON.stringify(dropped));
+
+  heroState.attack += droppedAttack - currentAttack;
+  heroState.pendingEquipment = null;
+
+  renderHeroHud();
+  renderHeroEquipment();
+
+  console.log("[EQUIPMENT EQUIPPED]", dropped);
+
+  finishEquipmentChoice(
+    `${dropped.name} を装備しました / ATK +${droppedAttack}`
+  );
+});
+
+keepCurrentWeaponButton?.addEventListener("click", () => {
+  const dropped = heroState.pendingEquipment;
+  if(!dropped) return;
+
+  console.log("[EQUIPMENT DISCARDED]", dropped);
+
+  heroState.pendingEquipment = null;
+
+  finishEquipmentChoice(
+    "現在の装備を維持しました"
+  );
+});
+
 document.getElementById("returnButton")
   ?.addEventListener("click", () => {
-    location.href = "characters.html";
+    location.href = "dungeon-menu.html";
   });
 // Result return button - delegated click
 document.addEventListener("click", (event) => {
   if(event.target?.id === "returnButton"){
-    location.href = "characters.html";
+    location.href = "dungeon-menu.html";
   }
 });
 // ===== Skill Effect =====
@@ -1589,6 +1957,407 @@ document.addEventListener("click", (e) => {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+// =========================================================
+// HERO - Manual Battle Prototype
+// =========================================================
+
+let savedHeroWeapon = null;
+
+try {
+  savedHeroWeapon =
+    JSON.parse(localStorage.getItem("ct_hero_weapon") || "null");
+} catch(error) {
+  console.error("[HERO WEAPON LOAD ERROR]", error);
+}
+
+const heroState = {
+  level: 1,
+  hp: 100,
+  maxHp: 100,
+  attack: 15 + (savedHeroWeapon?.attack || 0),
+  coin: 0,
+  equipment: savedHeroWeapon ? [savedHeroWeapon] : [],
+  pendingEquipment: null
+};
+
+function getHeroLevelUpCost(){
+  return 20 + ((heroState.level - 1) * 15);
+}
+function renderHeroHud(){
+  const levelEl = document.getElementById("heroLevel");
+  const hpEl = document.getElementById("heroHp");
+  const maxHpEl = document.getElementById("heroMaxHp");
+  const coinEl = document.getElementById("heroCoin");
+  const hpFill = document.getElementById("heroHpFill");
+  const attackEl = document.getElementById("heroAttack");
+  const levelUpCostEl = document.getElementById("heroLevelUpCost");
+  const levelUpButton = document.getElementById("heroLevelUpButton");
+  const levelUpCost = getHeroLevelUpCost();
+
+  if(levelEl) levelEl.textContent = heroState.level;
+  if(hpEl) hpEl.textContent = heroState.hp;
+  if(maxHpEl) maxHpEl.textContent = heroState.maxHp;
+  if(coinEl) coinEl.textContent = heroState.coin;
+  if(attackEl) attackEl.textContent = heroState.attack;
+  if(levelUpCostEl) levelUpCostEl.textContent = `${levelUpCost} COIN`;
+
+  if(levelUpButton){
+    levelUpButton.disabled = heroState.coin < levelUpCost;
+  }
+
+  if(hpFill){
+    const percent =
+      Math.max(0, Math.min(100, (heroState.hp / heroState.maxHp) * 100));
+
+    hpFill.style.width = `${percent}%`;
+  }
+
+  // HERO Weapon Skill
+  const heroSkillButton =
+    document.getElementById("heroSkillButton");
+
+  const equippedWeapon =
+    heroState.equipment.find(item => item.type === "weapon") || null;
+
+  const weaponSkill =
+    equippedWeapon?.skill || null;
+
+  if(heroSkillButton){
+    if(weaponSkill){
+      heroSkillButton.textContent = weaponSkill.name;
+      heroSkillButton.disabled = false;
+    }else{
+      heroSkillButton.textContent = "スキルなし";
+      heroSkillButton.disabled = true;
+    }
+  }
+}
+
+const heroLevelUpButton =
+  document.getElementById("heroLevelUpButton");
+
+heroLevelUpButton?.addEventListener("click", () => {
+  const cost = getHeroLevelUpCost();
+
+  if(heroState.coin < cost){
+    addBattleLog(`勇者：あと${cost - heroState.coin} COIN必要！`);
+    return;
+  }
+
+  heroState.coin -= cost;
+  heroState.level += 1;
+
+  heroState.maxHp += 20;
+  heroState.hp = Math.min(
+    heroState.maxHp,
+    heroState.hp + 20
+  );
+
+  heroState.attack += 5;
+
+  renderHeroHud();
+
+  addBattleLog(
+    `勇者 LEVEL UP！ Lv.${heroState.level} / HP ${heroState.maxHp} / ATK ${heroState.attack}`
+  );
+});
+const heroAttackButton =
+  document.getElementById("heroAttackButton");
+
+heroAttackButton?.addEventListener("click", () => {
+
+  const enemy = dungeonState.enemy;
+
+  // 敵と戦っている時だけ攻撃可能
+  if(
+    !marchState.battleStarted ||
+    !enemy ||
+    enemy.hp <= 0
+  ){
+    addBattleLog("勇者：攻撃できる敵がいない！");
+    return;
+  }
+
+  const damage = heroState.attack;
+
+  enemy.hp = Math.max(
+    0,
+    enemy.hp - damage
+  );
+
+  playDungeonAttackSound();
+  renderEnemy();
+
+  addBattleLog(
+    `勇者の攻撃！ ${damage}ダメージ！`
+  );
+
+  // 撃破後の処理は既存の自動戦闘処理へ任せる
+});
+
+// ===== HERO Weapon Skill Attack =====
+let heroSkillCooldownTimer = null;
+let heroSkillCooldownRemaining = 0;
+
+const heroSkillButton =
+  document.getElementById("heroSkillButton");
+
+function startHeroSkillCooldown(skill){
+  if(heroSkillCooldownTimer){
+    clearInterval(heroSkillCooldownTimer);
+  }
+
+  heroSkillCooldownRemaining = skill.cooldown || 8;
+
+  heroSkillButton.disabled = true;
+  heroSkillButton.textContent =
+    `${skill.name} (${heroSkillCooldownRemaining}s)`;
+
+  heroSkillCooldownTimer = setInterval(() => {
+    heroSkillCooldownRemaining -= 1;
+
+    if(heroSkillCooldownRemaining <= 0){
+      clearInterval(heroSkillCooldownTimer);
+      heroSkillCooldownTimer = null;
+      heroSkillCooldownRemaining = 0;
+
+      renderHeroHud();
+      return;
+    }
+
+    heroSkillButton.textContent =
+      `${skill.name} (${heroSkillCooldownRemaining}s)`;
+  }, 1000);
+}
+
+heroSkillButton?.addEventListener("click", () => {
+  const enemy = dungeonState.enemy;
+
+  const weapon =
+    heroState.equipment.find(item => item.type === "weapon") || null;
+
+  const skill = weapon?.skill || null;
+
+  if(!skill){
+    return;
+  }
+
+  if(heroSkillCooldownRemaining > 0){
+    return;
+  }
+
+  if(
+    !marchState.battleStarted ||
+    !enemy ||
+    enemy.hp <= 0
+  ){
+    addBattleLog("勇者：スキルを使える敵がいない！");
+    return;
+  }
+
+  const damage =
+    Math.max(1, Math.floor(heroState.attack * (skill.power || 1)));
+
+  enemy.hp = Math.max(
+    0,
+    enemy.hp - damage
+  );
+
+  playDungeonAttackSound();
+  renderEnemy();
+
+  addBattleLog(
+    `勇者「${skill.name}」！ ${damage}ダメージ！`
+  );
+
+  startHeroSkillCooldown(skill);
+});
+
+
+renderHeroHud();
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =========================================================
+// HERO - Equipment Panel
+// =========================================================
+
+window.addTestHeroEquipment = function(){
+  heroState.equipment.push({
+    id: "dragon_fang_sword",
+    name: "竜牙の剣",
+    type: "weapon",
+    rarity: 3,
+    level: 1,
+    attack: 10
+  });
+
+  console.log("[TEST EQUIPMENT ADDED]", heroState.equipment);
+};
+function getWeaponLevelUpCost(weapon){
+  return 10 + (((weapon?.level || 1) - 1) * 5);
+}
+
+function renderHeroEquipment(){
+  const list =
+    document.getElementById("heroEquipmentList");
+
+  if(!list) return;
+
+  const equipment =
+    heroState.equipment || [];
+
+  if(equipment.length === 0){
+    list.innerHTML =
+      '<p class="hero-equipment-empty">装備を所持していません</p>';
+    return;
+  }
+
+  list.innerHTML = equipment.map(item => {
+    const stars = "★".repeat(item.rarity || 1);
+    const level = item.level || 1;
+    const cost = getWeaponLevelUpCost(item);
+    const canUpgrade = heroState.coin >= cost;
+
+    return `
+      <div class="hero-equipment-item">
+        <div class="hero-equipment-rarity">${stars}</div>
+
+        <div class="hero-equipment-name">
+          ${item.name}
+        </div>
+
+        <div class="hero-equipment-stats">
+          <span>武器 Lv.${level}</span>
+          <strong>ATK +${item.attack}</strong>
+        </div>
+
+        <button
+          class="hero-equipment-upgrade"
+          data-weapon-id="${item.id}"
+          ${canUpgrade ? "" : "disabled"}
+        >
+          強化 ${cost} COIN
+        </button>
+      </div>
+    `;
+  }).join("");
+}
+
+// ===== HERO Weapon Upgrade =====
+document.getElementById("heroEquipmentList")
+  ?.addEventListener("click", (event) => {
+
+    const button =
+      event.target.closest(".hero-equipment-upgrade");
+
+    if(!button) return;
+
+    const weaponId = button.dataset.weaponId;
+
+    const weapon =
+      heroState.equipment.find(
+        item => item.id === weaponId
+      );
+
+    if(!weapon) return;
+
+    const cost = getWeaponLevelUpCost(weapon);
+
+    if(heroState.coin < cost) return;
+
+    heroState.coin -= cost;
+
+    weapon.level = (weapon.level || 1) + 1;
+    weapon.attack = (weapon.attack || 0) + 2;
+
+    heroState.attack += 2;
+
+    console.log("[WEAPON LEVEL UP]", {
+      name: weapon.name,
+      level: weapon.level,
+      attack: weapon.attack,
+      cost
+    });
+
+    renderHeroHud();
+    renderHeroEquipment();
+  });
+
+
+const heroEquipmentButton =
+  document.getElementById("heroEquipmentButton");
+
+const heroEquipmentPanel =
+  document.getElementById("heroEquipmentPanel");
+
+const heroEquipmentCloseButton =
+  document.getElementById("heroEquipmentCloseButton");
+
+heroEquipmentButton?.addEventListener("click", () => {
+  console.log("[EQUIPMENT BUTTON]", heroState.equipment);
+  renderHeroEquipment();
+
+  if(heroEquipmentPanel){
+    heroEquipmentPanel.hidden = false;
+  }
+});
+
+heroEquipmentCloseButton?.addEventListener("click", () => {
+  if(heroEquipmentPanel){
+    heroEquipmentPanel.hidden = true;
+  }
+});
+
+
+
+
+
+// =========================================================
+// DEV - Boss Drop Test
+// =========================================================
+window.testBossDrop = function(){
+  const droppedEquipment = {
+    id: "dragon_fang_sword",
+    name: "竜牙の剣",
+    type: "weapon",
+    rarity: 3,
+    level: 1,
+    attack: 10
+  };
+
+  heroState.equipment.push(droppedEquipment);
+
+  console.log("[BOSS DROP TEST]", heroState.equipment);
+
+  addBattleLog(
+    `装備ドロップ！ ★★★ ${droppedEquipment.name} / ATK +${droppedEquipment.attack}`
+  );
+
+  renderHeroEquipment();
+};
 
 
 

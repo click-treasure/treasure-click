@@ -60,7 +60,7 @@ const evolutionRow = document.querySelector(
 );
 
 if(evolutionRow){
-  const unlockedStage = level >= 75 ? 3 : level >= 50 ? 2 : level >= 25 ? 1 : 0;
+  const unlockedStage = Number(character.evolution_stage || 0);
 
   evolutionRow.querySelectorAll(".evolution-card").forEach(evoCard => {
     const evoStage = Number(evoCard.dataset.evolutionStage ?? 0);
@@ -72,28 +72,84 @@ if(evolutionRow){
 }
 
 
+        // 現在の進化形態のカードを取得
+        const currentCard = evolutionRow
+          ? evolutionRow.querySelector(`[data-evolution-stage="${stage}"]`)
+          : card;
+
+        const activeCard = currentCard || card;
+
+        // 現在形態をダンジョン選択対象にする
+        activeCard.dataset.currentCharacter = id.replaceAll("-", "_");
+
         const levelCap = [25,50,75,100][stage] ?? 25;
         const required = expToNextLevel(level);
         const progress = level >= levelCap ? 100 : Math.min(100, Math.round((exp / required) * 100));
         const info = document.createElement("div");
         info.className = "character-level-info";
         info.innerHTML = `<strong>Lv.${level}</strong><span>EXP ${exp} / ${level >= levelCap ? "MAX" : required}</span><div class="character-exp-bar"><i style="width:${progress}%"></i></div>`;
-        card.querySelector(".character-info")?.appendChild(info);
-        if(stage < 3 && level >= levelCap){ const evolve = document.createElement("button"); evolve.className = "evolve-button"; evolve.textContent = "✨ 進化可能！"; evolve.dataset.characterId = id.replaceAll("-", "_"); evolve.dataset.stage = stage; card.querySelector(".character-info")?.appendChild(evolve); }
+        activeCard.querySelector(".character-info")?.appendChild(info);
+        if(stage < 3 && level >= levelCap){ const evolve = document.createElement("button"); evolve.className = "evolve-button"; evolve.textContent = "✨ 進化可能！"; evolve.dataset.characterId = id.replaceAll("-", "_"); evolve.dataset.stage = stage; activeCard.querySelector(".character-info")?.appendChild(evolve); }
       }
     });
 
-    const count = ownedMap.size;
+    const count = owned.reduce((total, character) => {
+      const id = character.character_id;
+
+      // ミミックは進化なしなので1枠だけ
+      if(id === "mimic"){
+        return total + 1;
+      }
+
+      // 実際に進化して解放した姿だけ図鑑にカウント
+      const evolutionStage = Number(character.evolution_stage || 0);
+      return total + Math.min(evolutionStage + 1, 4);
+    }, 0);
+
     const counter = document.getElementById("collectionCount");
 
     if(counter){
-      counter.textContent = `${count} / 5`;
+      counter.textContent = `${count} / 17`;
     }
 
   }catch(error){
     console.error("Character load failed:", error);
   }
 }
+
+document.addEventListener("click", async (event) => {
+  const button = event.target.closest(".evolve-button");
+
+  if(!button){
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+
+  const characterId = button.dataset.characterId;
+
+  if(!characterId){
+    return;
+  }
+
+  try{
+    button.disabled = true;
+    button.textContent = "✨ 進化中...";
+
+    await evolveCharacter(characterId);
+
+    await loadCharacters();
+
+    alert("✨ 進化しました！");
+  }catch(error){
+    console.error("進化エラー:", error);
+    alert("進化に失敗しました。\n" + error.message);
+
+    button.disabled = false;
+    button.textContent = "✨ 進化可能！";
+  }
+});
 
 loadCharacters();
 /* ===== DEV Character Draw Tester ===== */
@@ -171,7 +227,7 @@ const evolutionRow = document.querySelector(
 );
 
 if(evolutionRow){
-  const unlockedStage = level >= 75 ? 3 : level >= 50 ? 2 : level >= 25 ? 1 : 0;
+  const unlockedStage = Number(character.evolution_stage || 0);
 
   evolutionRow.querySelectorAll(".evolution-card").forEach(evoCard => {
     const evoStage = Number(evoCard.dataset.evolutionStage ?? 0);
@@ -183,14 +239,24 @@ if(evolutionRow){
 }
 
 
+        // 現在の進化形態のカードを取得
+        const currentCard = evolutionRow
+          ? evolutionRow.querySelector(`[data-evolution-stage="${stage}"]`)
+          : card;
+
+        const activeCard = currentCard || card;
+
+        // 現在形態をダンジョン選択対象にする
+        activeCard.dataset.currentCharacter = id.replaceAll("-", "_");
+
         const levelCap = [25,50,75,100][stage] ?? 25;
         const required = expToNextLevel(level);
         const progress = level >= levelCap ? 100 : Math.min(100, Math.round((exp / required) * 100));
         const info = document.createElement("div");
         info.className = "character-level-info";
         info.innerHTML = `<strong>Lv.${level}</strong><span>EXP ${exp} / ${level >= levelCap ? "MAX" : required}</span><div class="character-exp-bar"><i style="width:${progress}%"></i></div>`;
-        card.querySelector(".character-info")?.appendChild(info);
-        if(stage < 3 && level >= levelCap){ const evolve = document.createElement("button"); evolve.className = "evolve-button"; evolve.textContent = "✨ 進化可能！"; evolve.dataset.characterId = id.replaceAll("-", "_"); evolve.dataset.stage = stage; card.querySelector(".character-info")?.appendChild(evolve); }
+        activeCard.querySelector(".character-info")?.appendChild(info);
+        if(stage < 3 && level >= levelCap){ const evolve = document.createElement("button"); evolve.className = "evolve-button"; evolve.textContent = "✨ 進化可能！"; evolve.dataset.characterId = id.replaceAll("-", "_"); evolve.dataset.stage = stage; activeCard.querySelector(".character-info")?.appendChild(evolve); }
       }
 
       badge.textContent = "×" + result.copies;
@@ -201,10 +267,26 @@ if(evolutionRow){
       "/rest/v1/user_characters?select=character_id,copies,level,exp,evolution_stage"
     );
 
+    const count = owned.reduce((total, character) => {
+      const id = character.character_id;
+      const level = Number(character.level || 1);
+
+      if(id === "mimic"){
+        return total + 1;
+      }
+
+      const unlockedForms =
+        level >= 75 ? 4 :
+        level >= 50 ? 3 :
+        level >= 25 ? 2 : 1;
+
+      return total + unlockedForms;
+    }, 0);
+
     const counter = document.getElementById("collectionCount");
 
     if(counter){
-      counter.textContent = `${owned.length} / 5`;
+      counter.textContent = `${count} / 17`;
     }
 
   }catch(error){
@@ -221,139 +303,4 @@ document.querySelectorAll("[data-character-test]").forEach(button => {
     testCharacterDraw(button.dataset.characterTest);
   });
 });
-
-// ===== Dungeon Character Select =====
-
-let selectedDungeonParty = [];
-
-function normalizeCharacterId(id){
-  return id.replaceAll("-", "_");
-}
-
-function updateDungeonPartyUI(){
-
-  document.querySelectorAll("[data-character]").forEach(card => {
-
-    card.classList.remove("dungeon-selected");
-
-    const oldNumber = card.querySelector(".dungeon-party-number");
-    if(oldNumber) oldNumber.remove();
-
-    const id = normalizeCharacterId(card.dataset.character);
-    const index = selectedDungeonParty.indexOf(id);
-
-    if(index !== -1){
-
-      card.classList.add("dungeon-selected");
-
-      const number = document.createElement("div");
-      number.className = "dungeon-party-number";
-      number.textContent = index + 1;
-
-      card.appendChild(number);
-    }
-  });
-
-  const startButton =
-    document.getElementById("dungeonStartButton");
-
-  if(startButton){
-
-    if(selectedDungeonParty.length > 0){
-
-      startButton.classList.add("ready");
-      startButton.textContent =
-        `⚔️ ${selectedDungeonParty.length}体で出発！`;
-
-    }else{
-
-      startButton.classList.remove("ready");
-      startButton.textContent =
-        "⚔️ キャラクターを選択";
-    }
-  }
-
-  localStorage.setItem(
-    "ct_dungeon_party",
-    JSON.stringify(selectedDungeonParty)
-  );
-
-  console.log(
-    "[DUNGEON PARTY]",
-    selectedDungeonParty
-  );
-}
-
-document.querySelectorAll("[data-character]").forEach(card => {
-
-  card.addEventListener("click", () => {
-
-    if(!card.classList.contains("owned")){
-      return;
-    }
-
-    const id =
-      normalizeCharacterId(card.dataset.character);
-
-    const index =
-      selectedDungeonParty.indexOf(id);
-
-    // 選択済みなら外す
-    if(index !== -1){
-
-      selectedDungeonParty.splice(index, 1);
-
-    }else{
-
-      // 最大5体
-      if(selectedDungeonParty.length >= 5){
-        alert("ダンジョンに連れていけるのは最大5体です！");
-        return;
-      }
-
-      selectedDungeonParty.push(id);
-    }
-
-    updateDungeonPartyUI();
-  });
-});
-// ===== Dungeon Start =====
-
-const dungeonStartButton =
-  document.getElementById("dungeonStartButton");
-
-if(dungeonStartButton){
-
-  dungeonStartButton.addEventListener("click", () => {
-
-    if(selectedDungeonParty.length === 0){
-      alert("ダンジョンに連れていくキャラクターを1体以上選んでください！");
-      return;
-    }
-
-    localStorage.setItem(
-      "ct_dungeon_party",
-      JSON.stringify(selectedDungeonParty)
-    );
-
-    // 旧ダンジョンとの互換用
-    // パーティ1番目を従来の1体データにも保存しておく
-    localStorage.setItem(
-      "ct_dungeon_character",
-      selectedDungeonParty[0]
-    );
-
-    console.log(
-      "[DUNGEON START PARTY]",
-      selectedDungeonParty
-    );
-
-    location.href = "dungeon.html";
-  });
-}
-
-
-
-
-
 

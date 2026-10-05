@@ -513,9 +513,456 @@ main{
   content: " 🔒";
 }
 
-@media (max-width: 800px){
-  .evolution-row{
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+
+
+
+/* ===== DEV ONLY：進化形を全表示 ===== */
+.evolution-card.evolution-locked .character-art img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+/* ===== DEV ONLY：図鑑の未解放表示を完全解除 ===== */
+.evolution-card.evolution-locked .character-art img{
+  filter: none !important;
+  opacity: 1 !important;
+}
+
+.evolution-card.evolution-locked .character-info h3{
+  color: inherit !important;
+}
+
+.evolution-card.evolution-locked .character-info h3::after{
+  content: none !important;
+}
+
+/* ===== DEV ONLY：図鑑情報を完全公開 ===== */
+
+/* カード中央の？？？を消す */
+.character-card:not(.owned)::after{
+  content: none !important;
+}
+
+/* キャラ名の？？？を消す */
+.character-card:not(.owned) .character-info h3::after{
+  content: none !important;
+}
+
+/* タイプの？？？を消す */
+.character-card:not(.owned) .character-info .type::after{
+  content: none !important;
+}
+
+/* 技名の？？？を消す */
+.character-card:not(.owned) .character-info .skill b::after{
+  content: none !important;
+}
+
+/* 技説明の？？？を消す */
+.character-card:not(.owned) .character-info .skill p::after{
+  content: none !important;
+}
+
+/* ===== DEV ONLY：未解放キャラの正式名称を表示 ===== */
+.character-card:not(.owned) .character-info h3{
+  font-size: 23px !important;
+  color: inherit !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  text-indent: 0 !important;
+}
+
+.character-card:not(.owned) .character-info h3::before,
+.character-card:not(.owned) .character-info h3::after{
+  content: none !important;
+}
+
+/* ===== 図鑑：進化形の名前サイズ調整 ===== */
+.evolution-card .character-info h3{
+  font-size: 17px !important;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+/* ===== 図鑑：全進化形の名前サイズを強制統一 ===== */
+.evolution-row .evolution-card .character-info h3,
+.evolution-row .evolution-card:not(.owned) .character-info h3{
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere;
+}
+
+/* ===== DEV ONLY：未所持キャラの図鑑情報をすべて表示 ===== */
+.character-card:not(.owned) .character-info .type,
+.character-card:not(.owned) .character-info .skill,
+.character-card:not(.owned) .character-info .skill b,
+.character-card:not(.owned) .character-info .skill p{
+  visibility: visible !important;
+  opacity: 1 !important;
+  color: inherit !important;
+  text-indent: 0 !important;
+}
+
+.character-card:not(.owned) .character-info .type::before,
+.character-card:not(.owned) .character-info .type::after,
+.character-card:not(.owned) .character-info .skill b::before,
+.character-card:not(.owned) .character-info .skill b::after,
+.character-card:not(.owned) .character-info .skill p::before,
+.character-card:not(.owned) .character-info .skill p::after{
+  content: none !important;
+}
+
+/* ===== DEV ONLY：未所持キャラの図鑑情報を完全表示 ===== */
+
+.character-card:not(.owned) .character-info > small{
+  font-size:10px !important;
+}
+
+.character-card:not(.owned) .character-info h3{
+  font-size:17px !important;
+}
+
+.character-card:not(.owned) .character-info .type{
+  font-size:11px !important;
+}
+
+.character-card:not(.owned) .character-info .skill b{
+  font-size:13px !important;
+}
+
+.character-card:not(.owned) .character-info .skill p{
+  font-size:12px !important;
+}
+
+.character-card:not(.owned) .character-info > small::after,
+.character-card:not(.owned) .character-info h3::after,
+.character-card:not(.owned) .character-info .type::after,
+.character-card:not(.owned) .character-info .skill b::after,
+.character-card:not(.owned) .character-info .skill p::after{
+  content:none !important;
+}
+
+/* DEV ONLY：未所持も編成表示 */
+.character-card.dungeon-selected{cursor:pointer;border-color:#ffd54a !important;box-shadow:0 0 0 2px #ffd54a,0 0 22px rgba(255,213,74,.55) !important;}
+.character-card.dungeon-selected::after{content:'SELECTED' !important;position:absolute;top:8px;right:8px;font-size:11px !important;font-weight:900;color:#ffd54a;}
+
+
+
+/* ===== PARTY FORMATION ONLY ===== */
+
+.party-unavailable{
+  opacity:.32;
+  filter:grayscale(.9);
+  cursor:not-allowed !important;
+}
+
+.party-unavailable::after{
+  content:"未所持";
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  transform:translateX(-50%);
+  padding:4px 9px;
+  border-radius:5px;
+  background:rgba(0,0,0,.78);
+  color:rgba(255,255,255,.65);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.08em;
+  pointer-events:none;
+}
+
+.party-page .character-card.owned{
+  cursor:pointer;
+}
+
+.party-page .character-card.dungeon-selected{
+  border-color:#d8bd7b !important;
+  box-shadow:
+    0 0 0 2px rgba(216,189,123,.85),
+    0 0 24px rgba(216,189,123,.28) !important;
+  transform:translateY(-2px);
+}
+
+.party-page .character-card.dungeon-selected::after{
+  content:"SELECTED";
+  position:absolute;
+  top:8px;
+  right:8px;
+  padding:3px 6px;
+  border-radius:4px;
+  background:rgba(0,0,0,.72);
+  color:#d8bd7b;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.08em;
+  pointer-events:none;
+}
+
+.party-page .dungeon-party-number{
+  position:absolute;
+  top:8px;
+  left:8px;
+  width:25px;
+  height:25px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#d8bd7b;
+  color:#15120b;
+  font-size:12px;
+  font-weight:900;
+  z-index:5;
+}
+
+
+
+/* ===== PARTY STATUS ===== */
+
+.party-page .party-unavailable{
+  opacity:1;
+  filter:none;
+  position:relative;
+  cursor:not-allowed !important;
+}
+
+.party-page .party-unavailable > *{
+  opacity:.08;
+  filter:grayscale(1);
+}
+
+.party-page .party-unavailable::after{
+  content:"未所持";
+  position:absolute;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,.72);
+  color:rgba(255,255,255,.55);
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:.12em;
+  z-index:10;
+  pointer-events:none;
+}
+
+.party-page .party-level-info{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin-top:8px;
+  padding-top:7px;
+  border-top:1px solid rgba(255,255,255,.10);
+}
+
+.party-page .party-level-info span{
+  font-size:13px;
+  font-weight:900;
+  color:#d8bd7b;
+}
+
+.party-page .party-level-info small{
+  font-size:10px;
+  opacity:.5;
+}
+
+
+
+/* ===== PARTY CHARACTER GRID ===== */
+
+.party-page .character-grid{
+  display:grid !important;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;
+  align-items:start;
+  width:100%;
+}
+
+.party-page .character-grid .evolution-row{
+  display:contents;
+}
+
+.party-page .character-grid .character-card{
+  width:100%;
+  max-width:none;
+  box-sizing:border-box;
+  margin:0 !important;
+}
+
+@media(max-width:900px){
+  .party-page .character-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
   }
+}
+
+@media(max-width:520px){
+  .party-page .character-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+  }
+}
+
+
+
+/* ===== CURRENT PARTY FORMATION ===== */
+
+.party-page .current-party-panel{
+  width:100%;
+  max-width:1100px;
+  margin:0 auto 28px;
+  padding:18px;
+  box-sizing:border-box;
+  border:1px solid rgba(216,189,123,.25);
+  border-radius:14px;
+  background:rgba(7,12,18,.82);
+  box-shadow:0 10px 30px rgba(0,0,0,.22);
+}
+
+.party-page .current-party-title{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:14px;
+}
+
+.party-page .current-party-title span{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.2em;
+  color:#d8bd7b;
+}
+
+.party-page .current-party-title small{
+  font-size:10px;
+  opacity:.45;
+}
+
+.party-page .party-formation-slots{
+  display:grid;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+  gap:10px;
+}
+
+.party-page .party-formation-slot{
+  position:relative;
+  min-height:105px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border:1px solid rgba(216,189,123,.38);
+  border-radius:10px;
+  background:rgba(15,23,34,.92);
+}
+
+.party-page .party-formation-slot.empty{
+  border-style:dashed;
+  border-color:rgba(255,255,255,.16);
+  color:rgba(255,255,255,.2);
+}
+
+.party-page .party-formation-slot.empty > span{
+  font-size:28px;
+  font-weight:300;
+}
+
+.party-page .party-slot-image{
+  width:72px;
+  height:72px;
+  object-fit:contain;
+}
+
+.party-page .party-slot-name{
+  max-width:95%;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+  font-size:10px;
+  font-weight:800;
+  color:#fff;
+}
+
+.party-page .party-slot-number{
+  position:absolute;
+  top:6px;
+  left:6px;
+  width:21px;
+  height:21px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:#d8bd7b;
+  color:#15120b;
+  font-size:10px;
+  font-weight:900;
+}
+
+@media(max-width:600px){
+  .party-page .current-party-panel{
+    padding:12px;
+  }
+
+  .party-page .party-formation-slots{
+    gap:6px;
+  }
+
+  .party-page .party-formation-slot{
+    min-height:82px;
+  }
+
+  .party-page .party-slot-image{
+    width:54px;
+    height:54px;
+  }
+
+  .party-page .party-slot-name{
+    font-size:8px;
+  }
+}
+
+
+
+/* ===== PARTY CONFIRM BUTTON ===== */
+
+.party-page .dungeon-preview{
+  position:sticky;
+  bottom:12px;
+  z-index:50;
+  max-width:1100px;
+  margin:28px auto 12px;
+  padding:14px;
+  border-radius:14px;
+  background:rgba(7,12,18,.92);
+  border:1px solid rgba(216,189,123,.28);
+  box-shadow:0 -8px 30px rgba(0,0,0,.35);
+  backdrop-filter:blur(12px);
+}
+
+.party-page #dungeonStartButton{
+  width:100%;
+  min-height:52px;
+  border:1px solid #e7cf94;
+  border-radius:9px;
+  background:linear-gradient(180deg,#d8bd7b,#a9853d);
+  color:#15120b;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.08em;
+  cursor:pointer;
+}
+
+.party-page #dungeonStartButton.ready{
+  box-shadow:0 5px 20px rgba(216,189,123,.18);
+}
+
+.party-page #dungeonStartButton:not(.ready){
+  opacity:.55;
 }
 

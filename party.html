@@ -3,37 +3,42 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>キャラクター図鑑 | CLICK TREASURE</title>
+  <title>パーティ編成 | CLICK TREASURE</title>
   <link rel="stylesheet" href="characters.css">
 </head>
 
-<body>
+<body class="party-page">
 
 <header class="character-header">
-  <a href="index.html" class="back-btn">← ホーム</a>
+  <a href="dungeon-menu.html" class="back-btn">← ダンジョン入口</a>
 
   <div>
     <small>CLICK TREASURE</small>
-    <h1>キャラクター図鑑</h1>
+    <h1>パーティ編成</h1>
   </div>
 
-  <div class="collection">
-    <span>COLLECTION</span>
-    <strong id="collectionCount">0 / 5</strong>
-  </div>
+  
 </header>
 
 <main>
 
 <section class="intro">
-  <span>MONSTER COLLECTION</span>
-  <h2>宝箱から仲間を見つけよう</h2>
+  <span>PARTY FORMATION</span>
+  <h2>ダンジョンへ連れていく仲間を選ぼう</h2>
   <p>
     宝探し中、まれにキャラクターが出現！
     集めた仲間はダンジョンへ連れていけます。
   </p>
 </section>
 
+<section class="current-party-panel">
+  <div class="current-party-title">
+    <span>CURRENT PARTY</span>
+    <small>最大5体</small>
+  </div>
+
+  <div id="partyFormationSlots" class="party-formation-slots"></div>
+</section>
 <section class="character-grid">
 
   <div class="evolution-row" data-evolution-line="slime">
@@ -339,27 +344,23 @@
 
 </section>
 
-
-
-
-<section id="characterDevTester" class="character-dev-tester">
-  <span>DEV ONLY</span>
-  <h2>🧪 キャラクター抽選テスト</h2>
-  <p>実際のdevデータベースに所持キャラとして登録されます。</p>
-
-  <div class="character-test-buttons">
-    <button type="button" data-character-test="easy">EASY 抽選</button>
-    <button type="button" data-character-test="normal">NORMAL 抽選</button>
-    <button type="button" data-character-test="hard">HARD 抽選</button>
-  </div>
-
-  <strong id="characterTestResult">抽選待ち</strong>
+<section class="dungeon-preview">
+  <span>SELECTED PARTY</span>
+  <h2>👥 パーティ編成</h2>
+  <p>最大5体の仲間を選んでダンジョンへ出発しよう。</p>
+  <button type="button" id="dungeonStartButton">編成を決定</button>
 </section>
+
+
+
 </main>
 
-<script src="characters.js"></script>
+<script src="party.js"></script>
 </body>
 </html>
+
+
+
 
 
 

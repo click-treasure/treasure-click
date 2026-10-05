@@ -1,0 +1,401 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ダンジョン | CLICK TREASURE</title>
+  <link rel="stylesheet" href="dungeon.css?v=1">
+  <style>
+    .dungeon-menu{
+      max-width:900px;
+      margin:0 auto;
+      padding:24px 16px 60px;
+    }
+    .dungeon-menu-header{
+      display:flex;
+      align-items:center;
+      gap:18px;
+      margin-bottom:30px;
+    }
+    .dungeon-menu-header h1{
+      margin:4px 0 0;
+    }
+    .dungeon-menu-card{
+      padding:28px;
+      border-radius:20px;
+      background:rgba(15,20,30,.92);
+      border:1px solid rgba(255,255,255,.12);
+      text-align:center;
+    }
+    .dungeon-menu-card span{
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.15em;
+      opacity:.65;
+    }
+    .dungeon-menu-card h2{
+      margin:10px 0;
+      font-size:28px;
+    }
+    .dungeon-menu-card p{
+      opacity:.75;
+      margin-bottom:24px;
+    }
+    .dungeon-menu-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:12px;
+    }
+    .dungeon-menu-actions a{
+      display:block;
+      padding:18px 12px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:900;
+      font-size:17px;
+    }
+    .party-button{
+      background:#252c38;
+      color:white;
+    }
+    .start-button{
+      background:#ffd54a;
+      color:#151515;
+    }
+    .current-party-wrap{
+      margin:24px 0;
+      padding:18px;
+      border-radius:16px;
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .current-party-wrap>span{
+      display:block;
+      margin-bottom:12px;
+    }
+    .current-party{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+    }
+    .party-slot{
+      position:relative;
+      aspect-ratio:1/1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+      border-radius:14px;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.14);
+    }
+    .party-slot img{
+      width:88%;
+      height:88%;
+      object-fit:contain;
+    }
+    .party-slot.empty{
+      font-size:30px;
+      opacity:.25;
+    }
+    .start-button.disabled{
+      opacity:.55;
+    }
+    .dungeon-menu-card{
+      position:relative;
+      overflow:hidden;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(5,10,12,.94) 0%,
+          rgba(5,10,12,.78) 45%,
+          rgba(5,10,12,.38) 100%
+        ),
+        url("assets/dungeons/beginning-forest.png") center/cover no-repeat;
+      border:1px solid rgba(130,255,180,.22);
+      box-shadow:0 16px 45px rgba(0,0,0,.35);
+    }
+
+    .dungeon-menu-card > *{
+      position:relative;
+      z-index:1;
+    }
+    .stage-info{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin:18px 0;
+    }
+    .stage-info div{
+      padding:12px 8px;
+      border-radius:12px;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .stage-info small{
+      display:block;
+      margin-bottom:5px;
+      font-size:10px;
+      font-weight:900;
+      opacity:.55;
+    }
+    .stage-info strong{
+      font-size:15px;
+    }
+    .locked-dungeon{
+      margin-top:18px;
+      padding:24px;
+      border-radius:20px;
+      background:rgba(15,20,30,.55);
+      border:1px solid rgba(255,255,255,.08);
+      text-align:center;
+      opacity:.55;
+    }
+    .locked-dungeon .lock-icon{
+      display:block;
+      margin-bottom:8px;
+      font-size:30px;
+    }
+    .locked-dungeon h2{
+      margin:5px 0;
+    }
+    .locked-dungeon p{
+      margin:5px 0 0;
+      font-size:13px;
+    }
+    @media(max-width:600px){
+      .dungeon-menu-actions{grid-template-columns:1fr;}
+    }
+      /* ===== Dungeon Premium UI ===== */
+
+    .dungeon-menu-card{
+      position:relative;
+      overflow:hidden;
+      padding:30px;
+      border-radius:22px;
+      background:
+        linear-gradient(
+          90deg,
+          rgba(5,8,10,.96) 0%,
+          rgba(5,8,10,.82) 48%,
+          rgba(5,8,10,.38) 100%
+        ),
+        url("assets/dungeons/beginning-forest.png") center/cover no-repeat;
+      border:1px solid rgba(214,181,105,.38);
+      box-shadow:
+        0 20px 55px rgba(0,0,0,.45),
+        inset 0 0 40px rgba(0,0,0,.18);
+    }
+
+    .dungeon-menu-card > span{
+      display:block;
+      margin-bottom:7px;
+      font-size:11px;
+      font-weight:800;
+      letter-spacing:.22em;
+      color:#d8bd7b;
+    }
+
+    .dungeon-menu-card h2{
+      margin:0 0 20px;
+      font-size:30px;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-shadow:0 3px 15px rgba(0,0,0,.8);
+    }
+
+    .stage-info{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:1px;
+      max-width:520px;
+      margin:18px 0;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,.12);
+      border-radius:10px;
+      background:rgba(255,255,255,.08);
+      backdrop-filter:blur(8px);
+    }
+
+    .stage-info div{
+      padding:12px 14px;
+      border:0;
+      border-radius:0;
+      background:rgba(4,7,9,.66);
+    }
+
+    .stage-info small{
+      display:block;
+      margin-bottom:5px;
+      font-size:9px;
+      font-weight:700;
+      letter-spacing:.16em;
+      color:rgba(255,255,255,.48);
+    }
+
+    .stage-info strong{
+      font-size:14px;
+      font-weight:700;
+      color:#fff;
+    }
+
+    .current-party-wrap{
+      margin:24px 0;
+      padding:16px;
+      max-width:520px;
+      border-radius:12px;
+      background:rgba(4,7,9,.68);
+      border:1px solid rgba(255,255,255,.10);
+      backdrop-filter:blur(10px);
+    }
+
+    .current-party-wrap > span{
+      display:block;
+      margin-bottom:12px;
+      font-size:10px;
+      font-weight:800;
+      letter-spacing:.18em;
+      color:rgba(255,255,255,.55);
+    }
+
+    .party-slot{
+      background:rgba(0,0,0,.38);
+      border:1px solid rgba(214,181,105,.20);
+      border-radius:10px;
+    }
+
+    .dungeon-menu-actions{
+      display:flex;
+      gap:10px;
+      max-width:520px;
+    }
+
+    .party-button,
+    .start-button{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      min-height:52px;
+      border-radius:8px;
+      text-decoration:none;
+      font-size:13px;
+      font-weight:800;
+      letter-spacing:.08em;
+      transition:.18s ease;
+    }
+
+    .party-button{
+      background:rgba(8,11,14,.78);
+      border:1px solid rgba(255,255,255,.20);
+      color:#fff;
+    }
+
+    .start-button{
+      background:linear-gradient(180deg,#d8bd7b,#a9853d);
+      border:1px solid #e7cf94;
+      color:#15120b;
+      box-shadow:0 5px 18px rgba(0,0,0,.35);
+    }
+
+    .party-button:hover,
+    .start-button:hover{
+      transform:translateY(-2px);
+    }
+
+    .locked-dungeon{
+      position:relative;
+      margin-top:18px;
+      padding:28px;
+      border-radius:18px;
+      background:
+        linear-gradient(
+          rgba(7,9,12,.88),
+          rgba(7,9,12,.94)
+        );
+      border:1px solid rgba(255,255,255,.08);
+      text-align:left;
+      opacity:.65;
+    }
+
+    .locked-dungeon small{
+      font-size:10px;
+      letter-spacing:.2em;
+      color:rgba(255,255,255,.45);
+    }
+
+    .locked-dungeon h2{
+      margin:7px 0;
+      font-size:22px;
+      letter-spacing:.12em;
+    }
+
+    .locked-dungeon p{
+      color:rgba(255,255,255,.48);
+    }
+</style>
+</head>
+<body>
+
+<main class="dungeon-menu">
+
+  <header class="dungeon-menu-header">
+    <a href="index.html" class="back-button">← ホーム</a>
+    <div>
+      <div class="dungeon-label">CLICK TREASURE</div>
+      <h1>ダンジョン</h1>
+    </div>
+  </header>
+
+  <section class="dungeon-menu-card">
+    <span>DUNGEON 01</span>
+    <h2>はじまりの森</h2>
+
+    <div class="stage-info">
+      <div>
+        <small>FLOOR</small>
+        <strong>1</strong>
+      </div>
+      <div>
+        <small>推奨LV</small>
+        <strong>1〜25</strong>
+      </div>
+      <div>
+        <small>BOSS</small>
+        <strong>DRAGON</strong>
+      </div>
+    </div>
+
+    <p>森を進み、最深部に待つドラゴンを撃破しよう。</p>
+
+    <div class="current-party-wrap">
+      <span>CURRENT PARTY</span>
+      <div id="currentParty" class="current-party"></div>
+    </div>
+
+    <div class="dungeon-menu-actions">
+      <a href="party.html" class="party-button">パーティ編成</a>
+      <a href="dungeon.html" id="dungeonMenuStart" class="start-button">探索開始</a>
+    </div>
+  </section>
+
+
+  <section class="locked-dungeon">
+    
+    <small>DUNGEON 02</small>
+    <h2>COMING SOON</h2>
+    <p>新たなダンジョンが今後追加されます。</p>
+  </section>
+</main>
+
+<script src="dungeon-menu.js"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+

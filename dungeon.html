@@ -15,7 +15,7 @@
       <button
         class="back-button"
         type="button"
-        onclick="location.href='characters.html'"
+        onclick="location.href='dungeon-menu.html'"
       >
         ← 戻る
       </button>
@@ -84,34 +84,58 @@
 
     <button id="nextRoomButton" class="next-room-button" type="button" hidden>次の部屋へ →</button>
 
+    <section id="heroHud" class="hero-hud">
+      <div class="hero-hud-top">
+        <div>
+          <span class="hero-label">HERO</span>
+          <strong>勇者</strong>
+        </div>
+
+        <div class="hero-level">
+          Lv.<strong id="heroLevel">1</strong>
+        </div>
+
+        <div class="hero-coin">
+          COIN <strong id="heroCoin">0</strong>
+        </div>
+      </div>
+
+      <div class="hero-hp-area">
+        <div class="hero-hp-text">
+          <span>HP</span>
+          <strong><span id="heroHp">100</span> / <span id="heroMaxHp">100</span></strong>
+        </div>
+        <div class="hero-hp-bar">
+          <div id="heroHpFill" class="hero-hp-fill"></div>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div>
+          <span>ATK</span>
+          <strong id="heroAttack">15</strong>
+        </div>
+
+        <button id="heroLevelUpButton" class="hero-levelup-button" type="button">
+          <strong>LEVEL UP</strong>
+          <span id="heroLevelUpCost">20 COIN</span>
+        </button>
+      </div>
+
+      <div class="hero-actions">
+        <button id="heroAttackButton" type="button">攻撃</button>
+        <button id="heroSkillButton" type="button" disabled>スキル</button>
+        <button id="heroEquipmentButton" type="button">装備</button>
+      </div>
+    </section>
     <div id="battleLog" class="battle-log">
   <div id="battleMessage" class="battle-message">
     ダンジョン探索開始！
   </div>
 </div>
-
-  
-<section class="dungeon-dev-skills">
-  <span>DEV ONLY</span>
-  <h3>スキルテスト</h3>
-
-  <div class="dev-skill-buttons">
-    <button type="button" data-dev-skill="fire_lizard">
-      🔥 ファイアリザード
-    </button>
-
-    <button type="button" data-dev-skill="forest_spirit">
-      🌿 森の精霊
-    </button>
-
-    <button type="button" data-dev-skill="mimic">
-      🎁 ミミック
-    </button>
-  </div>
-</section>
 </main>
 
-  <script src="dungeon.js?v=4"></script>
+
 
 <!-- Dungeon Result -->
 <div id="dungeonResult" class="dungeon-result" hidden>
@@ -136,13 +160,65 @@
 
     <div id="resultPartyExp" class="result-party-exp"></div>
 
+    <div id="resultEquipmentDrop" class="result-equipment-drop" hidden>
+      <span class="result-equipment-label">EQUIPMENT DROP</span>
+
+      <div class="result-equipment-compare">
+        <div class="result-equipment-current">
+          <span>現在の武器</span>
+          <strong id="resultCurrentWeapon">なし</strong>
+          <small id="resultCurrentWeaponStat">ATK +0</small>
+        </div>
+
+        <div class="result-equipment-arrow">→</div>
+
+        <div class="result-equipment-new">
+          <span>ドロップ</span>
+          <strong id="resultDroppedWeapon">---</strong>
+          <small id="resultDroppedWeaponStat">ATK +0</small>
+        </div>
+      </div>
+
+      <div class="result-equipment-actions">
+        <button id="keepCurrentWeaponButton" type="button">入れ替えない</button>
+        <button id="equipDroppedWeaponButton" type="button">入れ替える</button>
+      </div>
+    </div>
     <button id="returnButton" type="button">
       🏠 帰還する
     </button>
   </div>
 </div>
+<!-- Hero Equipment -->
+<div id="heroEquipmentPanel" class="hero-equipment-panel" hidden>
+  <div class="hero-equipment-backdrop"></div>
+
+  <div class="hero-equipment-card">
+    <div class="hero-equipment-header">
+      <div>
+        <span class="hero-equipment-label">HERO EQUIPMENT</span>
+        <h2>装備</h2>
+      </div>
+
+      <button id="heroEquipmentCloseButton" type="button">×</button>
+    </div>
+
+    <div id="heroEquipmentList" class="hero-equipment-list">
+      <p class="hero-equipment-empty">装備を所持していません</p>
+    </div>
+  </div>
+</div>
+  <script src="dungeon.js?v=5"></script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
