@@ -334,7 +334,7 @@ const DUNGEON_FLOORS = {
     background: "assets/dungeon/sky-temple.png",
     normalEnemy: "sky_harpy",
     midboss: "celestial_golem",
-    boss: "sky_titan",
+    boss: "tempest_seraphim",
     midbossDistance: 500,
     bossDistance: 1000
   }
@@ -366,17 +366,17 @@ const DUNGEON_ENEMIES = {
   magma_golem: { name: "マグマゴーレム", maxHp: 450, attack: 35, type: "midboss", image: "assets/enemies/magma-golem.png" },
   inferno_salamander: { name: "インフェルノサラマンダー", maxHp: 1000, attack: 55, type: "boss", image: "assets/enemies/inferno-salamander.png" },
 
-  frost_wolf: { name: "フロストウルフ", maxHp: 180, attack: 20, type: "normal", image: "assets/enemies/dungeon-slime.png" },
-  ice_golem: { name: "アイスゴーレム", maxHp: 700, attack: 45, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
-  frost_wyvern: { name: "フロストワイバーン", maxHp: 1500, attack: 70, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
+  frost_wolf: { name: "フロストウルフ", maxHp: 180, attack: 20, type: "normal", image: "assets/enemies/frost-wolf.png" },
+  ice_golem: { name: "アイスゴーレム", maxHp: 700, attack: 45, type: "midboss", image: "assets/enemies/ice-golem.png" },
+  frost_wyvern: { name: "フロストワイバーン", maxHp: 1500, attack: 70, type: "boss", image: "assets/enemies/frost-wyvern.png" },
 
-  shadow_knight: { name: "シャドウナイト", maxHp: 280, attack: 25, type: "normal", image: "assets/enemies/dungeon-slime.png" },
-  abyss_guardian: { name: "アビスガーディアン", maxHp: 1050, attack: 60, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
-  abyss_lord: { name: "アビスロード", maxHp: 2200, attack: 90, type: "boss", image: "assets/enemies/dungeon-dragon.png" },
+  shadow_knight: { name: "シャドウナイト", maxHp: 280, attack: 25, type: "normal", image: "assets/enemies/shadow-knight.png" },
+  abyss_guardian: { name: "アビスガーディアン", maxHp: 1050, attack: 60, type: "midboss", image: "assets/enemies/abyss-guardian.png" },
+  abyss_lord: { name: "アビスロード", maxHp: 2200, attack: 90, type: "boss", image: "assets/enemies/abyss-lord.png" },
 
-  sky_harpy: { name: "スカイハーピー", maxHp: 400, attack: 35, type: "normal", image: "assets/enemies/dungeon-slime.png" },
-  celestial_golem: { name: "セレスティアルゴーレム", maxHp: 1500, attack: 80, type: "midboss", image: "assets/enemies/dungeon-golem.png" },
-  sky_titan: { name: "スカイタイタン", maxHp: 3000, attack: 120, type: "boss", image: "assets/enemies/dungeon-dragon.png" }
+  sky_harpy: { name: "スカイハーピー", maxHp: 400, attack: 35, type: "normal", image: "assets/enemies/sky-harpy.png" },
+  celestial_golem: { name: "セレスティアルゴーレム", maxHp: 1500, attack: 80, type: "midboss", image: "assets/enemies/celestial-golem.png" },
+  tempest_seraphim: { name: "テンペスト・セラフィム", maxHp: 3000, attack: 120, type: "boss", image: "assets/enemies/tempest-seraphim.png" }
 };
 
 // ===== Dungeon Enemy EXP =====
@@ -385,7 +385,7 @@ const DUNGEON_ENEMY_EXP = {
   fire_slime: 18, magma_golem: 80, inferno_salamander: 160,
   frost_wolf: 28, ice_golem: 120, frost_wyvern: 240,
   shadow_knight: 40, abyss_guardian: 170, abyss_lord: 340,
-  sky_harpy: 55, celestial_golem: 230, sky_titan: 500
+  sky_harpy: 55, celestial_golem: 230, tempest_seraphim: 500
 };
 
 // ===== Dungeon Enemy Coin =====
@@ -394,7 +394,7 @@ const HERO_ENEMY_COIN = {
   fire_slime: 15, magma_golem: 45, inferno_salamander: 130,
   frost_wolf: 20, ice_golem: 60, frost_wyvern: 160,
   shadow_knight: 25, abyss_guardian: 80, abyss_lord: 200,
-  sky_harpy: 30, celestial_golem: 100, sky_titan: 250
+  sky_harpy: 30, celestial_golem: 100, tempest_seraphim: 250
 };
 const initialEnemyId = currentFloor.normalEnemy;
 const initialEnemy = DUNGEON_ENEMIES[initialEnemyId];
@@ -2432,6 +2432,9 @@ heroEquipmentCloseButton?.addEventListener("click", () => {
     heroEquipmentPanel.hidden = true;
   }
 });
+
+
+
 
 
 
